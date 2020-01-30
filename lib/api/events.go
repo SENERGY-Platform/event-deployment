@@ -30,7 +30,8 @@ func init() {
 func EventsEndpoints(router *jwt_http_router.Router, config config.Config, ctrl interfaces.Events) {
 
 	router.HEAD("/events/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-		code := ctrl.CheckEvent(jwt, params.ByName("id"))
+		id := params.ByName("id")
+		code := ctrl.CheckEvent(jwt, id)
 		writer.WriteHeader(code)
 	})
 }

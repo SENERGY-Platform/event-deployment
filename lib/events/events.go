@@ -51,34 +51,47 @@ func (this *Events) HandleCommand(msg []byte) error {
 	}
 	switch cmd.Command {
 	case "PUT":
-		events := this.deploymentToMsgEvents(cmd.Deployment)
-		for _, event := range events {
-			pipelineId, err := this.analytics.Deploy(cmd.Owner, cmd.Id, event)
-			if err != nil {
-				return err
-			}
-			if pipelineId == "" {
-				log.Println("WARNING: event not deployed in analytics -> ignore event", event)
-				return nil
-			}
-			if err != nil {
-				return err
-			}
-		}
+		return this.Deploy(cmd.Owner, cmd.Deployment)
 	case "DELETE":
-		pipelineIds, err := this.analytics.GetPipelinesByDeploymentId(cmd.Owner, cmd.Id)
+		return this.Remove(cmd.Owner, cmd.Id)
+	default:
+		return errors.New("unknown command " + cmd.Command)
+	}
+	return nil
+}
+
+func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) error {
+	err := this.Remove(owner, deployment.Id)
+	if err != nil {
+		return err
+	}
+	events := this.deploymentToMsgEvents(deployment)
+	for _, event := range events {
+		pipelineId, err := this.analytics.Deploy(owner, deployment.Id, event)
 		if err != nil {
 			return err
 		}
-		for _, id := range pipelineIds {
-			err = this.analytics.Remove(cmd.Owner, id)
-			if err != nil {
-				return err
-			}
+		if pipelineId == "" {
+			log.Println("WARNING: event not deployed in analytics -> ignore event", event)
+			return nil
 		}
-		return nil
-	default:
-		return errors.New("unknown command " + cmd.Command)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (this *Events) Remove(owner string, deploymentId string) error {
+	pipelineIds, err := this.analytics.GetPipelinesByDeploymentId(owner, deploymentId)
+	if err != nil {
+		return err
+	}
+	for _, id := range pipelineIds {
+		err = this.analytics.Remove(owner, id)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package analytics
+package tests
 
 import (
 	"context"
@@ -77,7 +77,7 @@ func (this *JwtProxy) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		Timeout: 5 * time.Second,
 	}
 	url := this.to + req.URL.Path
-	log.Println("DEBUG: call", url)
+	log.Println("DEBUG: call", req.Method, url)
 	remoteReq, err := http.NewRequest(
 		req.Method,
 		url,

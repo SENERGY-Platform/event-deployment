@@ -37,7 +37,7 @@ func Start(ctx context.Context, config config.Config, ctrl interfaces.Events) er
 	server := &http.Server{Addr: ":" + config.ApiPort, Handler: router, WriteTimeout: 10 * time.Second, ReadTimeout: 2 * time.Second, ReadHeaderTimeout: 2 * time.Second}
 	go func() {
 		log.Println("Listening on ", server.Addr)
-		if err := server.ListenAndServe(); err != nil {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Println("ERROR: api server error", err)
 			log.Fatal(err)
 		}

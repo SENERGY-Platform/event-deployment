@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package analytics
+package tests
 
 import (
 	"context"
+	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	deploymentmodel "github.com/SENERGY-Platform/process-deployment/lib/model"
@@ -46,7 +47,7 @@ func TestAnalytics(t *testing.T) {
 		return
 	}
 
-	analytics, err := Factory.New(ctx, config)
+	analytics, err := analytics.Factory.New(ctx, config)
 	if err != nil {
 		t.Error(err)
 		return
@@ -96,27 +97,29 @@ func TestAnalytics(t *testing.T) {
 func testReadByDeploymentId(t *testing.T, analytics interfaces.Analytics, deploymentId string, expectedPipelineIds []string) {
 	pipelineIds, err := analytics.GetPipelinesByDeploymentId("", deploymentId)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 
 	sort.Strings(expectedPipelineIds)
 	sort.Strings(pipelineIds)
 
 	if !reflect.DeepEqual(pipelineIds, expectedPipelineIds) {
-		t.Fatal(pipelineIds, expectedPipelineIds)
+		t.Error(pipelineIds, expectedPipelineIds)
 	}
 }
 
 func testReadByEventId(t *testing.T, analytics interfaces.Analytics, event string, expectedPipelineId string, expectedExists bool) {
 	pipelineId, exists, err := analytics.GetPipelineByEventId("", event)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 	if exists != expectedExists {
-		t.Fatal(exists, expectedExists)
+		t.Error(exists, expectedExists)
 	}
 	if pipelineId != expectedPipelineId {
-		t.Fatal(pipelineId, expectedPipelineId)
+		t.Error(pipelineId, expectedPipelineId)
 	}
 }
 
@@ -124,7 +127,7 @@ func testDeploy(t *testing.T, analytics interfaces.Analytics, deploymentId strin
 	var err error
 	pipelineId, err = analytics.Deploy("", deploymentId, event)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 	return pipelineId
 }
@@ -132,6 +135,6 @@ func testDeploy(t *testing.T, analytics interfaces.Analytics, deploymentId strin
 func testRemove(t *testing.T, analytics interfaces.Analytics, pipelineId string) {
 	err := analytics.Remove("", pipelineId)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 }
