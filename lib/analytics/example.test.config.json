@@ -1,14 +1,12 @@
 {
-  "log_level":"CALL",
-  "api_port":"8080",
-  "zookeeper_url":"",
   "flow_engine_url":"http://kong:8000/analytics/flow-engine/v2",
   "flow_parser_url":"http://kong:8000/analytics/flow-parser/v2",
   "pipeline_repo_url": "http://kong:8000/analytics/pipeline",
-  "consumer_group":"event_manager",
-  "debug":true,
-  "deployment_topic":"deployments",
-  "connectivity_test":false,
   "camunda_event_trigger_url":"http://process-engine:8080/engine-rest/message",
-  "event_operation_flow_mapping":{"math-interval":  "some.uu.id"}
+  "event_operation_flow_mapping":{"math-interval":  "some.uu.id"},
+
+  "user": "",
+  "pw": "",
+  "auth_endpoint": "",
+  "auth_client": ""
 }

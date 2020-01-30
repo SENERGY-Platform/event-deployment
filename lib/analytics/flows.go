@@ -19,6 +19,8 @@ package analytics
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"runtime/debug"
@@ -51,6 +53,12 @@ func (this *Analytics) GetFlowInputs(id string, user string) (result []FlowModel
 		return result, errors.New("unexpected statuscode"), resp.StatusCode
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	temp, err := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(temp, &result)
+	if err != nil {
+		log.Println("ERROR:", err, string(temp))
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
 	return result, err, http.StatusOK
 }

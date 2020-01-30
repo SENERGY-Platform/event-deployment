@@ -25,6 +25,7 @@ import (
 )
 
 func (this *Analytics) GetPipelinesByDeploymentId(owner string, deploymentId string) (pipelineIds []string, err error) {
+	pipelineIds = []string{}
 	pipelines, err := this.getPipelines(owner)
 	if err != nil {
 		return pipelineIds, err
