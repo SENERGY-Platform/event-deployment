@@ -18,7 +18,7 @@ package kafka
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/event-manager/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/segmentio/kafka-go"
 	"io"
 	"io/ioutil"

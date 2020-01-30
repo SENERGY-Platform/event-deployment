@@ -19,8 +19,8 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/SENERGY-Platform/event-manager/lib"
-	"github.com/SENERGY-Platform/event-manager/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"log"
 	"os"
 	"os/signal"

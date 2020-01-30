@@ -18,8 +18,8 @@ package kafka
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/event-manager/lib/config"
-	"github.com/SENERGY-Platform/event-manager/lib/interfaces"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"os"

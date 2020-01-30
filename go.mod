@@ -1,4 +1,4 @@
-module github.com/SENERGY-Platform/event-manager
+module github.com/SENERGY-Platform/event-deployment
 
 go 1.12
 

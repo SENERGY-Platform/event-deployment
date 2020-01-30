@@ -18,12 +18,12 @@ package lib
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/event-manager/lib/analytics"
-	"github.com/SENERGY-Platform/event-manager/lib/api"
-	"github.com/SENERGY-Platform/event-manager/lib/config"
-	"github.com/SENERGY-Platform/event-manager/lib/events"
-	"github.com/SENERGY-Platform/event-manager/lib/interfaces"
-	"github.com/SENERGY-Platform/event-manager/lib/kafka"
+	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
+	"github.com/SENERGY-Platform/event-deployment/lib/api"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/events"
+	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
+	"github.com/SENERGY-Platform/event-deployment/lib/kafka"
 )
 
 func StartDefault(ctx context.Context, config config.Config) error {

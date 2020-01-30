@@ -18,7 +18,7 @@ package interfaces
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/event-manager/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
 )
 
 type SourcingFactory interface {

@@ -19,7 +19,7 @@ package kafka
 import (
 	"context"
 	"fmt"
-	"github.com/SENERGY-Platform/event-manager/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/ory/dockertest"
 	"github.com/ory/dockertest/docker"
 	"github.com/segmentio/kafka-go"

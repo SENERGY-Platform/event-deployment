@@ -18,8 +18,8 @@ package api
 
 import (
 	"bytes"
-	"github.com/SENERGY-Platform/event-manager/lib/config"
-	"github.com/SENERGY-Platform/event-manager/lib/interfaces"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"io/ioutil"
 	"log"
