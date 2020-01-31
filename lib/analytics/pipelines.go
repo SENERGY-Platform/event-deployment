@@ -65,6 +65,35 @@ func (this *Analytics) GetPipelineByEventId(owner string, eventId string) (pipel
 	return "", false, nil
 }
 
+func (this *Analytics) GetEventStates(owner string, eventIds []string) (states map[string]bool, err error) {
+	states = map[string]bool{}
+	pipelines, err := this.getPipelines(owner)
+	if err != nil {
+		return states, err
+	}
+	allEvents := map[string]bool{}
+	for _, pipeline := range pipelines {
+		desc := EventPipelineDescription{}
+		err = json.Unmarshal([]byte(pipeline.Description), &desc)
+		if err != nil {
+			//candidate does not use event pipeline description format -> is not event pipeline -> is not searched pipeline
+			err = nil
+			continue
+		}
+		if desc.EventId != "" {
+			allEvents[desc.EventId] = true
+		}
+	}
+	for _, eventId := range eventIds {
+		if allEvents[eventId] {
+			states[eventId] = true
+		} else {
+			states[eventId] = false
+		}
+	}
+	return states, nil
+}
+
 func (this *Analytics) getPipelines(user string) (pipelines []Pipeline, err error) {
 	client := http.Client{
 		Timeout: 5 * time.Second,

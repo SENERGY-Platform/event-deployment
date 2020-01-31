@@ -31,4 +31,5 @@ type Analytics interface {
 	Remove(user string, pipelineId string) error
 	GetPipelinesByDeploymentId(owner string, deploymentId string) (pipelineIds []string, err error)
 	GetPipelineByEventId(owner string, eventId string) (pipelineId string, exists bool, err error)
+	GetEventStates(userId string, eventIds []string) (states map[string]bool, err error)
 }

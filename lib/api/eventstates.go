@@ -34,8 +34,11 @@ func init() {
 func EventStatesEndpoints(router *jwt_http_router.Router, config config.Config, ctrl interfaces.Events) {
 
 	router.GET("/event-states", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-		idstring := request.URL.Query().Get("ids")
-		ids := strings.Split(strings.Replace(idstring, " ", "", -1), ",")
+		idstring := strings.TrimSpace(request.URL.Query().Get("ids"))
+		ids := []string{}
+		if idstring != "" {
+			ids = strings.Split(strings.Replace(idstring, " ", "", -1), ",")
+		}
 		states, err, code := ctrl.GetEventStates(jwt, ids)
 		if err != nil {
 			http.Error(writer, err.Error(), code)

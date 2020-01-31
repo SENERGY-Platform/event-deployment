@@ -111,20 +111,16 @@ func (this *Events) CheckEvent(jwt jwt_http_router.Jwt, id string) int {
 
 func (this *Events) GetEventStates(jwt jwt_http_router.Jwt, ids []string) (states map[string]bool, err error, code int) {
 	states = map[string]bool{}
-	for _, id := range ids {
-		_, exists, err := this.analytics.GetPipelineByEventId(jwt.UserId, id)
-		if err != nil {
-			log.Println("ERROR:", err)
-			debug.PrintStack()
-			return states, err, http.StatusInternalServerError
-		}
-		if exists {
-			states[id] = true
-		} else {
-			states[id] = false
-		}
+	if len(ids) == 0 {
+		return states, nil, http.StatusOK
 	}
-	return
+	states, err = this.analytics.GetEventStates(jwt.UserId, ids)
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return states, err, http.StatusInternalServerError
+	}
+	return states, nil, http.StatusOK
 }
 
 func (this *Events) deploymentToMsgEvents(deployment deploymentmodel.Deployment) (result []deploymentmodel.MsgEvent) {
