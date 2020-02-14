@@ -37,7 +37,7 @@ import (
 	"time"
 )
 
-func TestLib(t *testing.T) {
+func TestLibWithoutConversion(t *testing.T) {
 	config, err := config.LoadConfig("test.config.json")
 	if err != nil {
 		debug.PrintStack()
@@ -116,6 +116,119 @@ func TestLib(t *testing.T) {
 			Value:     "(*,*)",
 			Operation: "math-interval",
 			EventId:   eventId,
+		})
+	})
+
+	time.Sleep(10 * time.Second)
+
+	t.Run("eventExists", func(t *testing.T) {
+		apiCheckEvent(t, config, eventId, true)
+	})
+
+	t.Run("eventStates", func(t *testing.T) {
+		apiEventStates(t, config, []string{eventId}, map[string]bool{eventId: true})
+	})
+	t.Run("eventStates", func(t *testing.T) {
+		apiEventStates(t, config, []string{}, map[string]bool{})
+	})
+	t.Run("remove", func(t *testing.T) {
+		testRemoveByKafka(t, producer, deploymentId)
+	})
+
+	time.Sleep(10 * time.Second)
+
+	t.Run("eventExistsNot", func(t *testing.T) {
+		apiCheckEvent(t, config, eventId, false)
+	})
+
+	t.Run("eventStates", func(t *testing.T) {
+		apiEventStates(t, config, []string{eventId}, map[string]bool{eventId: false})
+	})
+}
+
+func TestLibWithConversion(t *testing.T) {
+	config, err := config.LoadConfig("test.config.json")
+	if err != nil {
+		debug.PrintStack()
+		t.Error(err)
+		return
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer time.Sleep(10 * time.Second) //wait for goroutines with context
+	defer cancel()
+
+	config, err = createAnalyticsProxyServer(ctx, config)
+	if err != nil {
+		debug.PrintStack()
+		t.Error(err)
+		return
+	}
+
+	apiPort, err := getFreePort()
+	if err != nil {
+		debug.PrintStack()
+		t.Error(err)
+		return
+	}
+	config.ApiPort = strconv.Itoa(apiPort)
+
+	pool, err := dockertest.NewPool("")
+	if err != nil {
+		debug.PrintStack()
+		t.Error(err)
+		return
+	}
+
+	_, zk, err := Zookeeper(pool, ctx)
+	if err != nil {
+		debug.PrintStack()
+		t.Error(err)
+		return
+	}
+	config.ZookeeperUrl = zk + ":2181"
+
+	err = Kafka(pool, ctx, config.ZookeeperUrl)
+	if err != nil {
+		debug.PrintStack()
+		t.Error(err)
+		return
+	}
+
+	err = lib.StartDefault(ctx, config)
+	if err != nil {
+		debug.PrintStack()
+		t.Error(err)
+		return
+	}
+
+	producer, err := kafka.NewProducer(ctx, config, config.DeploymentTopic)
+	if err != nil {
+		debug.PrintStack()
+		t.Error(err)
+		return
+	}
+
+	deploymentId := uuid.NewV4().String()
+	eventId := uuid.NewV4().String()
+
+	t.Run("deploy", func(t *testing.T) {
+		testDeployToKafka(t, producer, deploymentId, deploymentmodel.MsgEvent{
+			Label: "test event //TODO: delete",
+			Device: devicemodel.Device{
+				Id: "d1",
+			},
+			Service: devicemodel.Service{
+				Id: "s1",
+			},
+			Path:      "path/to/value",
+			Value:     "(*,*)",
+			Operation: "math-interval",
+			EventId:   eventId,
+			TriggerConversion: &deploymentmodel.Conversion{
+				From: "example_lux",
+				To:   "example_lux",
+			},
 		})
 	})
 

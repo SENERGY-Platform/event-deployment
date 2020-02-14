@@ -61,6 +61,15 @@ func (this *Analytics) Deploy(user string, deploymentId string, event deployment
 		return "", err
 	}
 
+	convertFrom := ""
+	convertTo := ""
+	converterUrl := ""
+	if event.TriggerConversion != nil {
+		converterUrl = this.config.ConverterUrl
+		convertFrom = event.TriggerConversion.From
+		convertTo = event.TriggerConversion.To
+	}
+
 	pipeline, err, code := this.sendDeployRequest(user, PipelineRequest{
 		Id:          flowId,
 		Name:        event.Label + " (" + event.EventId + ")",
@@ -89,6 +98,18 @@ func (this *Analytics) Deploy(user string, deploymentId string, event deployment
 					{
 						Name:  "eventId",
 						Value: event.EventId,
+					},
+					{
+						Name:  "converterUrl",
+						Value: converterUrl,
+					},
+					{
+						Name:  "convertFrom",
+						Value: convertFrom,
+					},
+					{
+						Name:  "convertTo",
+						Value: convertTo,
 					},
 				},
 			},

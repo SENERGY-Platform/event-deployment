@@ -30,6 +30,7 @@ import (
 type ConfigStruct struct {
 	LogLevel                  string            `json:"log_level"`
 	ApiPort                   string            `json:"api_port"`
+	ConverterUrl              string            `json:"converter_url"`
 	ZookeeperUrl              string            `json:"zookeeper_url"`
 	FlowEngineUrl             string            `json:"flow_engine_url"`
 	FlowParserUrl             string            `json:"flow_parser_url"`
