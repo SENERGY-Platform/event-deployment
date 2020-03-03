@@ -43,6 +43,9 @@ func (this *EventsFactory) New(ctx context.Context, config config.Config, analyt
 }
 
 func (this *Events) HandleCommand(msg []byte) error {
+	if this.config.Debug {
+		log.Println("DEBUG: receive deployment command:", string(msg))
+	}
 	cmd := deploymentmodel.DeploymentCommand{}
 	err := json.Unmarshal(msg, &cmd)
 	if err != nil {

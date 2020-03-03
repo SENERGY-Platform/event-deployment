@@ -162,6 +162,9 @@ func (this *Analytics) sendDeployRequest(user string, request PipelineRequest) (
 	if err != nil {
 		return result, err, http.StatusInternalServerError
 	}
+	if this.config.Debug {
+		log.Println("DEBUG: deploy event pipeline", string(body))
+	}
 	client := http.Client{
 		Timeout: 5 * time.Second,
 	}
