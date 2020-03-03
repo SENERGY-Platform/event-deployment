@@ -17,6 +17,8 @@ github.com/SENERGY-Platform/process-deployment v0.0.0-20200206143740-5c4e9cf8571
 github.com/SENERGY-Platform/process-deployment v0.0.0-20200206143740-5c4e9cf8571b/go.mod h1:eLBfmo+U8OHN9L+eNhmCjfVuNt6tkcsR9Vk+kEjA7hw=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20200206144216-5084dc83d752 h1:FfCUNJuhJKt9OOQo76q5KnlTemxpOVpvVau7VVzA0Vo=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20200206144216-5084dc83d752/go.mod h1:eLBfmo+U8OHN9L+eNhmCjfVuNt6tkcsR9Vk+kEjA7hw=
+github.com/SENERGY-Platform/process-deployment v0.0.0-20200303084732-4cddad0e8a4f h1:HFqtaT22f2MpkoAZkR772PArzypwUHAwruXtrXxkAUw=
+github.com/SENERGY-Platform/process-deployment v0.0.0-20200303084732-4cddad0e8a4f/go.mod h1:eLBfmo+U8OHN9L+eNhmCjfVuNt6tkcsR9Vk+kEjA7hw=
 github.com/SmartEnergyPlatform/amqp-wrapper-lib v0.0.0-20181018071408-32e07d9d89bb/go.mod h1:X1U6gbRInWfBsFKgb/owoLNZp2NSx6vLnUPbw6bjEN4=
 github.com/SmartEnergyPlatform/jwt-http-router v0.0.0-20190318131115-1c2a98f99363/go.mod h1:64s8L4LwgDDohBNVwdE0tQGbfYldd+D0+4Jn6qfDlUg=
 github.com/SmartEnergyPlatform/jwt-http-router v0.0.0-20190722084820-0e1fe0dc7a07 h1:T/XHOUSJ12LPQpwCcIvs4R2KQ7M1y2p+MrokKIjuy2Q=

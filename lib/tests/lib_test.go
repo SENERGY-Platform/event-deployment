@@ -106,10 +106,10 @@ func TestLibWithoutConversion(t *testing.T) {
 	t.Run("deploy", func(t *testing.T) {
 		testDeployToKafka(t, producer, deploymentId, deploymentmodel.MsgEvent{
 			Label: "test event //TODO: delete",
-			Device: devicemodel.Device{
+			Device: &devicemodel.Device{
 				Id: "d1",
 			},
-			Service: devicemodel.Service{
+			Service: &devicemodel.Service{
 				Id: "s1",
 			},
 			Path:      "path/to/value",
@@ -215,10 +215,10 @@ func TestLibWithConversion(t *testing.T) {
 	t.Run("deploy", func(t *testing.T) {
 		testDeployToKafka(t, producer, deploymentId, deploymentmodel.MsgEvent{
 			Label: "test event //TODO: delete",
-			Device: devicemodel.Device{
+			Device: &devicemodel.Device{
 				Id: "d1",
 			},
-			Service: devicemodel.Service{
+			Service: &devicemodel.Service{
 				Id: "s1",
 			},
 			Path:      "path/to/value",

@@ -60,10 +60,10 @@ func TestAnalytics(t *testing.T) {
 	t.Run("deploy", func(t *testing.T) {
 		pipelineId = testDeploy(t, analytics, deploymentId, deploymentmodel.MsgEvent{
 			Label: "test event //TODO: delete",
-			Device: devicemodel.Device{
+			Device: &devicemodel.Device{
 				Id: "d1",
 			},
-			Service: devicemodel.Service{
+			Service: &devicemodel.Service{
 				Id: "s1",
 			},
 			Path:      "path/to/value",
