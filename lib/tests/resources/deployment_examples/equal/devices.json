@@ -1,8 +1,0 @@
-[
-  {"id": "mqtt", "name": "mqtt", "device_type_id": "urn:infai:ses:device-type:e10a52a2-513d-4533-b014-942ea3c9e15e"},
-  {"id": "standard", "name": "standard", "device_type_id": "urn:infai:ses:device-type:1a5578f1-345d-4eac-a096-a1a30790893c"},
-
-  {"id": "lifx1", "name": "lifx1", "device_type_id": "urn:infai:ses:device-type:4038d18b-ecd4-49e5-98b5-cf466d2dd623"},
-  {"id": "lifx2", "name": "lifx2", "device_type_id": "urn:infai:ses:device-type:4038d18b-ecd4-49e5-98b5-cf466d2dd623"},
-  {"id": "hue", "name": "hue", "device_type_id": "urn:infai:ses:device-type:50fb0443-f356-4857-8f5d-59e6bef9d948"}
-]

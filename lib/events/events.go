@@ -22,7 +22,9 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	deploymentmodel "github.com/SENERGY-Platform/process-deployment/lib/model"
+	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"log"
 	"net/http"
@@ -34,19 +36,20 @@ type EventsFactory struct{}
 var Factory = &EventsFactory{}
 
 type Events struct {
-	config    config.Config
-	analytics interfaces.Analytics
+	config     config.Config
+	analytics  interfaces.Analytics
+	marshaller interfaces.Marshaller
 }
 
-func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics) (interfaces.Events, error) {
-	return &Events{config: config, analytics: analytics}, nil
+func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, marshaller interfaces.Marshaller) (interfaces.Events, error) {
+	return &Events{config: config, analytics: analytics, marshaller: marshaller}, nil
 }
 
 func (this *Events) HandleCommand(msg []byte) error {
 	if this.config.Debug {
 		log.Println("DEBUG: receive deployment command:", string(msg))
 	}
-	cmd := deploymentmodel.DeploymentCommand{}
+	cmd := messages.DeploymentCommand{}
 	err := json.Unmarshal(msg, &cmd)
 	if err != nil {
 		debug.PrintStack()
@@ -54,7 +57,10 @@ func (this *Events) HandleCommand(msg []byte) error {
 	}
 	switch cmd.Command {
 	case "PUT":
-		return this.Deploy(cmd.Owner, cmd.Deployment)
+		if cmd.DeploymentV2 != nil {
+			err = this.Deploy(cmd.Owner, *cmd.DeploymentV2)
+		}
+		return err
 	case "DELETE":
 		return this.Remove(cmd.Owner, cmd.Id)
 	default:
@@ -68,9 +74,35 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 	if err != nil {
 		return err
 	}
-	events := this.deploymentToMsgEvents(deployment)
-	for _, event := range events {
-		pipelineId, err := this.analytics.Deploy(owner, deployment.Id, event)
+	for _, element := range deployment.Elements {
+		err = this.deplayElement(owner, deployment.Id, element)
+	}
+	return nil
+}
+
+func (this *Events) deplayElement(owner string, deploymentId string, element deploymentmodel.Element) (err error) {
+	event := element.MessageEvent
+	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
+		path, characteristicId, err := this.GetPathAndCharacteristicForEvent(event)
+		if err == ErrMissingCharacteristicInEvent || err == marshaller.ErrCharacteristicNotFoundInService || err == marshaller.ErrServiceNotFound {
+			log.Println("WARNING: error on marshaller request;", err, "-> ignore event", event)
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		pipelineId, err := this.analytics.Deploy(
+			element.Name+" ("+event.EventId+")",
+			owner,
+			deploymentId,
+			event.FlowId,
+			event.EventId,
+			event.Selection.SelectedDeviceId,
+			event.Selection.SelectedServiceId,
+			event.Value,
+			path,
+			characteristicId,
+			*event.Selection.FilterCriteria.CharacteristicId)
 		if err != nil {
 			return err
 		}
@@ -123,36 +155,11 @@ func (this *Events) GetEventStates(jwt jwt_http_router.Jwt, ids []string) (state
 	return states, nil, http.StatusOK
 }
 
-func (this *Events) deploymentToMsgEvents(deployment deploymentmodel.Deployment) (result []deploymentmodel.MsgEvent) {
-	for _, lane := range deployment.Lanes {
-		if lane.Lane != nil {
-			for _, element := range lane.Lane.Elements {
-				if element.MsgEvent != nil {
-					result = append(result, *element.MsgEvent)
-				}
-				if element.ReceiveTaskEvent != nil {
-					result = append(result, *element.ReceiveTaskEvent)
-				}
-			}
-		}
-		if lane.MultiLane != nil {
-			for _, element := range lane.MultiLane.Elements {
-				if element.MsgEvent != nil {
-					result = append(result, *element.MsgEvent)
-				}
-				if element.ReceiveTaskEvent != nil {
-					result = append(result, *element.ReceiveTaskEvent)
-				}
-			}
-		}
+var ErrMissingCharacteristicInEvent = errors.New("missing characteristic id in event")
+
+func (this *Events) GetPathAndCharacteristicForEvent(event *deploymentmodel.MessageEvent) (path string, characteristicId string, err error) {
+	if event.Selection.FilterCriteria.CharacteristicId == nil {
+		return "", "", ErrMissingCharacteristicInEvent
 	}
-	for _, element := range deployment.Elements {
-		if element.MsgEvent != nil {
-			result = append(result, *element.MsgEvent)
-		}
-		if element.ReceiveTaskEvent != nil {
-			result = append(result, *element.ReceiveTaskEvent)
-		}
-	}
-	return result
+	return this.marshaller.FindPath(event.Selection.SelectedServiceId, *event.Selection.FilterCriteria.CharacteristicId)
 }

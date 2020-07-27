@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	deploymentmodel "github.com/SENERGY-Platform/process-deployment/lib/model"
 	"log"
 	"net/http"
 	"net/url"
@@ -29,12 +28,7 @@ import (
 	"time"
 )
 
-func (this *Analytics) Deploy(user string, deploymentId string, event deploymentmodel.MsgEvent) (pipelineId string, err error) {
-	flowId, ok := this.config.EventOperationFlowMapping[event.Operation]
-	if !ok {
-		log.Println("WARNING: trying to deploy unknown operation -> ignore ", event.Operation)
-		return "", nil
-	}
+func (this *Analytics) Deploy(label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error) {
 	flowCells, err, code := this.GetFlowInputs(flowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -49,11 +43,11 @@ func (this *Analytics) Deploy(user string, deploymentId string, event deployment
 	}
 
 	description, err := json.Marshal(EventPipelineDescription{
-		DeviceId:      event.Device.Id,
-		ServiceId:     event.Service.Id,
-		ValuePath:     event.Path,
-		OperatorValue: event.Value,
-		EventId:       event.EventId,
+		DeviceId:      deviceId,
+		ServiceId:     serviceId,
+		ValuePath:     path,
+		OperatorValue: value,
+		EventId:       eventId,
 		DeploymentId:  deploymentId,
 	})
 	if err != nil {
@@ -64,32 +58,32 @@ func (this *Analytics) Deploy(user string, deploymentId string, event deployment
 	convertFrom := ""
 	convertTo := ""
 	converterUrl := ""
-	if event.TriggerConversion != nil {
+	if castFrom != castTo {
 		converterUrl = this.config.ConverterUrl
-		convertFrom = event.TriggerConversion.From
-		convertTo = event.TriggerConversion.To
+		convertFrom = castFrom
+		convertTo = castTo
 	}
 
 	pipeline, err, code := this.sendDeployRequest(user, PipelineRequest{
 		Id:          flowId,
-		Name:        event.Label + " (" + event.EventId + ")",
+		Name:        label,
 		Description: string(description),
 		WindowTime:  0,
 		Nodes: []PipelineNode{
 			{
 				NodeId: flowCells[0].Id,
 				Inputs: []NodeInput{{
-					DeviceId:  event.Device.Id,
-					TopicName: ServiceIdToTopic(event.Service.Id),
+					DeviceId:  deviceId,
+					TopicName: ServiceIdToTopic(serviceId),
 					Values: []NodeValue{{
 						Name: "value",
-						Path: event.Path,
+						Path: path,
 					}},
 				}},
 				Config: []NodeConfig{
 					{
 						Name:  "value",
-						Value: event.Value,
+						Value: value,
 					},
 					{
 						Name:  "url",
@@ -97,7 +91,7 @@ func (this *Analytics) Deploy(user string, deploymentId string, event deployment
 					},
 					{
 						Name:  "eventId",
-						Value: event.EventId,
+						Value: eventId,
 					},
 					{
 						Name:  "converterUrl",

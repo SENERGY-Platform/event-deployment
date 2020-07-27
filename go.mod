@@ -3,7 +3,7 @@ module github.com/SENERGY-Platform/event-deployment
 go 1.12
 
 require (
-	github.com/SENERGY-Platform/process-deployment v0.0.0-20200303084732-4cddad0e8a4f
+	github.com/SENERGY-Platform/process-deployment v0.0.0-20200721080315-d16c030d5887
 	github.com/SmartEnergyPlatform/jwt-http-router v0.0.0-20190722084820-0e1fe0dc7a07
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/containerd/continuity v0.0.0-20190827140505-75bee3e2ccb6 // indirect

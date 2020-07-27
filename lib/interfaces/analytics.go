@@ -19,7 +19,6 @@ package interfaces
 import (
 	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	deploymentmodel "github.com/SENERGY-Platform/process-deployment/lib/model"
 )
 
 type AnalyticsFactory interface {
@@ -27,7 +26,7 @@ type AnalyticsFactory interface {
 }
 
 type Analytics interface {
-	Deploy(user string, deploymentId string, event deploymentmodel.MsgEvent) (pipelineId string, err error)
+	Deploy(label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error)
 	Remove(user string, pipelineId string) error
 	GetPipelinesByDeploymentId(owner string, deploymentId string) (pipelineIds []string, err error)
 	GetPipelineByEventId(owner string, eventId string) (pipelineId string, exists bool, err error)

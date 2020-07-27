@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 InfAI (CC SES)
+ * Copyright 2020 InfAI (CC SES)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package model
+package interfaces
 
-type AuthAction string
-
-const (
-	READ         AuthAction = "r"
-	WRITE        AuthAction = "w"
-	EXECUTE      AuthAction = "x"
-	ADMINISTRATE AuthAction = "a"
+import (
+	"context"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
 )
 
-func (this AuthAction) String() string {
-	return string(this)
+type MarshallerFactory interface {
+	New(ctx context.Context, config config.Config) (Marshaller, error)
+}
+
+type Marshaller interface {
+	FindPath(serviceId string, characteristicId string) (path string, serviceCharacteristicId string, err error)
 }

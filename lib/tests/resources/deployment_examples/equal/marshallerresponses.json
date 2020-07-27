@@ -1,0 +1,8 @@
+{
+  "service-id": {
+    "characteristic-id": {
+      "path": "path",
+      "characteristicId": ""
+    }
+  }
+}

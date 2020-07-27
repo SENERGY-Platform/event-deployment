@@ -19,23 +19,22 @@ package tests
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
-	"github.com/SENERGY-Platform/event-deployment/lib/iot/model"
+	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
 	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"runtime/debug"
-	"strings"
 	"testing"
 )
 
 const RESOURCES_DIR = "resources/"
 const DEPLOYMENT_EXAMPLES_DIR = RESOURCES_DIR + "deployment_examples/"
-const IOT_DESC_DIR = RESOURCES_DIR + "/iot/"
 
 func TestDeployment(t *testing.T) {
 	infos, err := ioutil.ReadDir(DEPLOYMENT_EXAMPLES_DIR)
@@ -72,13 +71,18 @@ func testDeployment(t *testing.T, name string) {
 		return
 	}
 
-	closeTestIotApi := func() {}
-	conf.DeviceRepoUrl, closeTestIotApi, err = createTestIotApi(t, name)
+	marshallerResponsesJson, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + name + "/marshallerresponses.json")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	defer closeTestIotApi()
+
+	marshallerMock := MarshallerMock{}
+	err = json.Unmarshal(marshallerResponsesJson, &marshallerMock)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	closeTestPipelineRepoApi := func() {}
 	conf.PipelineRepoUrl, closeTestPipelineRepoApi, err = createTestPipelineRepoApi()
@@ -111,7 +115,8 @@ func testDeployment(t *testing.T, name string) {
 		t.Error(err)
 		return
 	}
-	event, err := events.Factory.New(ctx, conf, a)
+
+	event, err := events.Factory.New(ctx, conf, a, &marshallerMock)
 	if err != nil {
 		t.Error(err)
 		return
@@ -135,65 +140,7 @@ func isValidForDeploymentTest(dir string) bool {
 			files[info.Name()] = true
 		}
 	}
-	return files["deploymentcommand.json"] && files["pipelinerequests.json"] && files["devices.json"]
-}
-
-func createTestIotApi(t *testing.T, example string) (deviceRepoUrl string, close func(), err error) {
-	devicesDesc, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + example + "/devices.json")
-	if err != nil {
-		t.Error(err)
-		return deviceRepoUrl, close, err
-	}
-
-	deviceTypesDesc, err := ioutil.ReadFile(IOT_DESC_DIR + "devicetypes.json")
-	if err != nil {
-		t.Error(err)
-		return deviceRepoUrl, close, err
-	}
-
-	deviceTypes := []model.DeviceType{}
-	err = json.Unmarshal(deviceTypesDesc, &deviceTypes)
-	if err != nil {
-		t.Error(err)
-		return deviceRepoUrl, close, err
-	}
-
-	testDevices := []model.Device{}
-	err = json.Unmarshal(devicesDesc, &testDevices)
-	if err != nil {
-		t.Error(err)
-		return deviceRepoUrl, close, err
-	}
-
-	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		devicePrefix := "/devices/"
-		if strings.HasPrefix(r.URL.Path, devicePrefix) {
-			for _, device := range testDevices {
-				if device.Id == r.URL.Path[len(devicePrefix):] {
-					w.Header().Set("Content-Type", "application/json; charset=utf-8")
-					json.NewEncoder(w).Encode(device)
-					return
-				}
-			}
-		}
-
-		deviceTypePrefix := "/device-types/"
-		if strings.HasPrefix(r.URL.Path, deviceTypePrefix) {
-			for _, dt := range deviceTypes {
-				if dt.Id == r.URL.Path[len(deviceTypePrefix):] {
-					w.Header().Set("Content-Type", "application/json; charset=utf-8")
-					json.NewEncoder(w).Encode(dt)
-					return
-				}
-			}
-		}
-	}))
-
-	deviceRepoUrl = endpointMock.URL
-	close = func() {
-		endpointMock.Close()
-	}
-	return
+	return files["deploymentcommand.json"] && files["pipelinerequests.json"] && files["marshallerresponses.json"]
 }
 
 func createTestFlowEngineApi(t *testing.T, example string) (endpointUrl string, close func(), err error) {
@@ -261,4 +208,21 @@ func createTestPipelineRepoApi() (endpointUrl string, close func(), err error) {
 		endpointMock.Close()
 	}
 	return
+}
+
+type MarshallerMock map[string]map[string]marshaller.Response
+
+func (this *MarshallerMock) FindPath(serviceId string, characteristicId string) (path string, serviceCharacteristicId string, err error) {
+	if this == nil {
+		return "", "", errors.New("missing mock data")
+	}
+	temp, ok := (*this)[serviceId]
+	if !ok {
+		return "", "", marshaller.ErrServiceNotFound
+	}
+	resp, ok := temp[characteristicId]
+	if !ok {
+		return "", "", marshaller.ErrCharacteristicNotFoundInService
+	}
+	return resp.Path, resp.CharacteristicId, nil
 }

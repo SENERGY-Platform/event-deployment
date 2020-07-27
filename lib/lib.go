@@ -24,18 +24,23 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/kafka"
+	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
 )
 
 func StartDefault(ctx context.Context, config config.Config) error {
-	return Start(ctx, config, kafka.Factory, events.Factory, analytics.Factory, api.Start)
+	return Start(ctx, config, kafka.Factory, events.Factory, analytics.Factory, marshaller.Factory, api.Start)
 }
 
-func Start(ctx context.Context, config config.Config, sourcing interfaces.SourcingFactory, events interfaces.EventsFactory, analytics interfaces.AnalyticsFactory, apiFactory func(ctx context.Context, config config.Config, ctrl interfaces.Events) error) error {
+func Start(ctx context.Context, config config.Config, sourcing interfaces.SourcingFactory, events interfaces.EventsFactory, analytics interfaces.AnalyticsFactory, marshaller interfaces.MarshallerFactory, apiFactory func(ctx context.Context, config config.Config, ctrl interfaces.Events) error) error {
 	a, err := analytics.New(ctx, config)
 	if err != nil {
 		return err
 	}
-	event, err := events.New(ctx, config, a)
+	m, err := marshaller.New(ctx, config)
+	if err != nil {
+		return err
+	}
+	event, err := events.New(ctx, config, a, m)
 	if err != nil {
 		return err
 	}
