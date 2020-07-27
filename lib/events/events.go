@@ -78,9 +78,6 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 			log.Println("WARNING: event not deployed in analytics -> ignore event", event)
 			return nil
 		}
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
