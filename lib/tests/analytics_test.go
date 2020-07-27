@@ -41,7 +41,7 @@ func TestAnalytics(t *testing.T) {
 	defer time.Sleep(1 * time.Second) //wait for goroutines with context
 	defer cancel()
 
-	config, err = createAnalyticsProxyServer(ctx, config)
+	config, err = createAnalyticsProxyServer(t, ctx, config)
 	if err != nil {
 		t.Error(err)
 		return

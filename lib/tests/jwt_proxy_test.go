@@ -28,10 +28,13 @@ import (
 	"net/url"
 	"os"
 	"runtime/debug"
+	"testing"
 	"time"
 )
 
-func createAnalyticsProxyServer(ctx context.Context, config config.Config) (resultConfig config.Config, err error) {
+func createAnalyticsProxyServer(t *testing.T, ctx context.Context, config config.Config) (resultConfig config.Config, err error) {
+	t.Skip("needs al local test.config.json \n will contact senergy test platform analytics")
+
 	testConfig := TestConfig{}
 
 	file, err := os.Open("test.config.json")

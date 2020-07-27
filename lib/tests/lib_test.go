@@ -23,6 +23,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/kafka"
+	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	deploymentmodel "github.com/SENERGY-Platform/process-deployment/lib/model"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/devicemodel"
 	"github.com/ory/dockertest"
@@ -49,14 +50,14 @@ func TestLibWithoutConversion(t *testing.T) {
 	defer time.Sleep(10 * time.Second) //wait for goroutines with context
 	defer cancel()
 
-	config, err = createAnalyticsProxyServer(ctx, config)
+	config, err = createAnalyticsProxyServer(t, ctx, config)
 	if err != nil {
 		debug.PrintStack()
 		t.Error(err)
 		return
 	}
 
-	apiPort, err := getFreePort()
+	apiPort, err := docker.GetFreePort()
 	if err != nil {
 		debug.PrintStack()
 		t.Error(err)
@@ -71,7 +72,7 @@ func TestLibWithoutConversion(t *testing.T) {
 		return
 	}
 
-	_, zk, err := Zookeeper(pool, ctx)
+	_, zk, err := docker.Zookeeper(pool, ctx)
 	if err != nil {
 		debug.PrintStack()
 		t.Error(err)
@@ -79,7 +80,7 @@ func TestLibWithoutConversion(t *testing.T) {
 	}
 	config.ZookeeperUrl = zk + ":2181"
 
-	err = Kafka(pool, ctx, config.ZookeeperUrl)
+	err = docker.Kafka(pool, ctx, config.ZookeeperUrl)
 	if err != nil {
 		debug.PrintStack()
 		t.Error(err)
@@ -158,14 +159,14 @@ func TestLibWithConversion(t *testing.T) {
 	defer time.Sleep(10 * time.Second) //wait for goroutines with context
 	defer cancel()
 
-	config, err = createAnalyticsProxyServer(ctx, config)
+	config, err = createAnalyticsProxyServer(t, ctx, config)
 	if err != nil {
 		debug.PrintStack()
 		t.Error(err)
 		return
 	}
 
-	apiPort, err := getFreePort()
+	apiPort, err := docker.GetFreePort()
 	if err != nil {
 		debug.PrintStack()
 		t.Error(err)
@@ -180,7 +181,7 @@ func TestLibWithConversion(t *testing.T) {
 		return
 	}
 
-	_, zk, err := Zookeeper(pool, ctx)
+	_, zk, err := docker.Zookeeper(pool, ctx)
 	if err != nil {
 		debug.PrintStack()
 		t.Error(err)
@@ -188,7 +189,7 @@ func TestLibWithConversion(t *testing.T) {
 	}
 	config.ZookeeperUrl = zk + ":2181"
 
-	err = Kafka(pool, ctx, config.ZookeeperUrl)
+	err = docker.Kafka(pool, ctx, config.ZookeeperUrl)
 	if err != nil {
 		debug.PrintStack()
 		t.Error(err)
