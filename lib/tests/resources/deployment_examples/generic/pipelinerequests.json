@@ -1,0 +1,47 @@
+[{
+  "id":"flow_id_1",
+  "name":"StartEvent_1 (event_id_1)",
+  "description":"{\"device_id\":\"lifx1\",\"service_id\":\"urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097\",\"value_path\":\"path/to/value\",\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\"}",
+  "nodes":[
+    {
+      "nodeId":"test-flow-cell-id",
+      "inputs":[
+        {
+          "deviceId":"lifx1",
+          "topicName":"urn_infai_ses_service_137fdd3e-bf55-4129-b71a-f33df8223097",
+          "values":[
+            {
+              "name":"value",
+              "path":"path/to/value"
+            }
+          ]
+        }
+      ],
+      "config":[
+        {
+          "name":"value",
+          "value":"value_1"
+        },
+        {
+          "name":"url",
+          "value":"http://process-engine:8080/engine-rest/message"
+        },
+        {
+          "name":"eventId",
+          "value":"event_id_1"
+        },
+        {
+          "name":"converterUrl"
+        },
+        {
+          "name":"convertFrom",
+          "value":"service-characteristic-id"
+        },
+        {
+          "name":"convertTo",
+          "value":"urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43"
+        }
+      ]
+    }
+  ]
+}]

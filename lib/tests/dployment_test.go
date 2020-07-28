@@ -168,7 +168,9 @@ func createTestFlowEngineApi(t *testing.T, example string) (endpointUrl string, 
 			return
 		}
 		if !reflect.DeepEqual(expectedRequests[count], actualRequest) {
-			t.Error(expectedRequests[count], "\n\n", actualRequest)
+			expectedJson, _ := json.Marshal(expectedRequests[count])
+			actualJson, _ := json.Marshal(actualRequest)
+			t.Error(string(expectedJson), "\n\n", string(actualJson))
 			return
 		}
 		count = count + 1
@@ -224,5 +226,5 @@ func (this *MarshallerMock) FindPath(serviceId string, characteristicId string) 
 	if !ok {
 		return "", "", marshaller.ErrCharacteristicNotFoundInService
 	}
-	return resp.Path, resp.CharacteristicId, nil
+	return resp.Path, resp.ServiceCharacteristicId, nil
 }

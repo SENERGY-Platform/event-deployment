@@ -43,8 +43,8 @@ func (this *FactoryType) New(ctx context.Context, config config.Config) (interfa
 }
 
 type Response struct {
-	Path             string
-	CharacteristicId string
+	Path                    string `json:"path"`
+	ServiceCharacteristicId string `json:"service_characteristic_id"`
 }
 
 var ErrServiceNotFound = errors.New("service not found")
@@ -56,7 +56,7 @@ func (this *Marshaller) FindPath(serviceId string, characteristicId string) (pat
 	}
 	req, err := http.NewRequest(
 		"GET",
-		this.config.MarshallerUrl+"/path/"+url.PathEscape(serviceId)+"/"+url.PathEscape(characteristicId),
+		this.config.MarshallerUrl+"/characteristic-paths/"+url.PathEscape(serviceId)+"/"+url.PathEscape(characteristicId),
 		nil,
 	)
 	if err != nil {
@@ -99,5 +99,5 @@ func (this *Marshaller) FindPath(serviceId string, characteristicId string) (pat
 		debug.PrintStack()
 		return path, serviceCharacteristicId, err
 	}
-	return result.Path, result.CharacteristicId, err
+	return result.Path, result.ServiceCharacteristicId, err
 }
