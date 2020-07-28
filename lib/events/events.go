@@ -100,7 +100,7 @@ func (this *Events) deplayElement(owner string, deploymentId string, element dep
 			event.Selection.SelectedDeviceId,
 			event.Selection.SelectedServiceId,
 			event.Value,
-			path,
+			"value."+path,
 			characteristicId,
 			*event.Selection.FilterCriteria.CharacteristicId)
 		if err != nil {
