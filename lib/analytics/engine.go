@@ -29,6 +29,10 @@ import (
 )
 
 func (this *Analytics) Deploy(label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error) {
+	shard, err := this.shards.GetShardForUser(user)
+	if err != nil {
+		return "", err
+	}
 	flowCells, err, code := this.GetFlowInputs(flowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -87,7 +91,7 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 					},
 					{
 						Name:  "url",
-						Value: this.config.CamundaEventTriggerUrl,
+						Value: shard + this.config.CamundaEventTriggerPath,
 					},
 					{
 						Name:  "eventId",

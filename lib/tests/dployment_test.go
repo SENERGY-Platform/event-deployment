@@ -21,15 +21,19 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
+	"github.com/SENERGY-Platform/event-deployment/lib/analytics/cache"
+	"github.com/SENERGY-Platform/event-deployment/lib/analytics/shards"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
 	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
+	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"runtime/debug"
+	"sync"
 	"testing"
 )
 
@@ -109,7 +113,32 @@ func testDeployment(t *testing.T, name string) {
 	defer closeTestFlowEngineApi()
 
 	ctx, cancel := context.WithCancel(context.Background())
+	wg := sync.WaitGroup{}
+	defer wg.Wait()
 	defer cancel()
+	pgConn, err := docker.Postgres(ctx, &wg, "test")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	s, err := shards.New(pgConn, cache.None)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	err = s.EnsureShard("camunda-example-url")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	_, err = s.EnsureShardForUser("testuserid")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	conf.ShardsDb = pgConn
+
 	a, err := analytics.Factory.New(ctx, conf)
 	if err != nil {
 		t.Error(err)

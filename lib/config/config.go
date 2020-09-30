@@ -28,19 +28,20 @@ import (
 )
 
 type ConfigStruct struct {
-	LogLevel               string `json:"log_level"`
-	ApiPort                string `json:"api_port"`
-	MarshallerUrl          string `json:"marshaller_url"`
-	ConverterUrl           string `json:"converter_url"`
-	ZookeeperUrl           string `json:"zookeeper_url"`
-	FlowEngineUrl          string `json:"flow_engine_url"`
-	FlowParserUrl          string `json:"flow_parser_url"`
-	PipelineRepoUrl        string `json:"pipeline_repo_url"`
-	ConsumerGroup          string `json:"consumer_group"`
-	Debug                  bool   `json:"debug"`
-	DeploymentTopic        string `json:"deployment_topic"`
-	ConnectivityTest       bool   `json:"connectivity_test"`
-	CamundaEventTriggerUrl string `json:"camunda_event_trigger_url"`
+	LogLevel                string `json:"log_level"`
+	ApiPort                 string `json:"api_port"`
+	MarshallerUrl           string `json:"marshaller_url"`
+	ConverterUrl            string `json:"converter_url"`
+	ZookeeperUrl            string `json:"zookeeper_url"`
+	FlowEngineUrl           string `json:"flow_engine_url"`
+	FlowParserUrl           string `json:"flow_parser_url"`
+	PipelineRepoUrl         string `json:"pipeline_repo_url"`
+	ConsumerGroup           string `json:"consumer_group"`
+	Debug                   bool   `json:"debug"`
+	DeploymentTopic         string `json:"deployment_topic"`
+	ConnectivityTest        bool   `json:"connectivity_test"`
+	CamundaEventTriggerPath string `json:"camunda_event_trigger_path"`
+	ShardsDb                string `json:"shards_db"`
 }
 
 type Config = *ConfigStruct

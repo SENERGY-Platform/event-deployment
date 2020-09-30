@@ -18,6 +18,8 @@ package analytics
 
 import (
 	"context"
+	"github.com/SENERGY-Platform/event-deployment/lib/analytics/cache"
+	"github.com/SENERGY-Platform/event-deployment/lib/analytics/shards"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 )
@@ -28,8 +30,13 @@ var Factory = &FactoryType{}
 
 type Analytics struct {
 	config config.Config
+	shards *shards.Shards
 }
 
 func (this *FactoryType) New(ctx context.Context, config config.Config) (interfaces.Analytics, error) {
-	return &Analytics{config: config}, nil
+	s, err := shards.New(config.ShardsDb, cache.New(&cache.CacheConfig{L1Expiration: 60}))
+	if err != nil {
+		return nil, err
+	}
+	return &Analytics{config: config, shards: s}, nil
 }

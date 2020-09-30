@@ -24,7 +24,7 @@
         },
         {
           "name":"url",
-          "value":"http://process-engine:8080/engine-rest/message"
+          "value":"camunda-example-url/engine-rest/message"
         },
         {
           "name":"eventId",

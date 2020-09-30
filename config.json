@@ -10,5 +10,6 @@
   "debug":true,
   "deployment_topic":"deployments",
   "connectivity_test":false,
-  "camunda_event_trigger_url":"http://process-engine:8080/engine-rest/message"
+  "camunda_event_trigger_path":"/engine-rest/message",
+  "shards_db": "postgres://usr:pw@databasip:5432/shards?sslmode=disable"
 }
