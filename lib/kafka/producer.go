@@ -37,7 +37,7 @@ func NewProducer(ctx context.Context, config config.Config, topic string) (inter
 		log.Println("ERROR: unable to get broker list", err)
 		return nil, err
 	}
-	err = InitTopicWithConfig(config.ZookeeperUrl, 1, 1, topic)
+	err = InitTopic(config.ZookeeperUrl, topic)
 	if err != nil {
 		log.Println("ERROR: unable to create topic", err)
 		return nil, err
