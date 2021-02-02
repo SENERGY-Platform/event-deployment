@@ -1,5 +1,5 @@
 [{
-  "id":"flow_id_1",
+  "flowId":"flow_id_1",
   "name":"StartEvent_1 (event_id_1)",
   "description":"{\"device_id\":\"lifx1\",\"service_id\":\"urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097\",\"value_path\":\"value.energy.level\",\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\"}",
   "nodes":[

@@ -69,7 +69,7 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 	}
 
 	pipeline, err, code := this.sendDeployRequest(user, PipelineRequest{
-		Id:          flowId,
+		FlowId:      flowId,
 		Name:        label,
 		Description: string(description),
 		WindowTime:  0,
