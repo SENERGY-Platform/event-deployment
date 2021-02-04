@@ -122,6 +122,103 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 	return pipelineId, nil
 }
 
+func (this *Analytics) DeployGroup(label string, user string, deploymentId string, flowId string, eventId string, value string, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
+	shard, err := this.shards.GetShardForUser(user)
+	if err != nil {
+		return "", err
+	}
+	flowCells, err, code := this.GetFlowInputs(flowId, user)
+	if err != nil {
+		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
+		debug.PrintStack()
+		return "", err
+	}
+	if len(flowCells) != 1 {
+		err = errors.New("expect flow to have exact one operator")
+		log.Println("ERROR: ", err.Error())
+		debug.PrintStack()
+		return "", err
+	}
+
+	description, err := json.Marshal(EventPipelineDescription{
+		OperatorValue: value,
+		EventId:       eventId,
+		DeploymentId:  deploymentId,
+	})
+	if err != nil {
+		debug.PrintStack()
+		return "", err
+	}
+
+	inputs := []NodeInput{}
+	for _, serviceId := range serviceIds {
+		deviceIds := strings.Join(serviceToDeviceIdsMapping[serviceId], ",")
+		if deviceIds == "" {
+			log.Println("WARNING: missing deviceIds for service in DeployGroup()", serviceId, " --> skip service for group event deployment")
+			continue
+		}
+		path := serviceToPathMapping[serviceId]
+		if path == "" {
+			log.Println("WARNING: missing path for service in DeployGroup()", serviceId, " --> skip service for group event deployment")
+			continue
+		}
+		inputs = append(inputs, NodeInput{
+			DeviceId:  deviceIds,
+			TopicName: ServiceIdToTopic(serviceId),
+			Values: []NodeValue{{
+				Name: "value",
+				Path: path,
+			}},
+		})
+	}
+
+	pipeline, err, code := this.sendDeployRequest(user, PipelineRequest{
+		FlowId:      flowId,
+		Name:        label,
+		Description: string(description),
+		WindowTime:  0,
+		Nodes: []PipelineNode{
+			{
+				NodeId: flowCells[0].Id,
+				Inputs: inputs,
+				Config: []NodeConfig{
+					{
+						Name:  "value",
+						Value: value,
+					},
+					{
+						Name:  "url",
+						Value: shard + this.config.CamundaEventTriggerPath,
+					},
+					{
+						Name:  "eventId",
+						Value: eventId,
+					},
+					{
+						Name:  "converterUrl",
+						Value: "",
+					},
+					{
+						Name:  "convertFrom",
+						Value: "",
+					},
+					{
+						Name:  "convertTo",
+						Value: "",
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
+		debug.PrintStack()
+		return "", err
+	}
+	pipelineId = pipeline.Id.String()
+	return pipelineId, nil
+}
+
 func ServiceIdToTopic(id string) string {
 	id = strings.ReplaceAll(id, "#", "_")
 	id = strings.ReplaceAll(id, ":", "_")

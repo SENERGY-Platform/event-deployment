@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package interfaces
+package model
 
-import (
-	"context"
-	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	"github.com/SENERGY-Platform/event-deployment/lib/model"
-)
-
-type MarshallerFactory interface {
-	New(ctx context.Context, config config.Config) (Marshaller, error)
+type DeviceGroupPerm struct {
+	Id        string   `json:"id"`
+	Name      string   `json:"name"`
+	DeviceIds []string `json:"device_ids"`
 }
 
-type Marshaller interface {
-	FindPath(serviceId string, characteristicId string) (path string, serviceCharacteristicId string, err error)
-	FindPathOptions(deviceTypeIds []string, functionId string, aspectId string, characteristicsIdFilter []string, withEnvelope bool) (result map[string][]model.PathOptionsResultElement, err error)
+type DevicePerm struct {
+	Id           string `json:"id"`
+	Name         string `json:"name"`
+	DeviceTypeId string `json:"device_type_id"`
+}
+
+type PathOptionsResultElement struct {
+	ServiceId string   `json:"service_id"`
+	JsonPath  []string `json:"json_path"`
 }

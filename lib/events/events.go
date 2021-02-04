@@ -39,10 +39,11 @@ type Events struct {
 	config     config.Config
 	analytics  interfaces.Analytics
 	marshaller interfaces.Marshaller
+	devices    interfaces.Devices
 }
 
-func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, marshaller interfaces.Marshaller) (interfaces.Events, error) {
-	return &Events{config: config, analytics: analytics, marshaller: marshaller}, nil
+func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, marshaller interfaces.Marshaller, devices interfaces.Devices) (interfaces.Events, error) {
+	return &Events{config: config, analytics: analytics, marshaller: marshaller, devices: devices}, nil
 }
 
 func (this *Events) HandleCommand(msg []byte) error {
@@ -83,32 +84,12 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 func (this *Events) deplayElement(owner string, deploymentId string, element deploymentmodel.Element) (err error) {
 	event := element.MessageEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
-		path, characteristicId, err := this.GetPathAndCharacteristicForEvent(event)
-		if err == ErrMissingCharacteristicInEvent || err == marshaller.ErrCharacteristicNotFoundInService || err == marshaller.ErrServiceNotFound {
-			log.Println("WARNING: error on marshaller request;", err, "-> ignore event", event)
-			return nil
+		label := element.Name + " (" + event.EventId + ")"
+		if event.Selection.SelectedDeviceGroupId != nil {
+			return this.deployEventForDeviceGroup(label, owner, deploymentId, event)
 		}
-		if err != nil {
-			return err
-		}
-		pipelineId, err := this.analytics.Deploy(
-			element.Name+" ("+event.EventId+")",
-			owner,
-			deploymentId,
-			event.FlowId,
-			event.EventId,
-			event.Selection.SelectedDeviceId,
-			event.Selection.SelectedServiceId,
-			event.Value,
-			"value."+path,
-			characteristicId,
-			*event.Selection.FilterCriteria.CharacteristicId)
-		if err != nil {
-			return err
-		}
-		if pipelineId == "" {
-			log.Println("WARNING: event not deployed in analytics -> ignore event", event)
-			return nil
+		if event.Selection.SelectedDeviceId != nil && event.Selection.SelectedServiceId != nil {
+			return this.deployEventForDevice(label, owner, deploymentId, event)
 		}
 	}
 	return nil
@@ -161,5 +142,139 @@ func (this *Events) GetPathAndCharacteristicForEvent(event *deploymentmodel.Mess
 	if event.Selection.FilterCriteria.CharacteristicId == nil {
 		return "", "", ErrMissingCharacteristicInEvent
 	}
-	return this.marshaller.FindPath(event.Selection.SelectedServiceId, *event.Selection.FilterCriteria.CharacteristicId)
+	if event.Selection.SelectedServiceId == nil {
+		err = errors.New("missing service id")
+		debug.PrintStack()
+		return
+	}
+	return this.marshaller.FindPath(*event.Selection.SelectedServiceId, *event.Selection.FilterCriteria.CharacteristicId)
+}
+
+//expects event.Selection.SelectedDeviceId and event.Selection.SelectedServiceId to be set
+func (this *Events) deployEventForDevice(label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+	if event == nil {
+		debug.PrintStack()
+		return errors.New("missing event element") //programming error -> dont ignore
+	}
+	if event.Selection.SelectedDeviceId == nil {
+		debug.PrintStack()
+		return errors.New("missing device id") //programming error -> dont ignore
+	}
+	if event.Selection.SelectedServiceId == nil {
+		debug.PrintStack()
+		return errors.New("missing service id") //programming error -> dont ignore
+	}
+	path, characteristicId, err := this.GetPathAndCharacteristicForEvent(event)
+	if err == ErrMissingCharacteristicInEvent || err == marshaller.ErrCharacteristicNotFoundInService || err == marshaller.ErrServiceNotFound {
+		log.Println("WARNING: error on marshaller request;", err, "-> ignore event", event)
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	pipelineId, err := this.analytics.Deploy(
+		label,
+		owner,
+		deploymentId,
+		event.FlowId,
+		event.EventId,
+		*event.Selection.SelectedDeviceId,
+		*event.Selection.SelectedServiceId,
+		event.Value,
+		"value."+path,
+		characteristicId,
+		*event.Selection.FilterCriteria.CharacteristicId)
+	if err != nil {
+		return err
+	}
+	if pipelineId == "" {
+		log.Println("WARNING: event not deployed in analytics -> ignore event", event)
+		return nil
+	}
+	return nil
+}
+
+func (this *Events) deployEventForDeviceGroup(label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+	if !this.DeviceGroupsEnabled() {
+		return nil
+	}
+	if event == nil {
+		debug.PrintStack()
+		return errors.New("missing event element") //programming error -> dont ignore
+	}
+	if event.Selection.SelectedDeviceGroupId == nil {
+		debug.PrintStack()
+		return errors.New("missing device group id") //programming error -> dont ignore
+	}
+	if event.Selection.FilterCriteria.FunctionId == nil {
+		log.Println("WARNING: try to deploy group event without function id --> ignore", label, deploymentId, event)
+		return nil
+	}
+	if event.Selection.FilterCriteria.AspectId == nil {
+		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, deploymentId, event)
+		return nil
+	}
+	devices, deviceTypeIds, err, code := this.devices.GetDeviceInfosOfGroup(*event.Selection.SelectedDeviceGroupId)
+	if err != nil {
+		if code == http.StatusNotFound {
+			return nil //ignore
+		}
+		return err
+	}
+	options, err := this.marshaller.FindPathOptions(
+		deviceTypeIds,
+		*event.Selection.FilterCriteria.FunctionId,
+		*event.Selection.FilterCriteria.AspectId,
+		[]string{},
+		true)
+	if err != nil {
+		log.Println("ERROR: unable to find path options", err)
+		return err
+	}
+	serviceIds := []string{}
+	serviceToDevices := map[string][]string{}
+	serviceToPath := map[string]string{}
+	for _, device := range devices {
+		for _, option := range options[device.DeviceTypeId] {
+			if len(option.JsonPath) > 0 {
+				serviceToDevices[option.ServiceId] = append(serviceToDevices[option.ServiceId], device.Id)
+				if _, ok := serviceToPath[option.ServiceId]; !ok {
+					serviceIds = append(serviceIds, option.ServiceId)
+					serviceToPath[option.ServiceId] = option.JsonPath[0]
+				}
+			}
+		}
+	}
+
+	pipelineId, err := this.analytics.DeployGroup(
+		label,
+		owner,
+		deploymentId,
+		event.FlowId,
+		event.EventId,
+		event.Value,
+		serviceIds,
+		serviceToDevices,
+		serviceToPath)
+	if err != nil {
+		return err
+	}
+	if pipelineId == "" {
+		log.Println("WARNING: event not deployed in analytics -> ignore event", event)
+		return nil
+	}
+	return nil
+}
+
+func (this *Events) DeviceGroupsEnabled() bool {
+	if this.config.AuthClientId == "" {
+		return false
+	}
+	if this.config.AuthClientSecret == "" {
+		return false
+	}
+	if this.config.AuthEndpoint == "" {
+		return false
+	}
+	return true
 }

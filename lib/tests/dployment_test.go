@@ -19,14 +19,15 @@ package tests
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics/cache"
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics/shards"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
 	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
+	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
 	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
 	"net/http"
@@ -81,11 +82,17 @@ func testDeployment(t *testing.T, name string) {
 		return
 	}
 
-	marshallerMock := MarshallerMock{}
-	err = json.Unmarshal(marshallerResponsesJson, &marshallerMock)
+	marshallerMock := mocks.MarshallerMock{
+		FindPathValues: map[string]map[string]marshaller.Response{},
+	}
+	err = json.Unmarshal(marshallerResponsesJson, &marshallerMock.FindPathValues)
 	if err != nil {
 		t.Error(err)
 		return
+	}
+
+	devicesMock := mocks.DevicesMock{
+		GetDeviceInfosOfGroupValues: map[string][]model.DevicePerm{},
 	}
 
 	closeTestPipelineRepoApi := func() {}
@@ -145,7 +152,7 @@ func testDeployment(t *testing.T, name string) {
 		return
 	}
 
-	event, err := events.Factory.New(ctx, conf, a, &marshallerMock)
+	event, err := events.Factory.New(ctx, conf, a, &marshallerMock, &devicesMock)
 	if err != nil {
 		t.Error(err)
 		return
@@ -239,21 +246,4 @@ func createTestPipelineRepoApi() (endpointUrl string, close func(), err error) {
 		endpointMock.Close()
 	}
 	return
-}
-
-type MarshallerMock map[string]map[string]marshaller.Response
-
-func (this *MarshallerMock) FindPath(serviceId string, characteristicId string) (path string, serviceCharacteristicId string, err error) {
-	if this == nil {
-		return "", "", errors.New("missing mock data")
-	}
-	temp, ok := (*this)[serviceId]
-	if !ok {
-		return "", "", marshaller.ErrServiceNotFound
-	}
-	resp, ok := temp[characteristicId]
-	if !ok {
-		return "", "", marshaller.ErrCharacteristicNotFoundInService
-	}
-	return resp.Path, resp.ServiceCharacteristicId, nil
 }

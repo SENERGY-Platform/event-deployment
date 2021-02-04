@@ -17,16 +17,14 @@
 package interfaces
 
 import (
-	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 )
 
-type MarshallerFactory interface {
-	New(ctx context.Context, config config.Config) (Marshaller, error)
+type DevicesFactory interface {
+	New(config config.Config) Devices
 }
 
-type Marshaller interface {
-	FindPath(serviceId string, characteristicId string) (path string, serviceCharacteristicId string, err error)
-	FindPathOptions(deviceTypeIds []string, functionId string, aspectId string, characteristicsIdFilter []string, withEnvelope bool) (result map[string][]model.PathOptionsResultElement, err error)
+type Devices interface {
+	GetDeviceInfosOfGroup(groupId string) (devices []model.DevicePerm, deviceTypeIds []string, err error, code int)
 }
