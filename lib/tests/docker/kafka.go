@@ -23,19 +23,26 @@ import (
 	"github.com/segmentio/kafka-go"
 	"github.com/wvanbergen/kazoo-go"
 	"log"
-	"runtime/debug"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
-func Kafka(pool *dockertest.Pool, ctx context.Context, zookeeperUrl string) (err error) {
-	kafkaport, err := GetFreePort()
+func Kafka(ctx context.Context, wg *sync.WaitGroup, zookeeperUrl string) (kafkaport int, err error) {
+	pool, err := dockertest.NewPool("")
 	if err != nil {
-		return err
+		return 0, err
+	}
+	kafkaport, err = GetFreePort()
+	if err != nil {
+		return 0, err
 	}
 	networks, _ := pool.Client.ListNetworks()
-	hostIp := ""
+	hostIp, err := GetHostIp()
+	if err != nil {
+		return 0, err
+	}
 	for _, network := range networks {
 		if network.Name == "bridge" {
 			hostIp = network.IPAM.Config[0].Gateway
@@ -55,9 +62,11 @@ func Kafka(pool *dockertest.Pool, ctx context.Context, zookeeperUrl string) (err
 		"9092/tcp": {{HostIP: "", HostPort: strconv.Itoa(kafkaport)}},
 	}})
 	if err != nil {
-		return err
+		return 0, err
 	}
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-ctx.Done()
 		log.Println("DEBUG: remove container " + container.Container.Name)
 		container.Close()
@@ -73,14 +82,17 @@ func Kafka(pool *dockertest.Pool, ctx context.Context, zookeeperUrl string) (err
 		return nil
 	})
 	time.Sleep(5 * time.Second)
-	return err
+	return kafkaport, err
 }
 
-func Zookeeper(pool *dockertest.Pool, ctx context.Context) (hostPort string, ipAddress string, err error) {
+func Zookeeper(ctx context.Context, wg *sync.WaitGroup) (hostPort string, ipAddress string, err error) {
+	pool, err := dockertest.NewPool("")
+	if err != nil {
+		return "", "", err
+	}
 	zkport, err := GetFreePort()
 	if err != nil {
-		debug.PrintStack()
-		return "", "", err
+		log.Fatalf("Could not find new port: %s", err)
 	}
 	env := []string{}
 	log.Println("start zookeeper on ", zkport)
@@ -88,10 +100,11 @@ func Zookeeper(pool *dockertest.Pool, ctx context.Context) (hostPort string, ipA
 		"2181/tcp": {{HostIP: "", HostPort: strconv.Itoa(zkport)}},
 	}})
 	if err != nil {
-		debug.PrintStack()
 		return "", "", err
 	}
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-ctx.Done()
 		log.Println("DEBUG: remove container " + container.Container.Name)
 		container.Close()

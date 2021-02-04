@@ -18,12 +18,27 @@ package docker
 
 import (
 	"context"
-	"github.com/ory/dockertest"
-	"github.com/ory/dockertest/docker"
+	"errors"
+	"github.com/ory/dockertest/v3"
+	"github.com/ory/dockertest/v3/docker"
 	"log"
 	"net"
 	"os"
 )
+
+func GetHostIp() (string, error) {
+	pool, err := dockertest.NewPool("")
+	if err != nil {
+		return "", err
+	}
+	networks, _ := pool.Client.ListNetworks()
+	for _, network := range networks {
+		if network.Name == "bridge" {
+			return network.IPAM.Config[0].Gateway, nil
+		}
+	}
+	return "", errors.New("no bridge network found")
+}
 
 func GetFreePort() (int, error) {
 	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
