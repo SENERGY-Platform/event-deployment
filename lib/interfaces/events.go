@@ -28,6 +28,7 @@ type EventsFactory interface {
 
 type Events interface {
 	HandleCommand(msg []byte) error
+	HandleDeviceGroupUpdate(msg []byte) error
 	CheckEvent(jwt jwt_http_router.Jwt, id string) int
 	GetEventStates(jwt jwt_http_router.Jwt, ids []string) (states map[string]bool, err error, code int)
 }

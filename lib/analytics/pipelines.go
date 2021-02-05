@@ -66,11 +66,12 @@ func (this *Analytics) GetPipelineByEventId(owner string, eventId string) (pipel
 	return "", false, nil
 }
 
-func (this *Analytics) GetPipelinesByDeviceGroupId(owner string, groupId string) (pipelineIds []string, pipelineToGroupDescription map[string]model.GroupEventDescription, err error) {
+func (this *Analytics) GetPipelinesByDeviceGroupId(owner string, groupId string) (pipelineIds []string, pipelineToGroupDescription map[string]model.GroupEventDescription, pipelineNames map[string]string, err error) {
 	pipelineToGroupDescription = map[string]model.GroupEventDescription{}
+	pipelineNames = map[string]string{}
 	pipelines, err := this.getPipelines(owner)
 	if err != nil {
-		return pipelineIds, pipelineToGroupDescription, err
+		return pipelineIds, pipelineToGroupDescription, pipelineNames, err
 	}
 	for _, pipeline := range pipelines {
 		desc := EventPipelineDescription{}
@@ -82,6 +83,7 @@ func (this *Analytics) GetPipelinesByDeviceGroupId(owner string, groupId string)
 		}
 		if desc.DeviceGroupId == groupId {
 			id := pipeline.Id.String()
+			pipelineNames[id] = pipeline.Name
 			pipelineIds = append(pipelineIds, id)
 			pipelineToGroupDescription[id] = model.GroupEventDescription{
 				DeviceGroupId: desc.DeviceGroupId,
@@ -89,10 +91,12 @@ func (this *Analytics) GetPipelinesByDeviceGroupId(owner string, groupId string)
 				DeploymentId:  desc.DeploymentId,
 				FunctionId:    desc.FunctionId,
 				AspectId:      desc.AspectId,
+				FlowId:        desc.FlowId,
+				OperatorValue: desc.OperatorValue,
 			}
 		}
 	}
-	return pipelineIds, pipelineToGroupDescription, err
+	return pipelineIds, pipelineToGroupDescription, pipelineNames, err
 }
 
 func (this *Analytics) GetEventStates(owner string, eventIds []string) (states map[string]bool, err error) {

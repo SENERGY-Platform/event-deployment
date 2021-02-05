@@ -39,6 +39,7 @@ type ConfigStruct struct {
 	ConsumerGroup           string `json:"consumer_group"`
 	Debug                   bool   `json:"debug"`
 	DeploymentTopic         string `json:"deployment_topic"`
+	DeviceGroupTopic        string `json:"device_group_topic"`
 	ConnectivityTest        bool   `json:"connectivity_test"`
 	CamundaEventTriggerPath string `json:"camunda_event_trigger_path"`
 	ShardsDb                string `json:"shards_db"`

@@ -50,5 +50,11 @@ func Start(ctx context.Context, config config.Config, sourcing interfaces.Sourci
 	if err != nil {
 		return err
 	}
+	if config.DeviceGroupTopic != "" {
+		err = sourcing.NewConsumer(ctx, config, config.DeviceGroupTopic, event.HandleDeviceGroupUpdate)
+		if err != nil {
+			return err
+		}
+	}
 	return apiFactory(ctx, config, event)
 }

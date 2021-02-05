@@ -123,4 +123,5 @@ type EventPipelineDescription struct {
 	OperatorValue string `json:"operator_value"`
 	EventId       string `json:"event_id"`
 	DeploymentId  string `json:"deployment_id"`
+	FlowId        string `json:"flow_id,omitempty"`
 }

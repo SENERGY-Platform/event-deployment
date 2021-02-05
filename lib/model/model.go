@@ -34,9 +34,11 @@ type PathOptionsResultElement struct {
 }
 
 type GroupEventDescription struct {
-	DeviceGroupId string `json:"device_group_id"`
-	EventId       string `json:"event_id"`
-	DeploymentId  string `json:"deployment_id"`
-	FunctionId    string `json:"function_id"`
-	AspectId      string `json:"aspect_id"`
+	DeviceGroupId string
+	EventId       string
+	DeploymentId  string
+	FunctionId    string
+	AspectId      string
+	FlowId        string
+	OperatorValue string
 }

@@ -123,15 +123,18 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 	return pipelineId, nil
 }
 
-func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEventDescription, flowId string, value string, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
+func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
 	shard, err := this.shards.GetShardForUser(user)
 	if err != nil {
 		return "", err
 	}
-	flowCells, err, code := this.GetFlowInputs(flowId, user)
+	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
-		debug.PrintStack()
+		if code == http.StatusNotFound || code == http.StatusForbidden || code == http.StatusUnauthorized {
+			log.Println("unable to find flow (ignore deployment)", code, err)
+			err = nil
+		}
 		return "", err
 	}
 	if len(flowCells) != 1 {
@@ -145,9 +148,10 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 		DeviceGroupId: desc.DeviceGroupId,
 		FunctionId:    desc.FunctionId,
 		AspectId:      desc.AspectId,
-		OperatorValue: value,
+		OperatorValue: desc.OperatorValue,
 		EventId:       desc.EventId,
 		DeploymentId:  desc.DeploymentId,
+		FlowId:        desc.FlowId,
 	})
 	if err != nil {
 		debug.PrintStack()
@@ -177,7 +181,7 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 	}
 
 	pipeline, err, code := this.sendDeployRequest(user, PipelineRequest{
-		FlowId:      flowId,
+		FlowId:      desc.FlowId,
 		Name:        label,
 		Description: string(description),
 		WindowTime:  0,
@@ -188,7 +192,7 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 				Config: []NodeConfig{
 					{
 						Name:  "value",
-						Value: value,
+						Value: desc.OperatorValue,
 					},
 					{
 						Name:  "url",

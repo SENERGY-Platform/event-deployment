@@ -215,16 +215,18 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, deploymentId, event)
 		return nil
 	}
-	return this.deployEventForDeviceGroupWithDescription(label, owner, event.FlowId, event.Value, model.GroupEventDescription{
+	return this.deployEventForDeviceGroupWithDescription(label, owner, model.GroupEventDescription{
 		DeviceGroupId: *event.Selection.SelectedDeviceGroupId,
 		EventId:       event.EventId,
 		DeploymentId:  deploymentId,
 		FunctionId:    *event.Selection.FilterCriteria.FunctionId,
 		AspectId:      *event.Selection.FilterCriteria.AspectId,
+		FlowId:        event.FlowId,
+		OperatorValue: event.Value,
 	})
 }
 
-func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner string, flowId string, eventValue string, desc model.GroupEventDescription) error {
+func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner string, desc model.GroupEventDescription) error {
 	if !this.DeviceGroupsEnabled() {
 		return nil
 	}
@@ -280,8 +282,6 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 		label,
 		owner,
 		desc,
-		flowId,
-		eventValue,
 		serviceIds,
 		serviceToDevices,
 		serviceToPath)
