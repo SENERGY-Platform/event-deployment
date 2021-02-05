@@ -23,6 +23,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
@@ -214,7 +215,36 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, deploymentId, event)
 		return nil
 	}
-	devices, deviceTypeIds, err, code := this.devices.GetDeviceInfosOfGroup(*event.Selection.SelectedDeviceGroupId)
+	return this.deployEventForDeviceGroupWithDescription(label, owner, event.FlowId, event.Value, model.GroupEventDescription{
+		DeviceGroupId: *event.Selection.SelectedDeviceGroupId,
+		EventId:       event.EventId,
+		DeploymentId:  deploymentId,
+		FunctionId:    *event.Selection.FilterCriteria.FunctionId,
+		AspectId:      *event.Selection.FilterCriteria.AspectId,
+	})
+}
+
+func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner string, flowId string, eventValue string, desc model.GroupEventDescription) error {
+	if !this.DeviceGroupsEnabled() {
+		return nil
+	}
+	if desc.DeviceGroupId == "" {
+		debug.PrintStack()
+		return errors.New("missing device group id") //programming error -> dont ignore
+	}
+	if desc.FunctionId == "" {
+		log.Println("WARNING: try to deploy group event without function id --> ignore", label, desc)
+		return nil
+	}
+	if desc.AspectId == "" {
+		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, desc)
+		return nil
+	}
+	if desc.DeploymentId == "" {
+		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, desc)
+		return nil
+	}
+	devices, deviceTypeIds, err, code := this.devices.GetDeviceInfosOfGroup(desc.DeviceGroupId)
 	if err != nil {
 		if code == http.StatusNotFound {
 			return nil //ignore
@@ -223,8 +253,8 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 	}
 	options, err := this.marshaller.FindPathOptions(
 		deviceTypeIds,
-		*event.Selection.FilterCriteria.FunctionId,
-		*event.Selection.FilterCriteria.AspectId,
+		desc.FunctionId,
+		desc.AspectId,
 		[]string{},
 		true)
 	if err != nil {
@@ -249,11 +279,9 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 	pipelineId, err := this.analytics.DeployGroup(
 		label,
 		owner,
-		deploymentId,
-		event.FlowId,
-		event.EventId,
-		*event.Selection.SelectedDeviceGroupId,
-		event.Value,
+		desc,
+		flowId,
+		eventValue,
 		serviceIds,
 		serviceToDevices,
 		serviceToPath)
@@ -261,7 +289,7 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 		return err
 	}
 	if pipelineId == "" {
-		log.Println("WARNING: event not deployed in analytics -> ignore event", event)
+		log.Println("WARNING: event not deployed in analytics -> ignore event", desc)
 		return nil
 	}
 	return nil

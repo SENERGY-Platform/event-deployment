@@ -19,6 +19,7 @@ package interfaces
 import (
 	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 )
 
 type AnalyticsFactory interface {
@@ -26,11 +27,11 @@ type AnalyticsFactory interface {
 }
 
 type Analytics interface {
-	DeployGroup(label string, user string, deploymentId string, flowId string, eventId string, groupId string, value string, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error)
+	DeployGroup(label string, user string, desc model.GroupEventDescription, flowId string, value string, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error)
 	Deploy(label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error)
 	Remove(user string, pipelineId string) error
 	GetPipelinesByDeploymentId(owner string, deploymentId string) (pipelineIds []string, err error)
 	GetPipelineByEventId(owner string, eventId string) (pipelineId string, exists bool, err error)
-	GetPipelineByDeviceGroupId(owner string, groupId string) (pipelineId string, exists bool, err error)
+	GetPipelinesByDeviceGroupId(owner string, groupId string) (pipelineIds []string, pipelineToGroupDescription map[string]model.GroupEventDescription, err error)
 	GetEventStates(userId string, eventIds []string) (states map[string]bool, err error)
 }

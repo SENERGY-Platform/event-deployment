@@ -117,6 +117,8 @@ type EventPipelineDescription struct {
 	DeviceGroupId string `json:"device_group_id,omitempty"`
 	DeviceId      string `json:"device_id,omitempty"`
 	ServiceId     string `json:"service_id,omitempty"`
+	FunctionId    string `json:"function_id,omitempty"`
+	AspectId      string `json:"aspect_id,omitempty"`
 	ValuePath     string `json:"value_path,omitempty"`
 	OperatorValue string `json:"operator_value"`
 	EventId       string `json:"event_id"`

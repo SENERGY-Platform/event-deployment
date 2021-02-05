@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"net/http"
 	"net/url"
@@ -122,7 +123,7 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 	return pipelineId, nil
 }
 
-func (this *Analytics) DeployGroup(label string, user string, deploymentId string, flowId string, eventId string, groupId string, value string, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
+func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEventDescription, flowId string, value string, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
 	shard, err := this.shards.GetShardForUser(user)
 	if err != nil {
 		return "", err
@@ -141,10 +142,12 @@ func (this *Analytics) DeployGroup(label string, user string, deploymentId strin
 	}
 
 	description, err := json.Marshal(EventPipelineDescription{
-		DeviceGroupId: groupId,
+		DeviceGroupId: desc.DeviceGroupId,
+		FunctionId:    desc.FunctionId,
+		AspectId:      desc.AspectId,
 		OperatorValue: value,
-		EventId:       eventId,
-		DeploymentId:  deploymentId,
+		EventId:       desc.EventId,
+		DeploymentId:  desc.DeploymentId,
 	})
 	if err != nil {
 		debug.PrintStack()
@@ -193,7 +196,7 @@ func (this *Analytics) DeployGroup(label string, user string, deploymentId strin
 					},
 					{
 						Name:  "eventId",
-						Value: eventId,
+						Value: desc.EventId,
 					},
 					{
 						Name:  "converterUrl",

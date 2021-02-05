@@ -19,6 +19,7 @@ package analytics
 import (
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"net/http"
 	"runtime/debug"
 	"time"
@@ -65,10 +66,11 @@ func (this *Analytics) GetPipelineByEventId(owner string, eventId string) (pipel
 	return "", false, nil
 }
 
-func (this *Analytics) GetPipelineByDeviceGroupId(owner string, groupId string) (pipelineId string, exists bool, err error) {
+func (this *Analytics) GetPipelinesByDeviceGroupId(owner string, groupId string) (pipelineIds []string, pipelineToGroupDescription map[string]model.GroupEventDescription, err error) {
+	pipelineToGroupDescription = map[string]model.GroupEventDescription{}
 	pipelines, err := this.getPipelines(owner)
 	if err != nil {
-		return pipelineId, exists, err
+		return pipelineIds, pipelineToGroupDescription, err
 	}
 	for _, pipeline := range pipelines {
 		desc := EventPipelineDescription{}
@@ -79,10 +81,18 @@ func (this *Analytics) GetPipelineByDeviceGroupId(owner string, groupId string) 
 			continue
 		}
 		if desc.DeviceGroupId == groupId {
-			return pipeline.Id.String(), true, nil
+			id := pipeline.Id.String()
+			pipelineIds = append(pipelineIds, id)
+			pipelineToGroupDescription[id] = model.GroupEventDescription{
+				DeviceGroupId: desc.DeviceGroupId,
+				EventId:       desc.EventId,
+				DeploymentId:  desc.DeploymentId,
+				FunctionId:    desc.FunctionId,
+				AspectId:      desc.AspectId,
+			}
 		}
 	}
-	return "", false, nil
+	return pipelineIds, pipelineToGroupDescription, err
 }
 
 func (this *Analytics) GetEventStates(owner string, eventIds []string) (states map[string]bool, err error) {
