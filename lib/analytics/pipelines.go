@@ -65,6 +65,26 @@ func (this *Analytics) GetPipelineByEventId(owner string, eventId string) (pipel
 	return "", false, nil
 }
 
+func (this *Analytics) GetPipelineByDeviceGroupId(owner string, groupId string) (pipelineId string, exists bool, err error) {
+	pipelines, err := this.getPipelines(owner)
+	if err != nil {
+		return pipelineId, exists, err
+	}
+	for _, pipeline := range pipelines {
+		desc := EventPipelineDescription{}
+		err = json.Unmarshal([]byte(pipeline.Description), &desc)
+		if err != nil {
+			//candidate does not use event pipeline description format -> is not event pipeline -> is not searched pipeline
+			err = nil
+			continue
+		}
+		if desc.DeviceGroupId == groupId {
+			return pipeline.Id.String(), true, nil
+		}
+	}
+	return "", false, nil
+}
+
 func (this *Analytics) GetEventStates(owner string, eventIds []string) (states map[string]bool, err error) {
 	states = map[string]bool{}
 	pipelines, err := this.getPipelines(owner)
