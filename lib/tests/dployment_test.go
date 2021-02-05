@@ -32,6 +32,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"runtime/debug"
 	"sync"
@@ -57,7 +58,7 @@ func TestDeployment(t *testing.T) {
 	}
 }
 
-func testDeployment(t *testing.T, name string) {
+func testDeployment(t *testing.T, testcase string) {
 	t.Parallel()
 	defer func() {
 		if r := recover(); r != nil {
@@ -69,30 +70,66 @@ func testDeployment(t *testing.T, name string) {
 		t.Error(err)
 		return
 	}
+	conf.AuthEndpoint = "mocked"
+	conf.AuthClientSecret = "mocked"
+	conf.AuthClientId = "mocked"
+	conf.PermSearchUrl = "mocked"
 
-	deploymentCmd, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + name + "/deploymentcommand.json")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	marshallerResponsesJson, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + name + "/marshallerresponses.json")
+	deploymentCmd, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + testcase + "/deploymentcommand.json")
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
 	marshallerMock := mocks.MarshallerMock{
-		FindPathValues: map[string]map[string]marshaller.Response{},
+		FindPathValues:       map[string]map[string]marshaller.Response{},
+		FindPathOptionsValue: map[string]map[string]map[string][]model.PathOptionsResultElement{},
 	}
-	err = json.Unmarshal(marshallerResponsesJson, &marshallerMock.FindPathValues)
-	if err != nil {
-		t.Error(err)
-		return
+
+	marshallerResponsesFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/marshallerresponses.json"
+	if fileExists(marshallerResponsesFilePath) {
+		marshallerResponsesJson, err := ioutil.ReadFile(marshallerResponsesFilePath)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		err = json.Unmarshal(marshallerResponsesJson, &marshallerMock.FindPathValues)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	}
+
+	pathoptionsFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/marshallerresponses_pathoptions.json"
+	if fileExists(pathoptionsFilePath) {
+		marshallerResponsesPathoptionsJson, err := ioutil.ReadFile(pathoptionsFilePath)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		err = json.Unmarshal(marshallerResponsesPathoptionsJson, &marshallerMock.FindPathOptionsValue)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 	}
 
 	devicesMock := mocks.DevicesMock{
 		GetDeviceInfosOfGroupValues: map[string][]model.DevicePerm{},
+	}
+
+	groupdevicesFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/groupdevices.json"
+	if fileExists(groupdevicesFilePath) {
+		groupdevicesJson, err := ioutil.ReadFile(groupdevicesFilePath)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		err = json.Unmarshal(groupdevicesJson, &devicesMock.GetDeviceInfosOfGroupValues)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 	}
 
 	closeTestPipelineRepoApi := func() {}
@@ -112,7 +149,7 @@ func testDeployment(t *testing.T, name string) {
 	defer closeTestFlowParserApi()
 
 	closeTestFlowEngineApi := func() {}
-	conf.FlowEngineUrl, closeTestFlowEngineApi, err = createTestFlowEngineApi(t, name)
+	conf.FlowEngineUrl, closeTestFlowEngineApi, err = createTestFlowEngineApi(t, testcase)
 	if err != nil {
 		t.Error(err)
 		return
@@ -165,6 +202,14 @@ func testDeployment(t *testing.T, name string) {
 	}
 }
 
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
 func isValidForDeploymentTest(dir string) bool {
 	infos, err := ioutil.ReadDir(dir)
 	if err != nil {
@@ -176,7 +221,7 @@ func isValidForDeploymentTest(dir string) bool {
 			files[info.Name()] = true
 		}
 	}
-	return files["deploymentcommand.json"] && files["pipelinerequests.json"] && files["marshallerresponses.json"]
+	return files["deploymentcommand.json"] && files["pipelinerequests.json"]
 }
 
 func createTestFlowEngineApi(t *testing.T, example string) (endpointUrl string, close func(), err error) {

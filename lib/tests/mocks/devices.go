@@ -22,7 +22,7 @@ import (
 )
 
 type DevicesMock struct {
-	GetDeviceInfosOfGroupValues map[string][]model.DevicePerm
+	GetDeviceInfosOfGroupValues map[string][]model.DevicePerm //key = groupId
 }
 
 func (this *DevicesMock) GetDeviceInfosOfGroup(groupId string) (devices []model.DevicePerm, deviceTypeIds []string, err error, code int) {

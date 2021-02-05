@@ -23,11 +23,28 @@ import (
 )
 
 type MarshallerMock struct {
-	FindPathValues map[string]map[string]marshaller.Response
+	FindPathValues       map[string]map[string]marshaller.Response
+	FindPathOptionsValue map[string]map[string]map[string][]model.PathOptionsResultElement //function.aspect.device-type
 }
 
 func (this *MarshallerMock) FindPathOptions(deviceTypeIds []string, functionId string, aspectId string, characteristicsIdFilter []string, withEnvelope bool) (result map[string][]model.PathOptionsResultElement, err error) {
-	return result, errors.New("not implemented")
+	inFunction := this.FindPathOptionsValue[functionId]
+	if inFunction == nil {
+		inFunction = map[string]map[string][]model.PathOptionsResultElement{}
+	}
+	inAspect := inFunction[aspectId]
+	if inAspect == nil {
+		inAspect = map[string][]model.PathOptionsResultElement{}
+	}
+	result = map[string][]model.PathOptionsResultElement{}
+	for _, dt := range deviceTypeIds {
+		if e, ok := inAspect[dt]; ok {
+			result[dt] = e
+		} else {
+			result[dt] = []model.PathOptionsResultElement{}
+		}
+	}
+	return
 }
 
 func (this *MarshallerMock) FindPath(serviceId string, characteristicId string) (path string, serviceCharacteristicId string, err error) {
