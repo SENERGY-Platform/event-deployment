@@ -252,6 +252,7 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 		deploymentId,
 		event.FlowId,
 		event.EventId,
+		*event.Selection.SelectedDeviceGroupId,
 		event.Value,
 		serviceIds,
 		serviceToDevices,

@@ -122,7 +122,7 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 	return pipelineId, nil
 }
 
-func (this *Analytics) DeployGroup(label string, user string, deploymentId string, flowId string, eventId string, value string, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
+func (this *Analytics) DeployGroup(label string, user string, deploymentId string, flowId string, eventId string, groupId string, value string, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
 	shard, err := this.shards.GetShardForUser(user)
 	if err != nil {
 		return "", err
@@ -141,6 +141,7 @@ func (this *Analytics) DeployGroup(label string, user string, deploymentId strin
 	}
 
 	description, err := json.Marshal(EventPipelineDescription{
+		DeviceGroupId: groupId,
 		OperatorValue: value,
 		EventId:       eventId,
 		DeploymentId:  deploymentId,

@@ -1,7 +1,7 @@
 [{
   "flowId":"flow_id_1",
   "name":"StartEvent_1 (event_id_1)",
-  "description":"{\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\"}",
+  "description":"{\"device_group_id\":\"urn:infai:ses:device-group:dg1\",\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\"}",
   "nodes":[
     {
       "nodeId":"test-flow-cell-id",
