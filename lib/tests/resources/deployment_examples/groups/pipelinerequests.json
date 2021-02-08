@@ -8,6 +8,8 @@
       "inputs":[
         {
           "deviceId":"urn:infai:ses:device:d1",
+          "filterIds":"urn:infai:ses:device:d1",
+          "filterType": "deviceId",
           "topicName":"urn_infai_ses_service_s1",
           "values":[
             {
@@ -18,6 +20,8 @@
         },
         {
           "deviceId":"urn:infai:ses:device:d2,urn:infai:ses:device:d3",
+          "filterIds":"urn:infai:ses:device:d2,urn:infai:ses:device:d3",
+          "filterType": "deviceId",
           "topicName":"urn_infai_ses_service_s2",
           "values":[
             {
@@ -28,6 +32,8 @@
         },
         {
           "deviceId":"urn:infai:ses:device:d4,urn:infai:ses:device:d5",
+          "filterIds":"urn:infai:ses:device:d4,urn:infai:ses:device:d5",
+          "filterType": "deviceId",
           "topicName":"urn_infai_ses_service_s3",
           "values":[
             {
@@ -38,6 +44,8 @@
         },
         {
           "deviceId":"urn:infai:ses:device:d4,urn:infai:ses:device:d5",
+          "filterIds":"urn:infai:ses:device:d4,urn:infai:ses:device:d5",
+          "filterType": "deviceId",
           "topicName":"urn_infai_ses_service_s4",
           "values":[
             {

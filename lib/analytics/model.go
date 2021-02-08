@@ -38,10 +38,14 @@ type NodeConfig struct {
 	Value string `json:"value,omitempty"`
 }
 
+const DeviceFilterType = "deviceId"
+
 type NodeInput struct {
-	DeviceId  string      `json:"deviceId,omitempty"`
-	TopicName string      `json:"topicName,omitempty"`
-	Values    []NodeValue `json:"values,omitempty"`
+	DeviceId   string      `json:"deviceId,omitempty"` //deprecated
+	FilterIds  string      `json:"filterIds,omitempty"`
+	FilterType string      `json:"filterType"`
+	TopicName  string      `json:"topicName,omitempty"`
+	Values     []NodeValue `json:"values,omitempty"`
 }
 
 type NodeValue struct {

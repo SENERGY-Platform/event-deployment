@@ -8,6 +8,8 @@
       "inputs":[
         {
           "deviceId":"lifx1",
+          "filterIds":"lifx1",
+          "filterType": "deviceId",
           "topicName":"urn_infai_ses_service_137fdd3e-bf55-4129-b71a-f33df8223097",
           "values":[
             {

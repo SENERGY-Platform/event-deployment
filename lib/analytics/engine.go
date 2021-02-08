@@ -78,8 +78,10 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 			{
 				NodeId: flowCells[0].Id,
 				Inputs: []NodeInput{{
-					DeviceId:  deviceId,
-					TopicName: ServiceIdToTopic(serviceId),
+					DeviceId:   deviceId,
+					FilterIds:  deviceId,
+					FilterType: DeviceFilterType,
+					TopicName:  ServiceIdToTopic(serviceId),
 					Values: []NodeValue{{
 						Name: "value",
 						Path: path,
@@ -201,8 +203,10 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user s
 			continue
 		}
 		inputs = append(inputs, NodeInput{
-			DeviceId:  deviceIds,
-			TopicName: ServiceIdToTopic(serviceId),
+			DeviceId:   deviceIds,
+			FilterIds:  deviceIds,
+			FilterType: DeviceFilterType,
+			TopicName:  ServiceIdToTopic(serviceId),
 			Values: []NodeValue{{
 				Name: "value",
 				Path: path,

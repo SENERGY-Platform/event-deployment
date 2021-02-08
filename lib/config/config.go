@@ -39,17 +39,19 @@ type ConfigStruct struct {
 	ConsumerGroup           string `json:"consumer_group"`
 	Debug                   bool   `json:"debug"`
 	DeploymentTopic         string `json:"deployment_topic"`
-	DeviceGroupTopic        string `json:"device_group_topic"`
 	ConnectivityTest        bool   `json:"connectivity_test"`
 	CamundaEventTriggerPath string `json:"camunda_event_trigger_path"`
 	ShardsDb                string `json:"shards_db"`
 
+	//if not configured: no device-group updates handled
+	DeviceGroupTopic string `json:"device_group_topic"`
+
+	//if not configured: events with groups not handled
+	PermSearchUrl            string  `json:"perm_search_url"`
 	AuthExpirationTimeBuffer float64 `json:"auth_expiration_time_buffer"`
 	AuthEndpoint             string  `json:"auth_endpoint"`
 	AuthClientId             string  `json:"auth_client_id"`
 	AuthClientSecret         string  `json:"auth_client_secret"`
-
-	PermSearchUrl string `json:"perm_search_url"`
 }
 
 type Config = *ConfigStruct
