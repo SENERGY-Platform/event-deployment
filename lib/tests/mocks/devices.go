@@ -22,10 +22,29 @@ import (
 )
 
 type DevicesMock struct {
-	GetDeviceInfosOfGroupValues map[string][]model.DevicePerm //key = groupId
+	GetDeviceInfosOfGroupValues map[string][]model.Device //key = groupId
 }
 
-func (this *DevicesMock) GetDeviceInfosOfGroup(groupId string) (devices []model.DevicePerm, deviceTypeIds []string, err error, code int) {
+func (this *DevicesMock) GetDeviceInfosOfDevices(deviceIds []string) (devices []model.Device, deviceTypeIds []string, err error, code int) {
+	allDevices := map[string]model.Device{}
+	for _, group := range this.GetDeviceInfosOfGroupValues {
+		for _, device := range group {
+			allDevices[device.Id] = device
+		}
+	}
+	done := map[string]bool{}
+	for _, deviceId := range deviceIds {
+		device := allDevices[deviceId]
+		devices = append(devices, device)
+		if !done[device.DeviceTypeId] {
+			done[device.DeviceTypeId] = true
+			deviceTypeIds = append(deviceTypeIds, device.DeviceTypeId)
+		}
+	}
+	return devices, deviceTypeIds, nil, 200
+}
+
+func (this *DevicesMock) GetDeviceInfosOfGroup(groupId string) (devices []model.Device, deviceTypeIds []string, err error, code int) {
 	if this.GetDeviceInfosOfGroupValues == nil {
 		return nil, nil, errors.New("DevicesMock.GetDeviceInfosOfGroupValues not set"), 500
 	}

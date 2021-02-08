@@ -19,6 +19,7 @@ package analytics
 import uuid "github.com/satori/go.uuid"
 
 type PipelineRequest struct {
+	Id          string         `json:"id,omitempty"`
 	FlowId      string         `json:"flowId,omitempty"`
 	Name        string         `json:"name,omitempty"`
 	Description string         `json:"description,omitempty"`
@@ -27,7 +28,7 @@ type PipelineRequest struct {
 }
 
 type PipelineNode struct {
-	NodeId string       `json:"nodeId, omitempty"`
+	NodeId string       `json:"nodeId,omitempty"`
 	Inputs []NodeInput  `json:"inputs,omitempty"`
 	Config []NodeConfig `json:"config,omitempty"`
 }

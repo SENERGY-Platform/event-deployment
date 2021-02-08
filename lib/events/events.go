@@ -246,38 +246,13 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, desc)
 		return nil
 	}
-	devices, deviceTypeIds, err, code := this.devices.GetDeviceInfosOfGroup(desc.DeviceGroupId)
+	serviceIds, serviceToDevices, serviceToPath, err, code := this.getServicesPathsAndDevicesForEvent(desc)
 	if err != nil {
 		if code == http.StatusNotFound {
 			return nil //ignore
 		}
 		return err
 	}
-	options, err := this.marshaller.FindPathOptions(
-		deviceTypeIds,
-		desc.FunctionId,
-		desc.AspectId,
-		[]string{},
-		true)
-	if err != nil {
-		log.Println("ERROR: unable to find path options", err)
-		return err
-	}
-	serviceIds := []string{}
-	serviceToDevices := map[string][]string{}
-	serviceToPath := map[string]string{}
-	for _, device := range devices {
-		for _, option := range options[device.DeviceTypeId] {
-			if len(option.JsonPath) > 0 {
-				serviceToDevices[option.ServiceId] = append(serviceToDevices[option.ServiceId], device.Id)
-				if _, ok := serviceToPath[option.ServiceId]; !ok {
-					serviceIds = append(serviceIds, option.ServiceId)
-					serviceToPath[option.ServiceId] = option.JsonPath[0]
-				}
-			}
-		}
-	}
-
 	pipelineId, err := this.analytics.DeployGroup(
 		label,
 		owner,
@@ -293,6 +268,87 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 		return nil
 	}
 	return nil
+}
+
+func (this *Events) updateEventPipelineForDeviceGroup(pipelineId string, label string, owner string, desc model.GroupEventDescription) error {
+	if !this.DeviceGroupsEnabled() {
+		return nil
+	}
+	if desc.DeviceGroupId == "" {
+		debug.PrintStack()
+		return errors.New("missing device group id") //programming error -> dont ignore
+	}
+	if desc.FunctionId == "" {
+		log.Println("WARNING: try to deploy group event without function id --> ignore", label, desc)
+		return nil
+	}
+	if desc.AspectId == "" {
+		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, desc)
+		return nil
+	}
+	if desc.DeploymentId == "" {
+		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, desc)
+		return nil
+	}
+
+	serviceIds, serviceToDevices, serviceToPath, err, code := this.getServicesPathsAndDevicesForEvent(desc)
+	if err != nil {
+		if code == http.StatusNotFound {
+			return nil //ignore
+		}
+		return err
+	}
+
+	err = this.analytics.UpdateGroupDeployment(
+		pipelineId,
+		label,
+		owner,
+		desc,
+		serviceIds,
+		serviceToDevices,
+		serviceToPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDescription) (serviceIds []string, serviceToDevices map[string][]string, serviceToPath map[string]string, err error, code int) {
+	var devices []model.Device
+	var deviceTypeIds []string
+	if desc.DeviceIds != nil {
+		devices, deviceTypeIds, err, code = this.devices.GetDeviceInfosOfDevices(desc.DeviceIds)
+	} else {
+		devices, deviceTypeIds, err, code = this.devices.GetDeviceInfosOfGroup(desc.DeviceGroupId)
+	}
+	if err != nil {
+		return nil, nil, nil, err, code
+	}
+	options, err := this.marshaller.FindPathOptions(
+		deviceTypeIds,
+		desc.FunctionId,
+		desc.AspectId,
+		[]string{},
+		true)
+	if err != nil {
+		log.Println("ERROR: unable to find path options", err)
+		return nil, nil, nil, err, http.StatusInternalServerError
+	}
+	serviceIds = []string{}
+	serviceToDevices = map[string][]string{}
+	serviceToPath = map[string]string{}
+	for _, device := range devices {
+		for _, option := range options[device.DeviceTypeId] {
+			if len(option.JsonPath) > 0 {
+				serviceToDevices[option.ServiceId] = append(serviceToDevices[option.ServiceId], device.Id)
+				if _, ok := serviceToPath[option.ServiceId]; !ok {
+					serviceIds = append(serviceIds, option.ServiceId)
+					serviceToPath[option.ServiceId] = option.JsonPath[0]
+				}
+			}
+		}
+	}
+	return serviceIds, serviceToDevices, serviceToPath, nil, http.StatusOK
 }
 
 func (this *Events) DeviceGroupsEnabled() bool {

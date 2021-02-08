@@ -16,13 +16,13 @@
 
 package model
 
-type DeviceGroupPerm struct {
+type DeviceGroup struct {
 	Id        string   `json:"id"`
 	Name      string   `json:"name"`
 	DeviceIds []string `json:"device_ids"`
 }
 
-type DevicePerm struct {
+type Device struct {
 	Id           string `json:"id"`
 	Name         string `json:"name"`
 	DeviceTypeId string `json:"device_type_id"`
@@ -35,6 +35,7 @@ type PathOptionsResultElement struct {
 
 type GroupEventDescription struct {
 	DeviceGroupId string
+	DeviceIds     []string //optional
 	EventId       string
 	DeploymentId  string
 	FunctionId    string

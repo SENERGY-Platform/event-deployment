@@ -115,7 +115,7 @@ func testDeployment(t *testing.T, testcase string) {
 	}
 
 	devicesMock := mocks.DevicesMock{
-		GetDeviceInfosOfGroupValues: map[string][]model.DevicePerm{},
+		GetDeviceInfosOfGroupValues: map[string][]model.Device{},
 	}
 
 	groupdevicesFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/groupdevices.json"
@@ -224,8 +224,8 @@ func isValidForDeploymentTest(dir string) bool {
 	return files["deploymentcommand.json"] && files["pipelinerequests.json"]
 }
 
-func createTestFlowEngineApi(t *testing.T, example string) (endpointUrl string, close func(), err error) {
-	expectedRequestJson, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + example + "/pipelinerequests.json")
+func createTestFlowEngineApi(t *testing.T, testcase string) (endpointUrl string, close func(), err error) {
+	expectedRequestJson, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + testcase + "/pipelinerequests.json")
 	if err != nil {
 		return endpointUrl, close, err
 	}
@@ -238,27 +238,31 @@ func createTestFlowEngineApi(t *testing.T, example string) (endpointUrl string, 
 
 	count := 0
 	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if count >= len(expectedRequests) {
-			t.Error("to many requests to flow engine \n\n", len(expectedRequests))
-			return
+		if r.Method == "POST" && r.URL.Path == "/pipeline" {
+			if count >= len(expectedRequests) {
+				t.Error("to many requests to flow engine \n\n", len(expectedRequests))
+				return
+			}
+			actualRequest := analytics.PipelineRequest{}
+			err = json.NewDecoder(r.Body).Decode(&actualRequest)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if !reflect.DeepEqual(expectedRequests[count], actualRequest) {
+				expectedJson, _ := json.Marshal(expectedRequests[count])
+				actualJson, _ := json.Marshal(actualRequest)
+				t.Error(string(expectedJson), "\n\n", string(actualJson))
+				return
+			}
+			count = count + 1
+			json.NewEncoder(w).Encode(analytics.Pipeline{
+				Id:   uuid.NewV4(),
+				Name: "test-result",
+			})
+		} else {
+			t.Error("unknown request endpoint", r.Method, r.URL.Path)
 		}
-		actualRequest := analytics.PipelineRequest{}
-		err = json.NewDecoder(r.Body).Decode(&actualRequest)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		if !reflect.DeepEqual(expectedRequests[count], actualRequest) {
-			expectedJson, _ := json.Marshal(expectedRequests[count])
-			actualJson, _ := json.Marshal(actualRequest)
-			t.Error(string(expectedJson), "\n\n", string(actualJson))
-			return
-		}
-		count = count + 1
-		json.NewEncoder(w).Encode(analytics.Pipeline{
-			Id:   uuid.NewV4(),
-			Name: "test-result",
-		})
 	}))
 
 	endpointUrl = endpointMock.URL

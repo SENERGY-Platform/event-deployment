@@ -27,6 +27,7 @@ type AnalyticsFactory interface {
 }
 
 type Analytics interface {
+	UpdateGroupDeployment(pipelineId string, label string, owner string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (err error)
 	DeployGroup(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error)
 	Deploy(label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error)
 	Remove(user string, pipelineId string) error

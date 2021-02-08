@@ -124,9 +124,39 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 }
 
 func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
-	shard, err := this.shards.GetShardForUser(user)
+	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping)
 	if err != nil {
 		return "", err
+	}
+	pipeline, err, code := this.sendDeployRequest(user, request)
+	if err != nil {
+		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
+		debug.PrintStack()
+		return "", err
+	}
+	pipelineId = pipeline.Id.String()
+	return pipelineId, nil
+}
+
+func (this *Analytics) UpdateGroupDeployment(pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (err error) {
+	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping)
+	if err != nil {
+		return err
+	}
+	request.Id = pipelineId
+	_, err, code := this.sendUpdateRequest(user, request)
+	if err != nil {
+		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
+		debug.PrintStack()
+		return err
+	}
+	return nil
+}
+
+func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (request PipelineRequest, err error) {
+	shard, err := this.shards.GetShardForUser(user)
+	if err != nil {
+		return request, err
 	}
 	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
 	if err != nil {
@@ -135,13 +165,13 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 			log.Println("unable to find flow (ignore deployment)", code, err)
 			err = nil
 		}
-		return "", err
+		return request, err
 	}
 	if len(flowCells) != 1 {
 		err = errors.New("expect flow to have exact one operator")
 		log.Println("ERROR: ", err.Error())
 		debug.PrintStack()
-		return "", err
+		return request, err
 	}
 
 	description, err := json.Marshal(EventPipelineDescription{
@@ -155,7 +185,7 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 	})
 	if err != nil {
 		debug.PrintStack()
-		return "", err
+		return request, err
 	}
 
 	inputs := []NodeInput{}
@@ -180,7 +210,7 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 		})
 	}
 
-	pipeline, err, code := this.sendDeployRequest(user, PipelineRequest{
+	return PipelineRequest{
 		FlowId:      desc.FlowId,
 		Name:        label,
 		Description: string(description),
@@ -217,14 +247,7 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 				},
 			},
 		},
-	})
-	if err != nil {
-		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
-		debug.PrintStack()
-		return "", err
-	}
-	pipelineId = pipeline.Id.String()
-	return pipelineId, nil
+	}, nil
 }
 
 func ServiceIdToTopic(id string) string {
@@ -273,6 +296,43 @@ func (this *Analytics) sendDeployRequest(user string, request PipelineRequest) (
 	}
 	req, err := http.NewRequest(
 		"POST",
+		this.config.FlowEngineUrl+"/pipeline",
+		bytes.NewBuffer(body),
+	)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	req.Header.Set("X-UserId", user)
+	resp, err := client.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		debug.PrintStack()
+		return result, errors.New("unexpected statuscode"), resp.StatusCode
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	return result, err, http.StatusOK
+}
+
+func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (result Pipeline, err error, code int) {
+	body, err := json.Marshal(request)
+	if err != nil {
+		return result, err, http.StatusInternalServerError
+	}
+	if this.config.Debug {
+		log.Println("DEBUG: deploy event pipeline", string(body))
+	}
+	client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+	req, err := http.NewRequest(
+		"PUT",
 		this.config.FlowEngineUrl+"/pipeline",
 		bytes.NewBuffer(body),
 	)

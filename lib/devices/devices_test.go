@@ -82,7 +82,7 @@ func TestDevices(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 
-	t.Run("create devices", testCreateDevices(kport, []model.DevicePerm{
+	t.Run("create devices", testCreateDevices(kport, []model.Device{
 		{
 			Id:           "ses:infia:device:d1",
 			Name:         "test-device-1",
@@ -130,7 +130,7 @@ func TestDevices(t *testing.T) {
 		},
 	}))
 
-	t.Run("create device-groups", testCreateDeviceGroups(kport, []model.DeviceGroupPerm{
+	t.Run("create device-groups", testCreateDeviceGroups(kport, []model.DeviceGroup{
 		{
 			Id:   "ses:infia:device-group:dg1",
 			Name: "test-group-1",
@@ -154,7 +154,7 @@ func TestDevices(t *testing.T) {
 	t.Run("check GetDeviceInfosOfGroup", testCheckGetDeviceInfosOfGroupResult(
 		devices,
 		"ses:infia:device-group:dg1",
-		[]model.DevicePerm{
+		[]model.Device{
 			{
 				Id:           "ses:infia:device:d2",
 				Name:         "test-device-2",
@@ -176,7 +176,7 @@ func TestDevices(t *testing.T) {
 		}))
 }
 
-func testCheckGetDeviceInfosOfGroupResult(repo *Devices, deviceGroupId string, expectedDevices []model.DevicePerm, expectedDeviceTypeIds []string) func(t *testing.T) {
+func testCheckGetDeviceInfosOfGroupResult(repo *Devices, deviceGroupId string, expectedDevices []model.Device, expectedDeviceTypeIds []string) func(t *testing.T) {
 	return func(t *testing.T) {
 		actualDevices, actualDeviceTypeIds, err, _ := repo.GetDeviceInfosOfGroup(deviceGroupId)
 		if err != nil {
@@ -198,7 +198,7 @@ func testCheckGetDeviceInfosOfGroupResult(repo *Devices, deviceGroupId string, e
 
 var jwtSubj = "dd69ea0d-f553-4336-80f3-7f4567f85c7b"
 
-func testCreateDeviceGroups(kafkaPort int, groups []model.DeviceGroupPerm) func(t *testing.T) {
+func testCreateDeviceGroups(kafkaPort int, groups []model.DeviceGroup) func(t *testing.T) {
 	return func(t *testing.T) {
 		topic := "device-groups"
 		producer, err := util.GetKafkaProducer([]string{"127.0.0.1:" + strconv.Itoa(kafkaPort)}, topic)
@@ -232,7 +232,7 @@ func testCreateDeviceGroups(kafkaPort int, groups []model.DeviceGroupPerm) func(
 	}
 }
 
-func testCreateDevices(kafkaPort int, devices []model.DevicePerm) func(t *testing.T) {
+func testCreateDevices(kafkaPort int, devices []model.Device) func(t *testing.T) {
 	return func(t *testing.T) {
 		topic := "devices"
 		producer, err := util.GetKafkaProducer([]string{"127.0.0.1:" + strconv.Itoa(kafkaPort)}, topic)

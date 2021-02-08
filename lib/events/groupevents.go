@@ -19,6 +19,7 @@ package events
 import (
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"runtime/debug"
 )
@@ -35,7 +36,7 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 	}
 	switch cmd.Command {
 	case "PUT":
-		return this.updateDeviceGroup(cmd.Owner, cmd.Id)
+		return this.updateDeviceGroup(cmd.Owner, cmd.DeviceGroup)
 	case "DELETE":
 		log.Println("ignore device-group delete")
 		return nil
@@ -45,26 +46,23 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 }
 
 type DeviceGroupCommand struct {
-	Command string `json:"command"`
-	Id      string `json:"id"`
-	Owner   string `json:"owner"`
+	Command     string            `json:"command"`
+	Id          string            `json:"id"`
+	Owner       string            `json:"owner"`
+	DeviceGroup model.DeviceGroup `json:"device_group"`
 }
 
-func (this *Events) updateDeviceGroup(owner string, groupId string) error {
-	pipelines, groupInfos, labels, err := this.analytics.GetPipelinesByDeviceGroupId(owner, groupId)
+func (this *Events) updateDeviceGroup(owner string, group model.DeviceGroup) error {
+	pipelines, groupInfos, labels, err := this.analytics.GetPipelinesByDeviceGroupId(owner, group.Id)
 	if err != nil {
-		log.Println("unable to get pipelines for device-group", owner, groupId, err)
+		log.Println("unable to get pipelines for device-group", owner, group.Id, err)
 		return err
 	}
 	for _, pipeline := range pipelines {
-		err = this.analytics.Remove(owner, pipeline)
-		if err != nil {
-			log.Println("unable to remove pipelines for device-group", owner, groupId, pipeline, err)
-			return err
-		}
 		name := labels[pipeline]
 		info := groupInfos[pipeline]
-		err = this.deployEventForDeviceGroupWithDescription(name, owner, info)
+		info.DeviceIds = group.DeviceIds
+		err = this.updateEventPipelineForDeviceGroup(pipeline, name, owner, info)
 		if err != nil {
 			return err
 		}

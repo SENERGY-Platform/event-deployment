@@ -1,0 +1,15 @@
+{
+  "command": "PUT",
+  "id": "urn:infai:ses:device-group:no-effect",
+  "owner": "testuserid",
+  "device_group": {
+    "id": "urn:infai:ses:device-group:no-effect",
+    "device_ids": [
+      "urn:infai:ses:device:d1",
+      "urn:infai:ses:device:d2",
+      "urn:infai:ses:device:d3",
+      "urn:infai:ses:device:d4",
+      "urn:infai:ses:device:d5"
+    ]
+  }
+}

@@ -26,5 +26,6 @@ type DevicesFactory interface {
 }
 
 type Devices interface {
-	GetDeviceInfosOfGroup(groupId string) (devices []model.DevicePerm, deviceTypeIds []string, err error, code int)
+	GetDeviceInfosOfGroup(groupId string) (devices []model.Device, deviceTypeIds []string, err error, code int)
+	GetDeviceInfosOfDevices(deviceIds []string) (devices []model.Device, deviceTypeIds []string, err error, code int)
 }

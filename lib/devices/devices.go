@@ -44,7 +44,7 @@ func New(config config.Config) *Devices {
 	}
 }
 
-func (this *Devices) GetDeviceInfosOfGroup(groupId string) (devices []model.DevicePerm, deviceTypeIds []string, err error, code int) {
+func (this *Devices) GetDeviceInfosOfGroup(groupId string) (devices []model.Device, deviceTypeIds []string, err error, code int) {
 	token, err := this.auth.Ensure()
 	if err != nil {
 		return devices, nil, err, http.StatusInternalServerError
@@ -53,7 +53,15 @@ func (this *Devices) GetDeviceInfosOfGroup(groupId string) (devices []model.Devi
 	if err != nil {
 		return devices, nil, err, code
 	}
-	devices, err, code = this.GetDevicesWithIds(token, group.DeviceIds)
+	return this.GetDeviceInfosOfDevices(group.DeviceIds)
+}
+
+func (this *Devices) GetDeviceInfosOfDevices(deviceIds []string) (devices []model.Device, deviceTypeIds []string, err error, code int) {
+	token, err := this.auth.Ensure()
+	if err != nil {
+		return devices, nil, err, http.StatusInternalServerError
+	}
+	devices, err, code = this.GetDevicesWithIds(token, deviceIds)
 	if err != nil {
 		return devices, nil, err, code
 	}
@@ -67,8 +75,8 @@ func (this *Devices) GetDeviceInfosOfGroup(groupId string) (devices []model.Devi
 	return devices, deviceTypeIds, nil, http.StatusOK
 }
 
-func (this *Devices) GetDeviceGroup(token AuthToken, groupId string) (result model.DeviceGroupPerm, err error, code int) {
-	groups := []model.DeviceGroupPerm{}
+func (this *Devices) GetDeviceGroup(token AuthToken, groupId string) (result model.DeviceGroup, err error, code int) {
+	groups := []model.DeviceGroup{}
 	err, code = this.Search(token, QueryMessage{
 		Resource: "device-groups",
 		ListIds: &QueryListIds{
@@ -91,7 +99,7 @@ func (this *Devices) GetDeviceGroup(token AuthToken, groupId string) (result mod
 	return groups[0], nil, http.StatusOK
 }
 
-func (this *Devices) GetDevicesWithIds(token AuthToken, ids []string) (result []model.DevicePerm, err error, code int) {
+func (this *Devices) GetDevicesWithIds(token AuthToken, ids []string) (result []model.Device, err error, code int) {
 	err, code = this.Search(token, QueryMessage{
 		Resource: "devices",
 		ListIds: &QueryListIds{
