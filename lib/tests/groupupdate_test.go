@@ -28,37 +28,31 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
-	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"reflect"
 	"runtime/debug"
 	"sync"
 	"testing"
 )
 
-const RESOURCES_DIR = "resources/"
-const DEPLOYMENT_EXAMPLES_DIR = RESOURCES_DIR + "deployment_examples/"
+const GROUPUPDATE_EXAMPLES_DIR = RESOURCES_DIR + "groupupdate_examples/"
 
-func TestDeployment(t *testing.T) {
-	infos, err := ioutil.ReadDir(DEPLOYMENT_EXAMPLES_DIR)
+func TestGroupUpdate(t *testing.T) {
+	infos, err := ioutil.ReadDir(GROUPUPDATE_EXAMPLES_DIR)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	for _, info := range infos {
 		name := info.Name()
-		if info.IsDir() && isValidForDeploymentTest(DEPLOYMENT_EXAMPLES_DIR+name) {
+		if info.IsDir() && isValidForGroupUpdateTest(GROUPUPDATE_EXAMPLES_DIR+name) {
 			t.Run(name, func(t *testing.T) {
-				testDeployment(t, name)
+				testGroupUpdate(t, name)
 			})
 		}
 	}
 }
 
-func testDeployment(t *testing.T, testcase string) {
+func testGroupUpdate(t *testing.T, testcase string) {
 	t.Parallel()
 	defer func() {
 		if r := recover(); r != nil {
@@ -75,7 +69,7 @@ func testDeployment(t *testing.T, testcase string) {
 	conf.AuthClientId = "mocked"
 	conf.PermSearchUrl = "mocked"
 
-	deploymentCmd, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + testcase + "/deploymentcommand.json")
+	updateCmd, err := ioutil.ReadFile(GROUPUPDATE_EXAMPLES_DIR + testcase + "/groupcommand.json")
 	if err != nil {
 		t.Error(err)
 		return
@@ -86,7 +80,7 @@ func testDeployment(t *testing.T, testcase string) {
 		FindPathOptionsValue: map[string]map[string]map[string][]model.PathOptionsResultElement{},
 	}
 
-	marshallerResponsesFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/marshallerresponses.json"
+	marshallerResponsesFilePath := GROUPUPDATE_EXAMPLES_DIR + testcase + "/marshallerresponses.json"
 	if fileExists(marshallerResponsesFilePath) {
 		marshallerResponsesJson, err := ioutil.ReadFile(marshallerResponsesFilePath)
 		if err != nil {
@@ -100,7 +94,7 @@ func testDeployment(t *testing.T, testcase string) {
 		}
 	}
 
-	pathoptionsFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/marshallerresponses_pathoptions.json"
+	pathoptionsFilePath := GROUPUPDATE_EXAMPLES_DIR + testcase + "/marshallerresponses_pathoptions.json"
 	if fileExists(pathoptionsFilePath) {
 		marshallerResponsesPathoptionsJson, err := ioutil.ReadFile(pathoptionsFilePath)
 		if err != nil {
@@ -118,7 +112,7 @@ func testDeployment(t *testing.T, testcase string) {
 		GetDeviceInfosOfGroupValues: map[string][]model.Device{},
 	}
 
-	groupdevicesFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/groupdevices.json"
+	groupdevicesFilePath := GROUPUPDATE_EXAMPLES_DIR + testcase + "/groupdevices.json"
 	if fileExists(groupdevicesFilePath) {
 		groupdevicesJson, err := ioutil.ReadFile(groupdevicesFilePath)
 		if err != nil {
@@ -133,7 +127,7 @@ func testDeployment(t *testing.T, testcase string) {
 	}
 
 	closeTestPipelineRepoApi := func() {}
-	conf.PipelineRepoUrl, closeTestPipelineRepoApi, err = createTestPipelineRepoApi(DEPLOYMENT_EXAMPLES_DIR + testcase + "/knownpipelines.json")
+	conf.PipelineRepoUrl, closeTestPipelineRepoApi, err = createTestPipelineRepoApi(GROUPUPDATE_EXAMPLES_DIR + testcase + "/knownpipelines.json")
 	if err != nil {
 		t.Error(err)
 		return
@@ -149,7 +143,7 @@ func testDeployment(t *testing.T, testcase string) {
 	defer closeTestFlowParserApi()
 
 	closeTestFlowEngineApi := func() {}
-	conf.FlowEngineUrl, closeTestFlowEngineApi, err = createTestFlowEngineApi(t, DEPLOYMENT_EXAMPLES_DIR+testcase)
+	conf.FlowEngineUrl, closeTestFlowEngineApi, err = createTestFlowEngineApi(t, GROUPUPDATE_EXAMPLES_DIR+testcase)
 	if err != nil {
 		t.Error(err)
 		return
@@ -195,22 +189,14 @@ func testDeployment(t *testing.T, testcase string) {
 		return
 	}
 
-	err = event.HandleCommand(deploymentCmd)
+	err = event.HandleDeviceGroupUpdate(updateCmd)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 }
 
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func isValidForDeploymentTest(dir string) bool {
+func isValidForGroupUpdateTest(dir string) bool {
 	infos, err := ioutil.ReadDir(dir)
 	if err != nil {
 		panic(err)
@@ -221,89 +207,5 @@ func isValidForDeploymentTest(dir string) bool {
 			files[info.Name()] = true
 		}
 	}
-	return files["deploymentcommand.json"] && files["pipelinerequests.json"]
-}
-
-func createTestFlowEngineApi(t *testing.T, fullTestCasePath string) (endpointUrl string, close func(), err error) {
-	expectedRequestJson, err := ioutil.ReadFile(fullTestCasePath + "/pipelinerequests.json")
-	if err != nil {
-		return endpointUrl, close, err
-	}
-
-	expectedRequests := []analytics.PipelineRequest{}
-	err = json.Unmarshal(expectedRequestJson, &expectedRequests)
-	if err != nil {
-		return endpointUrl, close, err
-	}
-
-	count := 0
-	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if (r.Method == "POST" || r.Method == "PUT") && r.URL.Path == "/pipeline" {
-			if count >= len(expectedRequests) {
-				t.Error("to many requests to flow engine \n\n", len(expectedRequests))
-				return
-			}
-			actualRequest := analytics.PipelineRequest{}
-			err = json.NewDecoder(r.Body).Decode(&actualRequest)
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			if !reflect.DeepEqual(expectedRequests[count], actualRequest) {
-				expectedJson, _ := json.Marshal(expectedRequests[count])
-				actualJson, _ := json.Marshal(actualRequest)
-				t.Error(string(expectedJson), "\n\n", string(actualJson))
-				return
-			}
-			count = count + 1
-			json.NewEncoder(w).Encode(analytics.Pipeline{
-				Id:   uuid.NewV4(),
-				Name: "test-result",
-			})
-		} else {
-			t.Error("unknown request endpoint", r.Method, r.URL.Path)
-		}
-	}))
-
-	endpointUrl = endpointMock.URL
-	close = func() {
-		endpointMock.Close()
-		if count < len(expectedRequests) {
-			t.Error("missing requests to flow engine", count, len(expectedRequests))
-		}
-	}
-	return
-}
-
-func createTestFlowParserApi() (endpointUrl string, close func(), err error) {
-	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode([]analytics.FlowModelCell{{Id: "test-flow-cell-id"}})
-	}))
-	endpointUrl = endpointMock.URL
-	close = func() {
-		endpointMock.Close()
-	}
-	return
-}
-
-func createTestPipelineRepoApi(pipelinesFilePath string) (endpointUrl string, close func(), err error) {
-	pipelines := []interface{}{}
-	if fileExists(pipelinesFilePath) {
-		groupdevicesJson, err := ioutil.ReadFile(pipelinesFilePath)
-		if err != nil {
-			return endpointUrl, func() {}, err
-		}
-		err = json.Unmarshal(groupdevicesJson, &pipelines)
-		if err != nil {
-			return endpointUrl, func() {}, err
-		}
-	}
-	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(pipelines)
-	}))
-	endpointUrl = endpointMock.URL
-	close = func() {
-		endpointMock.Close()
-	}
-	return
+	return files["groupcommand.json"] && files["pipelinerequests.json"]
 }
