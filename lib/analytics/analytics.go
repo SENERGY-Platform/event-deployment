@@ -41,5 +41,8 @@ func (this *FactoryType) New(ctx context.Context, config config.Config) (interfa
 		return nil, err
 	}
 	timeout, err := time.ParseDuration(config.AnalyticsRequestTimeout)
+	if err != nil {
+		return nil, err
+	}
 	return &Analytics{config: config, shards: s, timeout: timeout}, nil
 }
