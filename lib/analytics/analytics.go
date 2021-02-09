@@ -22,6 +22,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics/shards"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
+	"time"
 )
 
 type FactoryType struct{}
@@ -29,8 +30,9 @@ type FactoryType struct{}
 var Factory = &FactoryType{}
 
 type Analytics struct {
-	config config.Config
-	shards *shards.Shards
+	config  config.Config
+	shards  *shards.Shards
+	timeout time.Duration
 }
 
 func (this *FactoryType) New(ctx context.Context, config config.Config) (interfaces.Analytics, error) {
@@ -38,5 +40,6 @@ func (this *FactoryType) New(ctx context.Context, config config.Config) (interfa
 	if err != nil {
 		return nil, err
 	}
-	return &Analytics{config: config, shards: s}, nil
+	timeout, err := time.ParseDuration(config.AnalyticsRequestTimeout)
+	return &Analytics{config: config, shards: s, timeout: timeout}, nil
 }

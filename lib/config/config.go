@@ -42,6 +42,7 @@ type ConfigStruct struct {
 	ConnectivityTest        bool   `json:"connectivity_test"`
 	CamundaEventTriggerPath string `json:"camunda_event_trigger_path"`
 	ShardsDb                string `json:"shards_db"`
+	AnalyticsRequestTimeout string `json:"analytics_request_timeout"`
 
 	//if not configured: no device-group updates handled
 	DeviceGroupTopic string `json:"device_group_topic"`

@@ -12,6 +12,7 @@
   "connectivity_test":false,
   "camunda_event_trigger_path":"/engine-rest/message",
   "shards_db": "postgres://usr:pw@databasip:5432/shards?sslmode=disable",
+  "analytics_request_timeout": "30s",
 
   "device_group_topic": "device-groups",
   "perm_search_url": "",

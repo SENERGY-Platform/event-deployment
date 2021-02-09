@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"runtime/debug"
 	"strings"
-	"time"
 )
 
 func (this *Analytics) Deploy(label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error) {
@@ -262,7 +261,7 @@ func ServiceIdToTopic(id string) string {
 
 func (this *Analytics) Remove(user string, pipelineId string) error {
 	client := http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: this.timeout,
 	}
 	req, err := http.NewRequest(
 		"DELETE",
@@ -296,7 +295,7 @@ func (this *Analytics) sendDeployRequest(user string, request PipelineRequest) (
 		log.Println("DEBUG: deploy event pipeline", string(body))
 	}
 	client := http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: this.timeout,
 	}
 	req, err := http.NewRequest(
 		"POST",
@@ -333,7 +332,7 @@ func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (
 		log.Println("DEBUG: deploy event pipeline", string(body))
 	}
 	client := http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: this.timeout,
 	}
 	req, err := http.NewRequest(
 		"PUT",
