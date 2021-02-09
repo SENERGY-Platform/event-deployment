@@ -41,7 +41,6 @@ type NodeConfig struct {
 const DeviceFilterType = "deviceId"
 
 type NodeInput struct {
-	DeviceId   string      `json:"deviceId,omitempty"` //deprecated
 	FilterIds  string      `json:"filterIds,omitempty"`
 	FilterType string      `json:"filterType"`
 	TopicName  string      `json:"topicName,omitempty"`
