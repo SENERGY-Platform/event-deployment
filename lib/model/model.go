@@ -34,6 +34,8 @@ type PathOptionsResultElement struct {
 }
 
 type GroupEventDescription struct {
+	ImportId      string
+	Path          string
 	DeviceGroupId string
 	DeviceIds     []string //optional
 	EventId       string

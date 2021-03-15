@@ -41,10 +41,11 @@ type Events struct {
 	analytics  interfaces.Analytics
 	marshaller interfaces.Marshaller
 	devices    interfaces.Devices
+	imports    interfaces.Imports
 }
 
-func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, marshaller interfaces.Marshaller, devices interfaces.Devices) (interfaces.Events, error) {
-	return &Events{config: config, analytics: analytics, marshaller: marshaller, devices: devices}, nil
+func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, marshaller interfaces.Marshaller, devices interfaces.Devices, imports interfaces.Imports) (interfaces.Events, error) {
+	return &Events{config: config, analytics: analytics, marshaller: marshaller, devices: devices, imports: imports}, nil
 }
 
 func (this *Events) HandleCommand(msg []byte) error {
@@ -77,12 +78,12 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 		return err
 	}
 	for _, element := range deployment.Elements {
-		err = this.deplayElement(owner, deployment.Id, element)
+		err = this.deployElement(owner, deployment.Id, element)
 	}
 	return nil
 }
 
-func (this *Events) deplayElement(owner string, deploymentId string, element deploymentmodel.Element) (err error) {
+func (this *Events) deployElement(owner string, deploymentId string, element deploymentmodel.Element) (err error) {
 	event := element.MessageEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
 		label := element.Name + " (" + event.EventId + ")"
@@ -91,6 +92,9 @@ func (this *Events) deplayElement(owner string, deploymentId string, element dep
 		}
 		if event.Selection.SelectedDeviceId != nil && event.Selection.SelectedServiceId != nil {
 			return this.deployEventForDevice(label, owner, deploymentId, event)
+		}
+		if event.Selection.SelectedImportId != nil {
+			return this.deployEventForImport(label, owner, deploymentId, event)
 		}
 	}
 	return nil
@@ -165,7 +169,15 @@ func (this *Events) deployEventForDevice(label string, owner string, deploymentI
 		debug.PrintStack()
 		return errors.New("missing service id") //programming error -> dont ignore
 	}
-	path, characteristicId, err := this.GetPathAndCharacteristicForEvent(event)
+	var path string
+	var castFrom string
+	var err error
+	if event.Selection.SelectedCharacteristicId != nil && event.Selection.SelectedPath != nil {
+		castFrom = *event.Selection.SelectedCharacteristicId
+		path = *event.Selection.SelectedPath
+	} else {
+		path, castFrom, err = this.GetPathAndCharacteristicForEvent(event)
+	}
 	if err == ErrMissingCharacteristicInEvent || err == marshaller.ErrCharacteristicNotFoundInService || err == marshaller.ErrServiceNotFound {
 		log.Println("WARNING: error on marshaller request;", err, "-> ignore event", event)
 		return nil
@@ -183,7 +195,7 @@ func (this *Events) deployEventForDevice(label string, owner string, deploymentI
 		*event.Selection.SelectedServiceId,
 		event.Value,
 		"value."+path,
-		characteristicId,
+		castFrom,
 		*event.Selection.FilterCriteria.CharacteristicId)
 	if err != nil {
 		return err
@@ -196,7 +208,7 @@ func (this *Events) deployEventForDevice(label string, owner string, deploymentI
 }
 
 func (this *Events) deployEventForDeviceGroup(label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
-	if !this.DeviceGroupsEnabled() {
+	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
 	}
 	if event == nil {
@@ -227,7 +239,7 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 }
 
 func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner string, desc model.GroupEventDescription) error {
-	if !this.DeviceGroupsEnabled() {
+	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
 	}
 	if desc.DeviceGroupId == "" {
@@ -271,7 +283,7 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 }
 
 func (this *Events) updateEventPipelineForDeviceGroup(pipelineId string, label string, owner string, desc model.GroupEventDescription) error {
-	if !this.DeviceGroupsEnabled() {
+	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
 	}
 	if desc.DeviceGroupId == "" {
@@ -351,7 +363,7 @@ func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDesc
 	return serviceIds, serviceToDevices, serviceToPath, nil, http.StatusOK
 }
 
-func (this *Events) DeviceGroupsEnabled() bool {
+func (this *Events) DeviceGroupsAndImportsEnabled() bool {
 	if this.config.AuthClientId == "" {
 		return false
 	}
@@ -365,4 +377,77 @@ func (this *Events) DeviceGroupsEnabled() bool {
 		return false
 	}
 	return true
+}
+
+func (this *Events) deployEventForImport(label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+	if !this.DeviceGroupsAndImportsEnabled() {
+		return nil
+	}
+	if event == nil {
+		debug.PrintStack()
+		return errors.New("missing event element") //programming error -> dont ignore
+	}
+	if event.Selection.SelectedImportId == nil {
+		debug.PrintStack()
+		return errors.New("missing import id") //programming error -> dont ignore
+	}
+	if event.Selection.FilterCriteria.FunctionId == nil {
+		log.Println("WARNING: try to deploy group event without function id --> ignore", label, deploymentId, event)
+		return nil
+	}
+	if event.Selection.FilterCriteria.AspectId == nil {
+		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, deploymentId, event)
+		return nil
+	}
+	var castFrom string
+	if event.Selection.SelectedCharacteristicId != nil {
+		castFrom = *event.Selection.SelectedCharacteristicId
+	}
+	return this.deployEventForImportWithDescription(label, owner, model.GroupEventDescription{
+		ImportId:      *event.Selection.SelectedImportId,
+		EventId:       event.EventId,
+		DeploymentId:  deploymentId,
+		FunctionId:    *event.Selection.FilterCriteria.FunctionId,
+		AspectId:      *event.Selection.FilterCriteria.AspectId,
+		FlowId:        event.FlowId,
+		OperatorValue: event.Value,
+		Path:          *event.Selection.SelectedPath,
+	}, castFrom, *event.Selection.FilterCriteria.CharacteristicId)
+}
+
+func (this *Events) deployEventForImportWithDescription(label string, owner string, desc model.GroupEventDescription, castFrom string, castTo string) error {
+	if !this.DeviceGroupsAndImportsEnabled() {
+		return nil
+	}
+	if desc.ImportId == "" {
+		debug.PrintStack()
+		return errors.New("missing import id") //programming error -> dont ignore
+	}
+	if desc.DeploymentId == "" {
+		log.Println("WARNING: try to deploy import event without deployment id --> ignore", label, desc)
+		return nil
+	}
+	if desc.Path == "" {
+		return errors.New("missing path") //programming error -> dont ignore
+	}
+	topic, err, _ := this.imports.GetTopic(owner, desc.ImportId)
+	if err != nil {
+		return err
+	}
+	pipelineId, err := this.analytics.DeployImport(
+		label,
+		owner,
+		desc,
+		topic,
+		desc.Path,
+		castFrom,
+		castTo)
+	if err != nil {
+		return err
+	}
+	if pipelineId == "" {
+		log.Println("WARNING: event not deployed in analytics -> ignore event", desc)
+		return nil
+	}
+	return nil
 }

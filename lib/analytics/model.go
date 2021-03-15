@@ -39,6 +39,7 @@ type NodeConfig struct {
 }
 
 const DeviceFilterType = "deviceId"
+const ImportFilterType = "ImportId"
 
 type NodeInput struct {
 	FilterIds  string      `json:"filterIds,omitempty"`
@@ -118,6 +119,7 @@ type Flow struct {
 }
 
 type EventPipelineDescription struct {
+	ImportId      string `json:"import_id,omitempty"`
 	DeviceGroupId string `json:"device_group_id,omitempty"`
 	DeviceId      string `json:"device_id,omitempty"`
 	ServiceId     string `json:"service_id,omitempty"`

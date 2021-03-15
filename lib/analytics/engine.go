@@ -357,3 +357,105 @@ func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	return result, err, http.StatusOK
 }
+
+func (this *Analytics) DeployImport(label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (pipelineId string, err error) {
+	request, err := this.getPipelineRequestForImportDeployment(label, user, desc, topic, path, castFrom, castTo)
+	if err != nil {
+		return "", err
+	}
+	pipeline, err, code := this.sendDeployRequest(user, request)
+	if err != nil {
+		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
+		debug.PrintStack()
+		return "", err
+	}
+	pipelineId = pipeline.Id.String()
+	return pipelineId, nil
+}
+
+func (this *Analytics) getPipelineRequestForImportDeployment(label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (request PipelineRequest, err error) {
+	shard, err := this.shards.GetShardForUser(user)
+	if err != nil {
+		return request, err
+	}
+	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
+	if err != nil {
+		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
+		if code == http.StatusNotFound || code == http.StatusForbidden || code == http.StatusUnauthorized {
+			log.Println("unable to find flow (ignore deployment)", code, err)
+			err = nil
+		}
+		return request, err
+	}
+	if len(flowCells) != 1 {
+		err = errors.New("expect flow to have exact one operator")
+		log.Println("ERROR: ", err.Error())
+		debug.PrintStack()
+		return request, err
+	}
+
+	description, err := json.Marshal(EventPipelineDescription{
+		ImportId:      desc.ImportId,
+		FunctionId:    desc.FunctionId,
+		AspectId:      desc.AspectId,
+		OperatorValue: desc.OperatorValue,
+		EventId:       desc.EventId,
+		DeploymentId:  desc.DeploymentId,
+		FlowId:        desc.FlowId,
+	})
+	if err != nil {
+		debug.PrintStack()
+		return request, err
+	}
+
+	inputs := []NodeInput{}
+
+	inputs = append(inputs, NodeInput{
+		FilterIds:  desc.ImportId,
+		FilterType: ImportFilterType,
+		TopicName:  topic,
+		Values: []NodeValue{{
+			Name: "value",
+			Path: path,
+		}},
+	})
+
+	return PipelineRequest{
+		FlowId:      desc.FlowId,
+		Name:        label,
+		Description: string(description),
+		WindowTime:  0,
+		Nodes: []PipelineNode{
+			{
+				NodeId: flowCells[0].Id,
+				Inputs: inputs,
+				Config: []NodeConfig{
+					{
+						Name:  "value",
+						Value: desc.OperatorValue,
+					},
+					{
+						Name:  "url",
+						Value: shard + this.config.CamundaEventTriggerPath,
+					},
+					{
+						Name:  "eventId",
+						Value: desc.EventId,
+					},
+					{
+						Name:  "converterUrl",
+						Value: this.config.ConverterUrl,
+					},
+					{
+						Name:  "convertFrom",
+						Value: castFrom,
+					},
+					{
+						Name:  "convertTo",
+						Value: castTo,
+					},
+				},
+			},
+		},
+	}, nil
+}

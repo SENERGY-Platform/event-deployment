@@ -183,7 +183,7 @@ func testGroupUpdate(t *testing.T, testcase string) {
 		return
 	}
 
-	event, err := events.Factory.New(ctx, conf, a, &marshallerMock, &devicesMock)
+	event, err := events.Factory.New(ctx, conf, a, &marshallerMock, &devicesMock, &mocks.ImportsMock{})
 	if err != nil {
 		t.Error(err)
 		return

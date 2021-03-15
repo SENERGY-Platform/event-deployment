@@ -23,6 +23,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/devices"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
+	"github.com/SENERGY-Platform/event-deployment/lib/imports"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/kafka"
 	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
@@ -42,7 +43,7 @@ func Start(ctx context.Context, config config.Config, sourcing interfaces.Sourci
 		return err
 	}
 
-	event, err := events.New(ctx, config, a, m, devices.New(config))
+	event, err := events.New(ctx, config, a, m, devices.New(config), imports.New(config))
 	if err != nil {
 		return err
 	}

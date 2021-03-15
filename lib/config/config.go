@@ -36,6 +36,7 @@ type ConfigStruct struct {
 	FlowEngineUrl           string `json:"flow_engine_url"`
 	FlowParserUrl           string `json:"flow_parser_url"`
 	PipelineRepoUrl         string `json:"pipeline_repo_url"`
+	ImportDeployUrl         string `json:"import_deploy_url"`
 	ConsumerGroup           string `json:"consumer_group"`
 	Debug                   bool   `json:"debug"`
 	DeploymentTopic         string `json:"deployment_topic"`

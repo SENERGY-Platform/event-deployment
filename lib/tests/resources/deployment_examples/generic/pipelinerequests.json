@@ -32,7 +32,8 @@
           "value":"event_id_1"
         },
         {
-          "name":"converterUrl"
+          "name":"converterUrl",
+          "value": "http://converter:8080/conversions"
         },
         {
           "name":"convertFrom",

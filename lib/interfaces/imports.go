@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 InfAI (CC SES)
+ * Copyright 2021 InfAI (CC SES)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,13 @@
 package interfaces
 
 import (
-	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
-type EventsFactory interface {
-	New(ctx context.Context, config config.Config, analytics Analytics, marshaller Marshaller, devices Devices, imports Imports) (Events, error)
+type ImportsFactory interface {
+	New(config config.Config) Imports
 }
 
-type Events interface {
-	HandleCommand(msg []byte) error
-	HandleDeviceGroupUpdate(msg []byte) error
-	CheckEvent(jwt jwt_http_router.Jwt, id string) int
-	GetEventStates(jwt jwt_http_router.Jwt, ids []string) (states map[string]bool, err error, code int)
+type Imports interface {
+	GetTopic(user string, importId string) (topic string, err error, code int)
 }
