@@ -20,12 +20,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"log"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Devices) Search(token AuthToken, query QueryMessage, result interface{}) (err error, code int) {
+func (this *Devices) Search(token auth.AuthToken, query QueryMessage, result interface{}) (err error, code int) {
 	requestBody := new(bytes.Buffer)
 	err = json.NewEncoder(requestBody).Encode(query)
 	if err != nil {

@@ -17,13 +17,10 @@
 package imports
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/importmodel"
-	"log"
 	"net/http"
 	"runtime/debug"
 )
@@ -38,43 +35,29 @@ var Factory = &FactoryType{}
 
 type Imports struct {
 	config config.Config
+	auth   *auth.Auth
 }
 
 func New(config config.Config) *Imports {
 	return &Imports{
 		config: config,
+		auth:   auth.NewAuth(config),
 	}
 }
 
 func (this *Imports) GetTopic(user string, importId string) (topic string, err error, code int) {
-	req, err := http.NewRequest("GET", this.config.ImportDeployUrl+"/instances/"+importId, nil)
+	token, err := this.auth.GetUserToken(user)
 	if err != nil {
 		debug.PrintStack()
 		return "", err, http.StatusInternalServerError
-	}
-	req.Header.Set("X-UserId", user)
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		debug.PrintStack()
-		return "", err, http.StatusInternalServerError
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		buf := new(bytes.Buffer)
-		_, err = buf.ReadFrom(resp.Body)
-		if err != nil {
-			return "", err, resp.StatusCode
-		}
-		err = errors.New(buf.String())
-		log.Println("ERROR: ", resp.StatusCode, err)
-		debug.PrintStack()
-		return "", err, resp.StatusCode
 	}
 	var importInstance importmodel.Import
-	err = json.NewDecoder(resp.Body).Decode(&importInstance)
+	err = token.GetJSON(this.config.ImportDeployUrl+"/instances/"+importId, &importInstance)
 	if err != nil {
-		return "", err, http.StatusInternalServerError
+		debug.PrintStack()
+		return "", err, http.StatusBadGateway
 	}
+
 	topic = importInstance.KafkaTopic
 	return topic, nil, 200
 }

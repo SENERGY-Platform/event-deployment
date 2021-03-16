@@ -18,6 +18,7 @@ package devices
 
 import (
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
@@ -34,13 +35,13 @@ var Factory = &FactoryType{}
 
 type Devices struct {
 	config config.Config
-	auth   *Auth
+	auth   *auth.Auth
 }
 
 func New(config config.Config) *Devices {
 	return &Devices{
 		config: config,
-		auth:   NewAuth(config),
+		auth:   auth.NewAuth(config),
 	}
 }
 
@@ -75,7 +76,7 @@ func (this *Devices) GetDeviceInfosOfDevices(deviceIds []string) (devices []mode
 	return devices, deviceTypeIds, nil, http.StatusOK
 }
 
-func (this *Devices) GetDeviceGroup(token AuthToken, groupId string) (result model.DeviceGroup, err error, code int) {
+func (this *Devices) GetDeviceGroup(token auth.AuthToken, groupId string) (result model.DeviceGroup, err error, code int) {
 	groups := []model.DeviceGroup{}
 	err, code = this.Search(token, QueryMessage{
 		Resource: "device-groups",
@@ -99,7 +100,7 @@ func (this *Devices) GetDeviceGroup(token AuthToken, groupId string) (result mod
 	return groups[0], nil, http.StatusOK
 }
 
-func (this *Devices) GetDevicesWithIds(token AuthToken, ids []string) (result []model.Device, err error, code int) {
+func (this *Devices) GetDevicesWithIds(token auth.AuthToken, ids []string) (result []model.Device, err error, code int) {
 	err, code = this.Search(token, QueryMessage{
 		Resource: "devices",
 		ListIds: &QueryListIds{

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package devices
+package auth
 
 import (
 	"encoding/json"
@@ -22,6 +22,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"net/url"
@@ -82,6 +83,56 @@ func (this *Auth) Ensure() (token AuthToken, err error) {
 		this.openid = &OpenidToken{}
 	}
 	token = AuthToken("Bearer " + this.openid.AccessToken)
+	return
+}
+
+func (this *Auth) GetUserToken(userid string) (token AuthToken, err error) {
+	resp, err := http.PostForm(this.config.AuthEndpoint+"/auth/realms/master/protocol/openid-connect/token", url.Values{
+		"client_id":         {this.config.AuthClientId},
+		"client_secret":     {this.config.AuthClientSecret},
+		"grant_type":        {"urn:ietf:params:oauth:grant-type:token-exchange"},
+		"requested_subject": {userid},
+	})
+	if err != nil {
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := ioutil.ReadAll(resp.Body)
+		log.Println("ERROR: GetUserToken()", resp.StatusCode, string(body))
+		err = errors.New("access denied")
+		resp.Body.Close()
+		return
+	}
+	var openIdToken OpenidToken
+	err = json.NewDecoder(resp.Body).Decode(&openIdToken)
+	if err != nil {
+		return
+	}
+	return AuthToken("Bearer " + openIdToken.AccessToken), nil
+}
+
+func (this *AuthToken) GetJSON(url string, result interface{}) (err error) {
+	resp, err := this.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("unexpected status code " + strconv.Itoa(resp.StatusCode))
+	}
+	return json.NewDecoder(resp.Body).Decode(&result)
+}
+
+func (this *AuthToken) Get(url string) (resp *http.Response, err error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", string(*this))
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err = client.Do(req)
 	return
 }
 
