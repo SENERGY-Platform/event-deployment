@@ -1,7 +1,7 @@
 {
   "urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097": {
     "urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43": {
-      "path": "energy.level",
+      "path": "value.energy.level",
       "service_characteristic_id": "service-characteristic-id"
     }
   }

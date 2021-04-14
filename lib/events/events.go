@@ -194,7 +194,7 @@ func (this *Events) deployEventForDevice(label string, owner string, deploymentI
 		*event.Selection.SelectedDeviceId,
 		*event.Selection.SelectedServiceId,
 		event.Value,
-		"value."+path,
+		path,
 		castFrom,
 		*event.Selection.FilterCriteria.CharacteristicId)
 	if err != nil {
