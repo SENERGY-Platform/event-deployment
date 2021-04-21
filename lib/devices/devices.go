@@ -35,13 +35,21 @@ var Factory = &FactoryType{}
 
 type Devices struct {
 	config config.Config
-	auth   *auth.Auth
+	auth   Auth
+}
+
+type Auth interface {
+	Ensure() (token auth.AuthToken, err error)
 }
 
 func New(config config.Config) *Devices {
+	return NewWithAuth(config, auth.NewAuth(config))
+}
+
+func NewWithAuth(config config.Config, auth Auth) *Devices {
 	return &Devices{
 		config: config,
-		auth:   auth.NewAuth(config),
+		auth:   auth,
 	}
 }
 
