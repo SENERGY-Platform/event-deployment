@@ -255,7 +255,7 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 		return nil
 	}
 	if desc.DeploymentId == "" {
-		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, desc)
+		log.Println("WARNING: try to deploy group event without deployment id --> ignore", label, desc)
 		return nil
 	}
 	serviceIds, serviceToDevices, serviceToPath, err, code := this.getServicesPathsAndDevicesForEvent(desc)
@@ -299,7 +299,7 @@ func (this *Events) updateEventPipelineForDeviceGroup(pipelineId string, label s
 		return nil
 	}
 	if desc.DeploymentId == "" {
-		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, desc)
+		log.Println("WARNING: try to deploy group event without deployment id --> ignore", label, desc)
 		return nil
 	}
 

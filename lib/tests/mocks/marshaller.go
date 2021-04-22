@@ -23,7 +23,7 @@ import (
 )
 
 type MarshallerMock struct {
-	FindPathValues       map[string]map[string]marshaller.Response
+	FindPathValues       map[string]map[string]marshaller.Response                         //serviceId.characteristicId
 	FindPathOptionsValue map[string]map[string]map[string][]model.PathOptionsResultElement //function.aspect.device-type
 }
 
