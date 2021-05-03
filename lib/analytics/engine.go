@@ -123,8 +123,8 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 	return pipelineId, nil
 }
 
-func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (pipelineId string, err error) {
-	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping)
+func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error) {
+	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
 	if err != nil {
 		return "", err
 	}
@@ -138,8 +138,8 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 	return pipelineId, nil
 }
 
-func (this *Analytics) UpdateGroupDeployment(pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (err error) {
-	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping)
+func (this *Analytics) UpdateGroupDeployment(pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (err error) {
+	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (this *Analytics) UpdateGroupDeployment(pipelineId string, label string, us
 	return nil
 }
 
-func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string) (request PipelineRequest, err error) {
+func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (request PipelineRequest, err error) {
 	shard, err := this.shards.GetShardForUser(user)
 	if err != nil {
 		return request, err
@@ -211,6 +211,12 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user s
 		})
 	}
 
+	serviceToPathAndCharacteristicStr, err := json.Marshal(serviceToPathAndCharacteristic)
+	if err != nil {
+		debug.PrintStack()
+		return request, err
+	}
+
 	return PipelineRequest{
 		FlowId:      desc.FlowId,
 		Name:        label,
@@ -235,7 +241,7 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user s
 					},
 					{
 						Name:  "converterUrl",
-						Value: "",
+						Value: this.config.ConverterUrl,
 					},
 					{
 						Name:  "convertFrom",
@@ -243,7 +249,11 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user s
 					},
 					{
 						Name:  "convertTo",
-						Value: "",
+						Value: desc.CharacteristicId,
+					},
+					{
+						Name:  "serviceToPathAndCharacteristic",
+						Value: string(serviceToPathAndCharacteristicStr),
 					},
 				},
 			},

@@ -7,7 +7,10 @@
                     "json_path": [
                         "path-1",
                         "path-2"
-                    ]
+                    ],
+                    "path_to_characteristic_id": {
+                        "path-1": "characteristic-id"
+                    }
                 }
             ]
         }
@@ -19,7 +22,10 @@
                     "service_id": "urn:infai:ses:service:s1",
                     "json_path": [
                         "dt1.s1.v1"
-                    ]
+                    ],
+                    "path_to_characteristic_id": {
+                        "dt1.s1.v1": "v1_cid"
+                    }
                 }
             ],
             "urn:infai:ses:device-type:dt2": [
@@ -28,7 +34,11 @@
                     "json_path": [
                         "dt2.s2.v1",
                         "dt2.s2.v2"
-                    ]
+                    ],
+                    "path_to_characteristic_id": {
+                        "dt2.s2.v1": "v1_cid",
+                        "dt2.s2.v2": "v2_cid"
+                    }
                 }
             ],
             "urn:infai:ses:device-type:dt3": [
@@ -36,14 +46,21 @@
                     "service_id": "urn:infai:ses:service:s3",
                     "json_path": [
                         "dt3.s3.v1"
-                    ]
+                    ],
+                    "path_to_characteristic_id": {
+                        "dt3.s3.v1": "v1_cid"
+                    }
                 },
                 {
                     "service_id": "urn:infai:ses:service:s4",
                     "json_path": [
                         "dt3.s4.v1",
                         "dt3.s4.v2"
-                    ]
+                    ],
+                    "path_to_characteristic_id": {
+                        "dt3.s4.v1": "v1_cid",
+                        "dt3.s4.v2": "v2_cid"
+                    }
                 }
             ]
         }

@@ -30,6 +30,7 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
+	"sort"
 )
 
 type EventsFactory struct{}
@@ -227,14 +228,20 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, deploymentId, event)
 		return nil
 	}
+	characteristicId := ""
+	if event.Selection.FilterCriteria.CharacteristicId != nil {
+		characteristicId = *event.Selection.FilterCriteria.CharacteristicId
+	}
+
 	return this.deployEventForDeviceGroupWithDescription(label, owner, model.GroupEventDescription{
-		DeviceGroupId: *event.Selection.SelectedDeviceGroupId,
-		EventId:       event.EventId,
-		DeploymentId:  deploymentId,
-		FunctionId:    *event.Selection.FilterCriteria.FunctionId,
-		AspectId:      *event.Selection.FilterCriteria.AspectId,
-		FlowId:        event.FlowId,
-		OperatorValue: event.Value,
+		DeviceGroupId:    *event.Selection.SelectedDeviceGroupId,
+		EventId:          event.EventId,
+		DeploymentId:     deploymentId,
+		CharacteristicId: characteristicId,
+		FunctionId:       *event.Selection.FilterCriteria.FunctionId,
+		AspectId:         *event.Selection.FilterCriteria.AspectId,
+		FlowId:           event.FlowId,
+		OperatorValue:    event.Value,
 	})
 }
 
@@ -258,7 +265,7 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 		log.Println("WARNING: try to deploy group event without deployment id --> ignore", label, desc)
 		return nil
 	}
-	serviceIds, serviceToDevices, serviceToPath, err, code := this.getServicesPathsAndDevicesForEvent(desc)
+	serviceIds, serviceToDevices, serviceToPath, serviceToPathAndCharacteristic, err, code := this.getServicesPathsAndDevicesForEvent(desc)
 	if err != nil {
 		if code == http.StatusNotFound {
 			return nil //ignore
@@ -271,7 +278,8 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 		desc,
 		serviceIds,
 		serviceToDevices,
-		serviceToPath)
+		serviceToPath,
+		serviceToPathAndCharacteristic)
 	if err != nil {
 		return err
 	}
@@ -303,7 +311,7 @@ func (this *Events) updateEventPipelineForDeviceGroup(pipelineId string, label s
 		return nil
 	}
 
-	serviceIds, serviceToDevices, serviceToPath, err, code := this.getServicesPathsAndDevicesForEvent(desc)
+	serviceIds, serviceToDevices, serviceToPath, serviceToPathAndCharacteristic, err, code := this.getServicesPathsAndDevicesForEvent(desc)
 	if err != nil {
 		if code == http.StatusNotFound {
 			return nil //ignore
@@ -318,14 +326,16 @@ func (this *Events) updateEventPipelineForDeviceGroup(pipelineId string, label s
 		desc,
 		serviceIds,
 		serviceToDevices,
-		serviceToPath)
+		serviceToPath,
+		serviceToPathAndCharacteristic)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDescription) (serviceIds []string, serviceToDevices map[string][]string, serviceToPath map[string]string, err error, code int) {
+func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDescription) (serviceIds []string, serviceToDevices map[string][]string, serviceToPath map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, err error, code int) {
+	serviceToPathAndCharacteristic = map[string][]model.PathAndCharacteristic{}
 	var devices []model.Device
 	var deviceTypeIds []string
 	if desc.DeviceIds != nil {
@@ -334,7 +344,7 @@ func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDesc
 		devices, deviceTypeIds, err, code = this.devices.GetDeviceInfosOfGroup(desc.DeviceGroupId)
 	}
 	if err != nil {
-		return nil, nil, nil, err, code
+		return nil, nil, nil, serviceToPathAndCharacteristic, err, code
 	}
 	options, err := this.marshaller.FindPathOptions(
 		deviceTypeIds,
@@ -344,11 +354,12 @@ func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDesc
 		true)
 	if err != nil {
 		log.Println("ERROR: unable to find path options", err)
-		return nil, nil, nil, err, http.StatusInternalServerError
+		return nil, nil, nil, serviceToPathAndCharacteristic, err, http.StatusInternalServerError
 	}
 	serviceIds = []string{}
 	serviceToDevices = map[string][]string{}
 	serviceToPath = map[string]string{}
+	serviceToPathToCharacteristic := map[string]map[string]string{}
 	for _, device := range devices {
 		for _, option := range options[device.DeviceTypeId] {
 			if len(option.JsonPath) > 0 {
@@ -357,10 +368,27 @@ func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDesc
 					serviceIds = append(serviceIds, option.ServiceId)
 					serviceToPath[option.ServiceId] = option.JsonPath[0]
 				}
+				for _, path := range option.JsonPath {
+					if _, ok := serviceToPathToCharacteristic[option.ServiceId]; !ok {
+						serviceToPathToCharacteristic[option.ServiceId] = map[string]string{}
+					}
+					serviceToPathToCharacteristic[option.ServiceId][path] = option.PathToCharacteristicId[path]
+				}
 			}
 		}
 	}
-	return serviceIds, serviceToDevices, serviceToPath, nil, http.StatusOK
+	for serviceId, pathToCharacteristic := range serviceToPathToCharacteristic {
+		for path, characteristic := range pathToCharacteristic {
+			serviceToPathAndCharacteristic[serviceId] = append(serviceToPathAndCharacteristic[serviceId], model.PathAndCharacteristic{
+				JsonPath:         path,
+				CharacteristicId: characteristic,
+			})
+		}
+		sort.Slice(serviceToPathAndCharacteristic[serviceId], func(i, j int) bool {
+			return serviceToPathAndCharacteristic[serviceId][i].JsonPath < serviceToPathAndCharacteristic[serviceId][j].JsonPath
+		})
+	}
+	return serviceIds, serviceToDevices, serviceToPath, serviceToPathAndCharacteristic, nil, http.StatusOK
 }
 
 func (this *Events) DeviceGroupsAndImportsEnabled() bool {

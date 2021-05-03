@@ -29,19 +29,26 @@ type Device struct {
 }
 
 type PathOptionsResultElement struct {
-	ServiceId string   `json:"service_id"`
-	JsonPath  []string `json:"json_path"`
+	ServiceId              string            `json:"service_id"`
+	JsonPath               []string          `json:"json_path"`
+	PathToCharacteristicId map[string]string `json:"path_to_characteristic_id"`
 }
 
 type GroupEventDescription struct {
-	ImportId      string
-	Path          string
-	DeviceGroupId string
-	DeviceIds     []string //optional
-	EventId       string
-	DeploymentId  string
-	FunctionId    string
-	AspectId      string
-	FlowId        string
-	OperatorValue string
+	ImportId         string
+	Path             string
+	DeviceGroupId    string
+	DeviceIds        []string //optional
+	EventId          string
+	DeploymentId     string
+	FunctionId       string
+	AspectId         string
+	FlowId           string
+	OperatorValue    string
+	CharacteristicId string
+}
+
+type PathAndCharacteristic struct {
+	JsonPath         string `json:"json_path"`
+	CharacteristicId string `json:"characteristic_id"`
 }

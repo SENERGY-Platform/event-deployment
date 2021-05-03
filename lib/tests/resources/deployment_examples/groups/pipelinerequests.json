@@ -8,7 +8,7 @@
       "inputs":[
         {
           "filterIds":"urn:infai:ses:device:d1",
-          "filterType": "deviceId",
+          "filterType":"deviceId",
           "topicName":"urn_infai_ses_service_s1",
           "values":[
             {
@@ -19,7 +19,7 @@
         },
         {
           "filterIds":"urn:infai:ses:device:d2,urn:infai:ses:device:d3",
-          "filterType": "deviceId",
+          "filterType":"deviceId",
           "topicName":"urn_infai_ses_service_s2",
           "values":[
             {
@@ -30,7 +30,7 @@
         },
         {
           "filterIds":"urn:infai:ses:device:d4,urn:infai:ses:device:d5",
-          "filterType": "deviceId",
+          "filterType":"deviceId",
           "topicName":"urn_infai_ses_service_s3",
           "values":[
             {
@@ -41,7 +41,7 @@
         },
         {
           "filterIds":"urn:infai:ses:device:d4,urn:infai:ses:device:d5",
-          "filterType": "deviceId",
+          "filterType":"deviceId",
           "topicName":"urn_infai_ses_service_s4",
           "values":[
             {
@@ -65,13 +65,19 @@
           "value":"event_id_1"
         },
         {
-          "name":"converterUrl"
+          "name":"converterUrl",
+          "value":"http://converter:8080/conversions"
         },
         {
           "name":"convertFrom"
         },
         {
-          "name":"convertTo"
+          "name":"convertTo",
+          "value":"urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43"
+        },
+        {
+          "name":"serviceToPathAndCharacteristic",
+          "value":"{\"urn:infai:ses:service:s1\":[{\"json_path\":\"dt1.s1.v1\",\"characteristic_id\":\"v1_cid\"}],\"urn:infai:ses:service:s2\":[{\"json_path\":\"dt2.s2.v1\",\"characteristic_id\":\"v1_cid\"},{\"json_path\":\"dt2.s2.v2\",\"characteristic_id\":\"v2_cid\"}],\"urn:infai:ses:service:s3\":[{\"json_path\":\"dt3.s3.v1\",\"characteristic_id\":\"v1_cid\"}],\"urn:infai:ses:service:s4\":[{\"json_path\":\"dt3.s4.v1\",\"characteristic_id\":\"v1_cid\"},{\"json_path\":\"dt3.s4.v2\",\"characteristic_id\":\"v2_cid\"}]}"
         }
       ]
     }
