@@ -211,7 +211,11 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user s
 		})
 	}
 
-	serviceToPathAndCharacteristicStr, err := json.Marshal(serviceToPathAndCharacteristic)
+	topicToPathAndCharacteristic := map[string][]model.PathAndCharacteristic{}
+	for serviceId, list := range serviceToPathAndCharacteristic {
+		topicToPathAndCharacteristic[ServiceIdToTopic(serviceId)] = list
+	}
+	topicToPathAndCharacteristicStr, err := json.Marshal(topicToPathAndCharacteristic)
 	if err != nil {
 		debug.PrintStack()
 		return request, err
@@ -252,8 +256,8 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user s
 						Value: desc.CharacteristicId,
 					},
 					{
-						Name:  "serviceToPathAndCharacteristic",
-						Value: string(serviceToPathAndCharacteristicStr),
+						Name:  "topicToPathAndCharacteristic",
+						Value: string(topicToPathAndCharacteristicStr),
 					},
 				},
 			},
