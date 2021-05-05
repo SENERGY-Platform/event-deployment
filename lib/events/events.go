@@ -210,6 +210,7 @@ func (this *Events) deployEventForDevice(label string, owner string, deploymentI
 
 func (this *Events) deployEventForDeviceGroup(label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
+		log.Println("WARNING: DeviceGroupsAndImportsEnabled() = false; configure AuthClientId, AuthClientSecret, AuthEndpoint, PermSearchUrl")
 		return nil
 	}
 	if event == nil {
@@ -247,6 +248,7 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 
 func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner string, desc model.GroupEventDescription) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
+		log.Println("WARNING: DeviceGroupsAndImportsEnabled() = false; configure AuthClientId, AuthClientSecret, AuthEndpoint, PermSearchUrl")
 		return nil
 	}
 	if desc.DeviceGroupId == "" {
