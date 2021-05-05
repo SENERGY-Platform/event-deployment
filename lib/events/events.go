@@ -269,6 +269,7 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 	}
 	serviceIds, serviceToDevices, serviceToPath, serviceToPathAndCharacteristic, err, code := this.getServicesPathsAndDevicesForEvent(desc)
 	if err != nil {
+		log.Println("WARNING: getServicesPathsAndDevicesForEvent()", code, err)
 		if code == http.StatusNotFound {
 			return nil //ignore
 		}
@@ -315,6 +316,7 @@ func (this *Events) updateEventPipelineForDeviceGroup(pipelineId string, label s
 
 	serviceIds, serviceToDevices, serviceToPath, serviceToPathAndCharacteristic, err, code := this.getServicesPathsAndDevicesForEvent(desc)
 	if err != nil {
+		log.Println("WARNING: getServicesPathsAndDevicesForEvent()", code, err)
 		if code == http.StatusNotFound {
 			return nil //ignore
 		}
