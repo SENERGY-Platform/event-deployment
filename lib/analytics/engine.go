@@ -124,8 +124,13 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 }
 
 func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error) {
+	if this.config.Debug {
+		log.Println("DEBUG: DeployGroup()")
+	}
 	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
 	if err != nil {
+		log.Println("ERROR: getPipelineRequestForGroupDeployment()", err.Error())
+		debug.PrintStack()
 		return "", err
 	}
 	pipeline, err, code := this.sendDeployRequest(user, request)
