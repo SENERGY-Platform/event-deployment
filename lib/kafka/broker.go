@@ -17,22 +17,27 @@
 package kafka
 
 import (
-	"github.com/SENERGY-Platform/event-deployment/lib/kafka/topicconfig"
+	"github.com/segmentio/kafka-go"
+	"net"
+	"strconv"
 )
 
-func InitTopic(bootstrapUrl string, topics ...string) (err error) {
-	for _, topic := range topics {
-		err = topicconfig.Ensure(bootstrapUrl, topic, map[string]string{
-			"retention.ms":              "-1",
-			"retention.bytes":           "-1",
-			"cleanup.policy":            "compact",
-			"delete.retention.ms":       "86400000",
-			"segment.ms":                "604800000",
-			"min.cleanable.dirty.ratio": "0.1",
-		})
-		if err != nil {
-			return err
-		}
+func GetBroker(bootstrapUrl string) (brokers []string, err error) {
+	return getBroker(bootstrapUrl)
+}
+
+func getBroker(bootstrapUrl string) (result []string, err error) {
+	conn, err := kafka.Dial("tcp", bootstrapUrl)
+	if err != nil {
+		return result, err
 	}
-	return nil
+	defer conn.Close()
+	brokers, err := conn.Brokers()
+	if err != nil {
+		return result, err
+	}
+	for _, broker := range brokers {
+		result = append(result, net.JoinHostPort(broker.Host, strconv.Itoa(broker.Port)))
+	}
+	return result, nil
 }

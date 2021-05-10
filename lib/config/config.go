@@ -32,7 +32,7 @@ type ConfigStruct struct {
 	ApiPort                 string `json:"api_port"`
 	MarshallerUrl           string `json:"marshaller_url"`
 	ConverterUrl            string `json:"converter_url"`
-	ZookeeperUrl            string `json:"zookeeper_url"`
+	KafkaUrl                string `json:"kafka_url"`
 	FlowEngineUrl           string `json:"flow_engine_url"`
 	FlowParserUrl           string `json:"flow_parser_url"`
 	PipelineRepoUrl         string `json:"pipeline_repo_url"`

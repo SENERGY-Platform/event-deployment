@@ -220,7 +220,6 @@ func testCreateDeviceGroups(kafkaPort int, groups []model.DeviceGroup) func(t *t
 				return
 			}
 			err = producer.WriteMessages(ctx, kafka.Message{
-				Topic: topic,
 				Key:   []byte(group.Id),
 				Value: msg,
 			})
@@ -254,7 +253,6 @@ func testCreateDevices(kafkaPort int, devices []model.Device) func(t *testing.T)
 				return
 			}
 			err = producer.WriteMessages(ctx, kafka.Message{
-				Topic: topic,
 				Key:   []byte(device.Id),
 				Value: msg,
 			})

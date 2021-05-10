@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/segmentio/kafka-go"
+	"io/ioutil"
 	"log"
 	"os"
 )
@@ -32,12 +33,12 @@ type Producer struct {
 
 func NewProducer(ctx context.Context, config config.Config, topic string) (interfaces.Producer, error) {
 	result := &Producer{ctx: ctx}
-	broker, err := GetBroker(config.ZookeeperUrl)
+	broker, err := GetBroker(config.KafkaUrl)
 	if err != nil {
 		log.Println("ERROR: unable to get broker list", err)
 		return nil, err
 	}
-	err = InitTopic(config.ZookeeperUrl, topic)
+	err = InitTopic(config.KafkaUrl, topic)
 	if err != nil {
 		log.Println("ERROR: unable to create topic", err)
 		return nil, err
@@ -45,16 +46,18 @@ func NewProducer(ctx context.Context, config config.Config, topic string) (inter
 	var logger *log.Logger = nil
 
 	if config.Debug {
-		logger = log.New(os.Stdout, "KAFKA", 0)
+		logger = log.New(os.Stdout, "[KAFKA]", 0)
+	} else {
+		logger = log.New(ioutil.Discard, "", 0)
 	}
 
-	result.writer = kafka.NewWriter(kafka.WriterConfig{
-		Brokers:     broker,
+	result.writer = &kafka.Writer{
+		Addr:        kafka.TCP(broker...),
 		Topic:       topic,
 		Async:       false,
 		Logger:      logger,
-		ErrorLogger: log.New(os.Stderr, "KAFKA", 0),
-	})
+		ErrorLogger: log.New(os.Stderr, "[KAFKA-ERROR] ", 0),
+	}
 	go func() {
 		<-ctx.Done()
 		result.writer.Close()

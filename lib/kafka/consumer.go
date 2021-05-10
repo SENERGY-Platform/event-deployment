@@ -27,13 +27,13 @@ import (
 )
 
 func NewConsumer(ctx context.Context, config config.Config, topic string, listener func(delivery []byte) error) error {
-	broker, err := GetBroker(config.ZookeeperUrl)
+	broker, err := GetBroker(config.KafkaUrl)
 	if err != nil {
 		log.Println("ERROR: unable to get broker list", err)
 		return err
 	}
 
-	err = InitTopic(config.ZookeeperUrl, topic)
+	err = InitTopic(config.KafkaUrl, topic)
 	if err != nil {
 		log.Println("ERROR: unable to create topic", err)
 		return err
