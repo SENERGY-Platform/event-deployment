@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"net/http"
@@ -378,6 +379,7 @@ func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (
 }
 
 func (this *Analytics) DeployImport(label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (pipelineId string, err error) {
+	fmt.Println("cast", castTo, castFrom)
 	request, err := this.getPipelineRequestForImportDeployment(label, user, desc, topic, path, castFrom, castTo)
 	if err != nil {
 		return "", err
@@ -439,6 +441,15 @@ func (this *Analytics) getPipelineRequestForImportDeployment(label string, user 
 		}},
 	})
 
+	convertFrom := ""
+	convertTo := ""
+	converterUrl := ""
+	if castFrom != castTo {
+		converterUrl = this.config.ConverterUrl
+		convertFrom = castFrom
+		convertTo = castTo
+	}
+
 	return PipelineRequest{
 		FlowId:      desc.FlowId,
 		Name:        label,
@@ -463,15 +474,15 @@ func (this *Analytics) getPipelineRequestForImportDeployment(label string, user 
 					},
 					{
 						Name:  "converterUrl",
-						Value: this.config.ConverterUrl,
+						Value: converterUrl,
 					},
 					{
 						Name:  "convertFrom",
-						Value: castFrom,
+						Value: convertFrom,
 					},
 					{
 						Name:  "convertTo",
-						Value: castTo,
+						Value: convertTo,
 					},
 				},
 			},

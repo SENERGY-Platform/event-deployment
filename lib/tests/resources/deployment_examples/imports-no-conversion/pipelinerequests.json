@@ -1,0 +1,49 @@
+[{
+  "flowId":"flow-id",
+  "name":"getTemperatureFunction celcius (event-id)",
+  "description":"{\"import_id\":\"urn:infai:ses:import:123\",\"function_id\":\"urn:infai:ses:measuring-function:f2769eb9-b6ad-4f7e-bd28-e4ea043d2f8b\",\"aspect_id\":\"urn:infai:ses:aspect:a14c5efb-b0b6-46c3-982e-9fded75b5ab6\",\"operator_value\":\"1\",\"event_id\":\"event-id\",\"deployment_id\":\"someid\",\"flow_id\":\"flow-id\"}",
+  "nodes":[
+    {
+      "nodeId":"test-flow-cell-id",
+      "inputs":[
+        {
+          "filterIds":"urn:infai:ses:import:123",
+          "filterType": "ImportId",
+          "topicName":"urn_infai_ses_import_123",
+          "values":[
+            {
+              "name":"value",
+              "path":"value.value"
+            }
+          ]
+        }
+      ],
+      "config":[
+        {
+          "name":"value",
+          "value":"1"
+        },
+        {
+          "name":"url",
+          "value":"camunda-example-url/engine-rest/message"
+        },
+        {
+          "name":"eventId",
+          "value":"event-id"
+        },
+        {
+          "name":"converterUrl",
+          "value": ""
+        },
+        {
+          "name":"convertFrom",
+          "value":""
+        },
+        {
+          "name":"convertTo",
+          "value":""
+        }
+      ]
+    }
+  ]
+}]
