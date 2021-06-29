@@ -75,6 +75,17 @@ func testDeployment(t *testing.T, testcase string) {
 	conf.AuthClientId = "mocked"
 	conf.PermSearchUrl = "mocked"
 
+	ctx, cancel := context.WithCancel(context.Background())
+	wg := sync.WaitGroup{}
+	defer wg.Wait()
+	defer cancel()
+
+	err = mocks.MockAuthServer(conf, ctx)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	deploymentCmd, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + testcase + "/deploymentcommand.json")
 	if err != nil {
 		t.Error(err)
@@ -156,10 +167,6 @@ func testDeployment(t *testing.T, testcase string) {
 	}
 	defer closeTestFlowEngineApi()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	wg := sync.WaitGroup{}
-	defer wg.Wait()
-	defer cancel()
 	pgConn, err := docker.Postgres(ctx, &wg, "test")
 	if err != nil {
 		t.Error(err)

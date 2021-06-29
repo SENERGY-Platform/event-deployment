@@ -305,6 +305,10 @@ func (this *Analytics) Remove(user string, pipelineId string) error {
 }
 
 func (this *Analytics) sendDeployRequest(user string, request PipelineRequest) (result Pipeline, err error, code int) {
+	token, err := this.auth.GetUserToken(user)
+	if err != nil {
+		return result, err, http.StatusInternalServerError
+	}
 	body, err := json.Marshal(request)
 	if err != nil {
 		return result, err, http.StatusInternalServerError
@@ -324,6 +328,7 @@ func (this *Analytics) sendDeployRequest(user string, request PipelineRequest) (
 		debug.PrintStack()
 		return result, err, http.StatusInternalServerError
 	}
+	token.UseInRequest(req)
 	req.Header.Set("X-UserId", user)
 	resp, err := client.Do(req)
 	if err != nil {

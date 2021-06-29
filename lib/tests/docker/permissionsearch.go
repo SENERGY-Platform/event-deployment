@@ -53,14 +53,14 @@ func ElasticSearch(ctx context.Context, wg *sync.WaitGroup) (hostPort string, ip
 	return hostPort, container.Container.NetworkSettings.IPAddress, err
 }
 
-func PermSearch(ctx context.Context, wg *sync.WaitGroup, zk string, elasticIp string) (hostPort string, ipAddress string, err error) {
+func PermSearch(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, elasticIp string) (hostPort string, ipAddress string, err error) {
 	log.Println("start permsearch")
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		return "", "", err
 	}
 	container, err := pool.Run("fgseitsrancher.wifa.intern.uni-leipzig.de:5000/permission-search", "dev", []string{
-		"ZOOKEEPER_URL=" + zk,
+		"KAFKA_URL=" + kafkaUrl,
 		"ELASTIC_URL=" + "http://" + elasticIp + ":9200",
 	})
 	if err != nil {

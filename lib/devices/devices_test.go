@@ -26,7 +26,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/util"
 	"github.com/segmentio/kafka-go"
 	"reflect"
-	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -59,11 +58,12 @@ func TestDevices(t *testing.T) {
 	}
 	zkUrl := zk + ":2181"
 
-	kport, err := docker.Kafka(ctx, wg, zkUrl)
+	kafkaUrl, err := docker.Kafka(ctx, wg, zkUrl)
 	if err != nil {
 		t.Error(err)
 		return
 	}
+	conf.KafkaUrl = kafkaUrl
 
 	_, esIp, err := docker.ElasticSearch(ctx, wg)
 	if err != nil {
@@ -71,7 +71,7 @@ func TestDevices(t *testing.T) {
 		return
 	}
 
-	permSearchPort, _, err := docker.PermSearch(ctx, wg, zkUrl, esIp)
+	permSearchPort, _, err := docker.PermSearch(ctx, wg, kafkaUrl, esIp)
 	if err != nil {
 		t.Error(err)
 		return
@@ -82,7 +82,7 @@ func TestDevices(t *testing.T) {
 
 	time.Sleep(5 * time.Second)
 
-	t.Run("create devices", testCreateDevices(kport, []model.Device{
+	t.Run("create devices", testCreateDevices(kafkaUrl, []model.Device{
 		{
 			Id:           "ses:infia:device:d1",
 			Name:         "test-device-1",
@@ -130,7 +130,7 @@ func TestDevices(t *testing.T) {
 		},
 	}))
 
-	t.Run("create device-groups", testCreateDeviceGroups(kport, []model.DeviceGroup{
+	t.Run("create device-groups", testCreateDeviceGroups(kafkaUrl, []model.DeviceGroup{
 		{
 			Id:   "ses:infia:device-group:dg1",
 			Name: "test-group-1",
@@ -198,10 +198,10 @@ func testCheckGetDeviceInfosOfGroupResult(repo *Devices, deviceGroupId string, e
 
 var jwtSubj = "dd69ea0d-f553-4336-80f3-7f4567f85c7b"
 
-func testCreateDeviceGroups(kafkaPort int, groups []model.DeviceGroup) func(t *testing.T) {
+func testCreateDeviceGroups(kafkaUrl string, groups []model.DeviceGroup) func(t *testing.T) {
 	return func(t *testing.T) {
 		topic := "device-groups"
-		producer, err := util.GetKafkaProducer([]string{"127.0.0.1:" + strconv.Itoa(kafkaPort)}, topic)
+		producer, err := util.GetKafkaProducer([]string{kafkaUrl}, topic)
 		if err != nil {
 			t.Error(err)
 			return
@@ -231,10 +231,10 @@ func testCreateDeviceGroups(kafkaPort int, groups []model.DeviceGroup) func(t *t
 	}
 }
 
-func testCreateDevices(kafkaPort int, devices []model.Device) func(t *testing.T) {
+func testCreateDevices(kafkaUrl string, devices []model.Device) func(t *testing.T) {
 	return func(t *testing.T) {
 		topic := "devices"
-		producer, err := util.GetKafkaProducer([]string{"127.0.0.1:" + strconv.Itoa(kafkaPort)}, topic)
+		producer, err := util.GetKafkaProducer([]string{kafkaUrl}, topic)
 		if err != nil {
 			t.Error(err)
 			return

@@ -20,6 +20,7 @@ import (
 	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics/cache"
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics/shards"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"time"
@@ -33,6 +34,7 @@ type Analytics struct {
 	config  config.Config
 	shards  *shards.Shards
 	timeout time.Duration
+	auth    *auth.Auth
 }
 
 func (this *FactoryType) New(ctx context.Context, config config.Config) (interfaces.Analytics, error) {
@@ -44,5 +46,5 @@ func (this *FactoryType) New(ctx context.Context, config config.Config) (interfa
 	if err != nil {
 		return nil, err
 	}
-	return &Analytics{config: config, shards: s, timeout: timeout}, nil
+	return &Analytics{config: config, shards: s, timeout: timeout, auth: auth.NewAuth(config)}, nil
 }
