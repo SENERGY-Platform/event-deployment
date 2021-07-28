@@ -21,7 +21,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/api/util"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"reflect"
@@ -29,7 +29,7 @@ import (
 	"time"
 )
 
-var endpoints []func(*jwt_http_router.Router, config.Config, interfaces.Events)
+var endpoints []func(*httprouter.Router, config.Config, interfaces.Events)
 
 func Start(ctx context.Context, config config.Config, ctrl interfaces.Events) error {
 	log.Println("start api")
@@ -50,7 +50,7 @@ func Start(ctx context.Context, config config.Config, ctrl interfaces.Events) er
 }
 
 func Router(config config.Config, ctrl interfaces.Events) http.Handler {
-	router := jwt_http_router.New(jwt_http_router.JwtConfig{ForceAuth: true, ForceUser: true})
+	router := httprouter.New()
 	for _, e := range endpoints {
 		log.Println("add endpoints: " + runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name())
 		e(router, config, ctrl)

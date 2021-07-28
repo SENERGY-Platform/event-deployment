@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 InfAI (CC SES)
+ * Copyright 2021 InfAI (CC SES)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package interfaces
+package util
 
-import (
-	"context"
-	"github.com/SENERGY-Platform/event-deployment/lib/config"
-)
+import "net/http"
 
-type EventsFactory interface {
-	New(ctx context.Context, config config.Config, analytics Analytics, marshaller Marshaller, devices Devices, imports Imports) (Events, error)
-}
-
-type Events interface {
-	HandleCommand(msg []byte) error
-	HandleDeviceGroupUpdate(msg []byte) error
-	CheckEvent(token string, id string) int
-	GetEventStates(token string, ids []string) (states map[string]bool, err error, code int)
+func GetAuthToken(req *http.Request) string {
+	return req.Header.Get("Authorization")
 }

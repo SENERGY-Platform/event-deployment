@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -33,8 +33,8 @@ func init() {
 	endpoints = append(endpoints, HealthEndpoints)
 }
 
-func HealthEndpoints(router *jwt_http_router.Router, config config.Config, ctrl interfaces.Events) {
-	router.POST("/health", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+func HealthEndpoints(router *httprouter.Router, config config.Config, ctrl interfaces.Events) {
+	router.POST("/health", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		msg, err := ioutil.ReadAll(request.Body)
 		log.Println("INFO: /health", err, string(msg))
 		writer.WriteHeader(http.StatusOK)

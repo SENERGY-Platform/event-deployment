@@ -18,9 +18,10 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/SENERGY-Platform/event-deployment/lib/api/util"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -31,15 +32,15 @@ func init() {
 	endpoints = append(endpoints, EventStatesEndpoints)
 }
 
-func EventStatesEndpoints(router *jwt_http_router.Router, config config.Config, ctrl interfaces.Events) {
+func EventStatesEndpoints(router *httprouter.Router, config config.Config, ctrl interfaces.Events) {
 
-	router.GET("/event-states", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/event-states", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		idstring := strings.TrimSpace(request.URL.Query().Get("ids"))
 		ids := []string{}
 		if idstring != "" {
 			ids = strings.Split(strings.Replace(idstring, " ", "", -1), ",")
 		}
-		states, err, code := ctrl.GetEventStates(jwt, ids)
+		states, err, code := ctrl.GetEventStates(util.GetAuthToken(request), ids)
 		if err != nil {
 			http.Error(writer, err.Error(), code)
 			return

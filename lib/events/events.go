@@ -26,7 +26,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -115,8 +114,14 @@ func (this *Events) Remove(owner string, deploymentId string) error {
 	return nil
 }
 
-func (this *Events) CheckEvent(jwt jwt_http_router.Jwt, id string) int {
-	_, exists, err := this.analytics.GetPipelineByEventId(jwt.UserId, id)
+func (this *Events) CheckEvent(token string, id string) int {
+	userId, err := GetUserId(token)
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return http.StatusBadRequest
+	}
+	_, exists, err := this.analytics.GetPipelineByEventId(userId, id)
 	if err != nil {
 		log.Println("ERROR:", err)
 		debug.PrintStack()
@@ -128,12 +133,18 @@ func (this *Events) CheckEvent(jwt jwt_http_router.Jwt, id string) int {
 	return http.StatusOK
 }
 
-func (this *Events) GetEventStates(jwt jwt_http_router.Jwt, ids []string) (states map[string]bool, err error, code int) {
+func (this *Events) GetEventStates(token string, ids []string) (states map[string]bool, err error, code int) {
+	userId, err := GetUserId(token)
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return states, err, http.StatusBadRequest
+	}
 	states = map[string]bool{}
 	if len(ids) == 0 {
 		return states, nil, http.StatusOK
 	}
-	states, err = this.analytics.GetEventStates(jwt.UserId, ids)
+	states, err = this.analytics.GetEventStates(userId, ids)
 	if err != nil {
 		log.Println("ERROR:", err)
 		debug.PrintStack()

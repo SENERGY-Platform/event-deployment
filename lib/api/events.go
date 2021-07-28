@@ -17,9 +17,10 @@
 package api
 
 import (
+	"github.com/SENERGY-Platform/event-deployment/lib/api/util"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
@@ -27,11 +28,11 @@ func init() {
 	endpoints = append(endpoints, EventsEndpoints)
 }
 
-func EventsEndpoints(router *jwt_http_router.Router, config config.Config, ctrl interfaces.Events) {
+func EventsEndpoints(router *httprouter.Router, config config.Config, ctrl interfaces.Events) {
 
-	router.HEAD("/events/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.HEAD("/events/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		code := ctrl.CheckEvent(jwt, id)
+		code := ctrl.CheckEvent(util.GetAuthToken(request), id)
 		writer.WriteHeader(code)
 	})
 }
