@@ -129,10 +129,7 @@ func (this *AuthToken) Get(url string) (resp *http.Response, err error) {
 		return nil, err
 	}
 	req.Header.Set("Authorization", string(*this))
-	client := &http.Client{
-		Timeout: 10 * time.Second,
-	}
-	resp, err = client.Do(req)
+	resp, err = http.DefaultClient.Do(req)
 	return
 }
 

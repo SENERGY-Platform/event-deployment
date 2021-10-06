@@ -25,7 +25,6 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
-	"time"
 )
 
 type PathOptionsQuery struct {
@@ -50,9 +49,6 @@ func (this *Marshaller) FindPathOptions(deviceTypeIds []string, functionId strin
 		return result, err
 	}
 
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
 	req, err := http.NewRequest(
 		"POST",
 		this.config.MarshallerUrl+"/query/path-options",
@@ -62,7 +58,7 @@ func (this *Marshaller) FindPathOptions(deviceTypeIds []string, functionId strin
 		debug.PrintStack()
 		return result, err
 	}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()
 		return result, err

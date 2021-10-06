@@ -22,7 +22,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"net/http"
 	"runtime/debug"
-	"time"
 )
 
 func (this *Analytics) GetPipelinesByDeploymentId(owner string, deploymentId string) (pipelineIds []string, err error) {
@@ -130,7 +129,7 @@ func (this *Analytics) GetEventStates(owner string, eventIds []string) (states m
 
 func (this *Analytics) getPipelines(user string) (pipelines []Pipeline, err error) {
 	client := http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: this.timeout,
 	}
 	req, err := http.NewRequest(
 		"GET",

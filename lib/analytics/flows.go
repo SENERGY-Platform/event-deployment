@@ -24,12 +24,11 @@ import (
 	"net/http"
 	"net/url"
 	"runtime/debug"
-	"time"
 )
 
 func (this *Analytics) GetFlowInputs(id string, user string) (result []FlowModelCell, err error, code int) {
 	client := http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: this.timeout,
 	}
 	req, err := http.NewRequest(
 		"GET",

@@ -27,7 +27,6 @@ import (
 	"net/http"
 	"net/url"
 	"runtime/debug"
-	"time"
 )
 
 type FactoryType struct{}
@@ -51,9 +50,6 @@ var ErrServiceNotFound = errors.New("service not found")
 var ErrCharacteristicNotFoundInService = errors.New("characteristic not in service")
 
 func (this *Marshaller) FindPath(serviceId string, characteristicId string) (path string, serviceCharacteristicId string, err error) {
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
 	req, err := http.NewRequest(
 		"GET",
 		this.config.MarshallerUrl+"/characteristic-paths/"+url.PathEscape(serviceId)+"/"+url.PathEscape(characteristicId),
@@ -63,7 +59,7 @@ func (this *Marshaller) FindPath(serviceId string, characteristicId string) (pat
 		debug.PrintStack()
 		return path, serviceCharacteristicId, err
 	}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()
 		return path, serviceCharacteristicId, err

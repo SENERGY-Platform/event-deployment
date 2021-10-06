@@ -20,11 +20,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type ConfigStruct struct {
@@ -43,7 +45,6 @@ type ConfigStruct struct {
 	ConnectivityTest        bool   `json:"connectivity_test"`
 	CamundaEventTriggerPath string `json:"camunda_event_trigger_path"`
 	ShardsDb                string `json:"shards_db"`
-	AnalyticsRequestTimeout string `json:"analytics_request_timeout"`
 
 	//if not configured: no device-group updates handled
 	DeviceGroupTopic string `json:"device_group_topic"`
@@ -54,23 +55,29 @@ type ConfigStruct struct {
 	AuthEndpoint             string  `json:"auth_endpoint"`
 	AuthClientId             string  `json:"auth_client_id"`
 	AuthClientSecret         string  `json:"auth_client_secret"`
+
+	AnalyticsRequestTimeout string `json:"analytics_request_timeout"`
+	HttpClientTimeout       string `json:"http_client_timeout"`
+	HttpServerTimeout       string `json:"http_server_timeout"`
+	HttpServerReadTimeout   string `json:"http_server_read_timeout"`
 }
 
 type Config = *ConfigStruct
 
 func LoadConfig(location string) (config Config, err error) {
-	file, error := os.Open(location)
-	if error != nil {
-		log.Println("error on config load: ", error)
-		return config, error
+	file, err := os.Open(location)
+	if err != nil {
+		log.Println("error on config load: ", err)
+		return config, err
 	}
 	decoder := json.NewDecoder(file)
-	error = decoder.Decode(&config)
-	if error != nil {
-		log.Println("invalid config json: ", error)
-		return config, error
+	err = decoder.Decode(&config)
+	if err != nil {
+		log.Println("invalid config json: ", err)
+		return config, err
 	}
 	HandleEnvironmentVars(config)
+	setDefaultHttpClient(config)
 	return config, nil
 }
 
@@ -132,5 +139,13 @@ func HandleEnvironmentVars(config Config) {
 				configValue.FieldByName(fieldName).Set(reflect.ValueOf(value))
 			}
 		}
+	}
+}
+
+func setDefaultHttpClient(config Config) {
+	var err error
+	http.DefaultClient.Timeout, err = time.ParseDuration(config.HttpClientTimeout)
+	if err != nil {
+		log.Println("WARNING: invalid http timeout --> no timeouts\n", err)
 	}
 }

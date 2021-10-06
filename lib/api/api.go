@@ -34,7 +34,18 @@ var endpoints []func(*httprouter.Router, config.Config, interfaces.Events)
 func Start(ctx context.Context, config config.Config, ctrl interfaces.Events) error {
 	log.Println("start api")
 	router := Router(config, ctrl)
-	server := &http.Server{Addr: ":" + config.ApiPort, Handler: router, WriteTimeout: 10 * time.Second, ReadTimeout: 2 * time.Second, ReadHeaderTimeout: 2 * time.Second}
+	timeout, err := time.ParseDuration(config.HttpServerTimeout)
+	if err != nil {
+		log.Println("WARNING: invalid http server timeout --> no timeouts\n", err)
+		err = nil
+	}
+
+	readtimeout, err := time.ParseDuration(config.HttpServerReadTimeout)
+	if err != nil {
+		log.Println("WARNING: invalid http server read timeout --> no timeouts\n", err)
+		err = nil
+	}
+	server := &http.Server{Addr: ":" + config.ApiPort, Handler: router, WriteTimeout: timeout, ReadTimeout: readtimeout}
 	go func() {
 		log.Println("Listening on ", server.Addr)
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
