@@ -22,6 +22,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"net/http"
 	"runtime/debug"
+	"strconv"
 )
 
 func (this *Analytics) GetPipelinesByDeploymentId(owner string, deploymentId string) (pipelineIds []string, err error) {
@@ -128,12 +129,31 @@ func (this *Analytics) GetEventStates(owner string, eventIds []string) (states m
 }
 
 func (this *Analytics) getPipelines(user string) (pipelines []Pipeline, err error) {
+	limit := 500
+	offset := 0
+	for {
+		temp, err := this.getSomePipelines(user, limit, offset)
+		if err != nil {
+			return pipelines, err
+		}
+		if temp != nil {
+			pipelines = append(pipelines, temp...)
+		}
+		if len(temp) < limit {
+			return pipelines, nil
+		} else {
+			offset = offset + limit
+		}
+	}
+}
+
+func (this *Analytics) getSomePipelines(user string, limit int, offset int) (pipelines []Pipeline, err error) {
 	client := http.Client{
 		Timeout: this.timeout,
 	}
 	req, err := http.NewRequest(
 		"GET",
-		this.config.PipelineRepoUrl+"/pipeline",
+		this.config.PipelineRepoUrl+"/pipeline?limit="+strconv.Itoa(limit)+"&offset="+strconv.Itoa(offset),
 		nil,
 	)
 	if err != nil {
