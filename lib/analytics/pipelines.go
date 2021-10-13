@@ -129,7 +129,7 @@ func (this *Analytics) GetEventStates(owner string, eventIds []string) (states m
 }
 
 func (this *Analytics) getPipelines(user string) (pipelines []Pipeline, err error) {
-	limit := 500
+	limit := int(this.config.AnalyticsPipelineBatchSize)
 	offset := 0
 	for {
 		temp, err := this.getSomePipelines(user, limit, offset)

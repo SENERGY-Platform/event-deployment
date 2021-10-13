@@ -56,10 +56,11 @@ type ConfigStruct struct {
 	AuthClientId             string  `json:"auth_client_id"`
 	AuthClientSecret         string  `json:"auth_client_secret"`
 
-	AnalyticsRequestTimeout string `json:"analytics_request_timeout"`
-	HttpClientTimeout       string `json:"http_client_timeout"`
-	HttpServerTimeout       string `json:"http_server_timeout"`
-	HttpServerReadTimeout   string `json:"http_server_read_timeout"`
+	AnalyticsPipelineBatchSize int64  `json:"analytics_pipeline_batch_size"`
+	AnalyticsRequestTimeout    string `json:"analytics_request_timeout"`
+	HttpClientTimeout          string `json:"http_client_timeout"`
+	HttpServerTimeout          string `json:"http_server_timeout"`
+	HttpServerReadTimeout      string `json:"http_server_read_timeout"`
 }
 
 type Config = *ConfigStruct
