@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"net/http"
@@ -30,6 +29,20 @@ import (
 )
 
 func (this *Analytics) Deploy(label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error) {
+	//check if eventId already exists
+	pipelineId, exists, err := this.GetPipelineByEventId(user, eventId)
+	if err != nil {
+		return pipelineId, err
+	}
+
+	if exists {
+		err = this.Remove(user, pipelineId)
+		if err != nil {
+			return pipelineId, err
+		}
+	}
+
+	//deploy
 	shard, err := this.shards.GetShardForUser(user)
 	if err != nil {
 		return "", err
@@ -128,6 +141,19 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 	if this.config.Debug {
 		log.Println("DEBUG: DeployGroup()")
 	}
+	//check if eventId already exists
+	pipelineId, exists, err := this.GetPipelineByEventId(user, desc.EventId)
+	if err != nil {
+		return pipelineId, err
+	}
+
+	if exists {
+		err = this.Remove(user, pipelineId)
+		if err != nil {
+			return pipelineId, err
+		}
+	}
+	//deployment
 	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
 	if err != nil {
 		log.Println("ERROR: getPipelineRequestForGroupDeployment()", err.Error())
@@ -384,7 +410,19 @@ func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (
 }
 
 func (this *Analytics) DeployImport(label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (pipelineId string, err error) {
-	fmt.Println("cast", castTo, castFrom)
+	//check if eventId already exists
+	pipelineId, exists, err := this.GetPipelineByEventId(user, desc.EventId)
+	if err != nil {
+		return pipelineId, err
+	}
+
+	if exists {
+		err = this.Remove(user, pipelineId)
+		if err != nil {
+			return pipelineId, err
+		}
+	}
+	//deployment
 	request, err := this.getPipelineRequestForImportDeployment(label, user, desc, topic, path, castFrom, castTo)
 	if err != nil {
 		return "", err
