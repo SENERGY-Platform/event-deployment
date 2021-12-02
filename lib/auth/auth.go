@@ -20,9 +20,11 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/golang-jwt/jwt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"net/url"
@@ -179,4 +181,22 @@ func refreshOpenidToken(token *OpenidToken, config config.Config) (err error) {
 	err = json.NewDecoder(resp.Body).Decode(token)
 	token.RequestTime = requesttime
 	return
+}
+
+func (this *Auth) GenerateInternalUserToken(userid string) (token AuthToken, err error) {
+	claims := jwt.StandardClaims{
+		ExpiresAt: time.Time{}.Unix(),
+		Issuer:    "internal",
+		Subject:   userid,
+	}
+
+	jwtoken := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	unsignedTokenString, err := jwtoken.SigningString()
+	if err != nil {
+		log.Println("ERROR: GenerateUserTokenById::SigningString()", err, userid)
+		return token, err
+	}
+	tokenString := strings.Join([]string{unsignedTokenString, ""}, ".")
+	token = AuthToken("Bearer " + tokenString)
+	return token, err
 }

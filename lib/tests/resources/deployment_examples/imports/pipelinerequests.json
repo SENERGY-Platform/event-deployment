@@ -25,7 +25,7 @@
         },
         {
           "name":"url",
-          "value":"camunda-example-url/engine-rest/message"
+          "value":"http://camunda-wrapper:8080/engine-rest/message"
         },
         {
           "name":"eventId",
@@ -42,6 +42,10 @@
         {
           "name":"convertTo",
           "value":"urn:infai:ses:characteristic:5ba31623-0ccb-4488-bfb7-f73b50e03b5a"
+        },
+        {
+          "name": "userToken",
+          "value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOi02MjEzNTU5NjgwMCwiaXNzIjoiaW50ZXJuYWwiLCJzdWIiOiJ0ZXN0dXNlcmlkIn0."
         }
       ]
     }

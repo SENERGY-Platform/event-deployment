@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
@@ -77,24 +78,28 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 	if err != nil {
 		return err
 	}
+	token, err := auth.NewAuth(this.config).GenerateInternalUserToken(owner)
+	if err != nil {
+		return err
+	}
 	for _, element := range deployment.Elements {
-		err = this.deployElement(owner, deployment.Id, element)
+		err = this.deployElement(token, owner, deployment.Id, element)
 	}
 	return nil
 }
 
-func (this *Events) deployElement(owner string, deploymentId string, element deploymentmodel.Element) (err error) {
+func (this *Events) deployElement(token auth.AuthToken, owner string, deploymentId string, element deploymentmodel.Element) (err error) {
 	event := element.MessageEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
 		label := element.Name + " (" + event.EventId + ")"
 		if event.Selection.SelectedDeviceGroupId != nil {
-			return this.deployEventForDeviceGroup(label, owner, deploymentId, event)
+			return this.deployEventForDeviceGroup(token, label, owner, deploymentId, event)
 		}
 		if event.Selection.SelectedDeviceId != nil && event.Selection.SelectedServiceId != nil {
-			return this.deployEventForDevice(label, owner, deploymentId, event)
+			return this.deployEventForDevice(token, label, owner, deploymentId, event)
 		}
 		if event.Selection.SelectedImportId != nil {
-			return this.deployEventForImport(label, owner, deploymentId, event)
+			return this.deployEventForImport(token, label, owner, deploymentId, event)
 		}
 	}
 	return nil
@@ -168,7 +173,7 @@ func (this *Events) GetPathAndCharacteristicForEvent(event *deploymentmodel.Mess
 }
 
 //expects event.Selection.SelectedDeviceId and event.Selection.SelectedServiceId to be set
-func (this *Events) deployEventForDevice(label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+func (this *Events) deployEventForDevice(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
 	if event == nil {
 		debug.PrintStack()
 		return errors.New("missing event element") //programming error -> dont ignore
@@ -198,6 +203,7 @@ func (this *Events) deployEventForDevice(label string, owner string, deploymentI
 		return err
 	}
 	pipelineId, err := this.analytics.Deploy(
+		token,
 		label,
 		owner,
 		deploymentId,
@@ -219,7 +225,7 @@ func (this *Events) deployEventForDevice(label string, owner string, deploymentI
 	return nil
 }
 
-func (this *Events) deployEventForDeviceGroup(label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+func (this *Events) deployEventForDeviceGroup(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		log.Println("WARNING: DeviceGroupsAndImportsEnabled() = false; configure AuthClientId, AuthClientSecret, AuthEndpoint, PermSearchUrl")
 		return nil
@@ -245,7 +251,7 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 		characteristicId = *event.Selection.FilterCriteria.CharacteristicId
 	}
 
-	return this.deployEventForDeviceGroupWithDescription(label, owner, model.GroupEventDescription{
+	return this.deployEventForDeviceGroupWithDescription(token, label, owner, model.GroupEventDescription{
 		DeviceGroupId:    *event.Selection.SelectedDeviceGroupId,
 		EventId:          event.EventId,
 		DeploymentId:     deploymentId,
@@ -257,7 +263,7 @@ func (this *Events) deployEventForDeviceGroup(label string, owner string, deploy
 	})
 }
 
-func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner string, desc model.GroupEventDescription) error {
+func (this *Events) deployEventForDeviceGroupWithDescription(token auth.AuthToken, label string, owner string, desc model.GroupEventDescription) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		log.Println("WARNING: DeviceGroupsAndImportsEnabled() = false; configure AuthClientId, AuthClientSecret, AuthEndpoint, PermSearchUrl")
 		return nil
@@ -287,6 +293,7 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 		return err
 	}
 	pipelineId, err := this.analytics.DeployGroup(
+		token,
 		label,
 		owner,
 		desc,
@@ -304,7 +311,7 @@ func (this *Events) deployEventForDeviceGroupWithDescription(label string, owner
 	return nil
 }
 
-func (this *Events) updateEventPipelineForDeviceGroup(pipelineId string, label string, owner string, desc model.GroupEventDescription) error {
+func (this *Events) updateEventPipelineForDeviceGroup(token auth.AuthToken, pipelineId string, label string, owner string, desc model.GroupEventDescription) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
 	}
@@ -335,6 +342,7 @@ func (this *Events) updateEventPipelineForDeviceGroup(pipelineId string, label s
 	}
 
 	err = this.analytics.UpdateGroupDeployment(
+		token,
 		pipelineId,
 		label,
 		owner,
@@ -422,7 +430,7 @@ func (this *Events) DeviceGroupsAndImportsEnabled() bool {
 	return true
 }
 
-func (this *Events) deployEventForImport(label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+func (this *Events) deployEventForImport(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
 	}
@@ -446,7 +454,7 @@ func (this *Events) deployEventForImport(label string, owner string, deploymentI
 	if event.Selection.SelectedCharacteristicId != nil {
 		castFrom = *event.Selection.SelectedCharacteristicId
 	}
-	return this.deployEventForImportWithDescription(label, owner, model.GroupEventDescription{
+	return this.deployEventForImportWithDescription(token, label, owner, model.GroupEventDescription{
 		ImportId:      *event.Selection.SelectedImportId,
 		EventId:       event.EventId,
 		DeploymentId:  deploymentId,
@@ -458,7 +466,7 @@ func (this *Events) deployEventForImport(label string, owner string, deploymentI
 	}, castFrom, *event.Selection.FilterCriteria.CharacteristicId)
 }
 
-func (this *Events) deployEventForImportWithDescription(label string, owner string, desc model.GroupEventDescription, castFrom string, castTo string) error {
+func (this *Events) deployEventForImportWithDescription(token auth.AuthToken, label string, owner string, desc model.GroupEventDescription, castFrom string, castTo string) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
 	}
@@ -478,6 +486,7 @@ func (this *Events) deployEventForImportWithDescription(label string, owner stri
 		return err
 	}
 	pipelineId, err := this.analytics.DeployImport(
+		token,
 		label,
 		owner,
 		desc,

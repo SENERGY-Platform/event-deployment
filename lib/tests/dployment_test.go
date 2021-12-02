@@ -20,13 +20,10 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
-	"github.com/SENERGY-Platform/event-deployment/lib/analytics/cache"
-	"github.com/SENERGY-Platform/event-deployment/lib/analytics/shards"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
 	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
 	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
@@ -166,29 +163,6 @@ func testDeployment(t *testing.T, testcase string) {
 		return
 	}
 	defer closeTestFlowEngineApi()
-
-	pgConn, err := docker.Postgres(ctx, &wg, "test")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	s, err := shards.New(pgConn, cache.None)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	err = s.EnsureShard("camunda-example-url")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	_, err = s.EnsureShardForUser("testuserid")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	conf.ShardsDb = pgConn
 
 	a, err := analytics.Factory.New(ctx, conf)
 	if err != nil {

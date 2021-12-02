@@ -19,6 +19,7 @@ package events
 import (
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"runtime/debug"
@@ -58,11 +59,15 @@ func (this *Events) updateDeviceGroup(owner string, group model.DeviceGroup) err
 		log.Println("unable to get pipelines for device-group", owner, group.Id, err)
 		return err
 	}
+	token, err := auth.NewAuth(this.config).GenerateInternalUserToken(owner)
+	if err != nil {
+		return err
+	}
 	for _, pipeline := range pipelines {
 		name := labels[pipeline]
 		info := groupInfos[pipeline]
 		info.DeviceIds = group.DeviceIds
-		err = this.updateEventPipelineForDeviceGroup(pipeline, name, owner, info)
+		err = this.updateEventPipelineForDeviceGroup(token, pipeline, name, owner, info)
 		if err != nil {
 			return err
 		}

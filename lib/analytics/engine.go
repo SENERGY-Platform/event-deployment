@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"net/http"
@@ -28,25 +29,7 @@ import (
 	"strings"
 )
 
-func (this *Analytics) Deploy(label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error) {
-	//check if eventId already exists
-	pipelineId, exists, err := this.GetPipelineByEventId(user, eventId)
-	if err != nil {
-		return pipelineId, err
-	}
-
-	if exists {
-		err = this.Remove(user, pipelineId)
-		if err != nil {
-			return pipelineId, err
-		}
-	}
-
-	//deploy
-	shard, err := this.shards.GetShardForUser(user)
-	if err != nil {
-		return "", err
-	}
+func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error) {
 	flowCells, err, code := this.GetFlowInputs(flowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -82,7 +65,7 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 		convertTo = castTo
 	}
 
-	pipeline, err, code := this.sendDeployRequest(user, PipelineRequest{
+	pipeline, err, code := this.sendDeployRequest(token, user, PipelineRequest{
 		FlowId:      flowId,
 		Name:        label,
 		Description: string(description),
@@ -106,7 +89,7 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 					},
 					{
 						Name:  "url",
-						Value: shard + this.config.CamundaEventTriggerPath,
+						Value: this.config.EventTriggerUrl,
 					},
 					{
 						Name:  "eventId",
@@ -124,6 +107,10 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 						Name:  "convertTo",
 						Value: convertTo,
 					},
+					{
+						Name:  "userToken",
+						Value: string(token),
+					},
 				},
 			},
 		},
@@ -137,30 +124,17 @@ func (this *Analytics) Deploy(label string, user string, deploymentId string, fl
 	return pipelineId, nil
 }
 
-func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error) {
+func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error) {
 	if this.config.Debug {
 		log.Println("DEBUG: DeployGroup()")
 	}
-	//check if eventId already exists
-	pipelineId, exists, err := this.GetPipelineByEventId(user, desc.EventId)
-	if err != nil {
-		return pipelineId, err
-	}
-
-	if exists {
-		err = this.Remove(user, pipelineId)
-		if err != nil {
-			return pipelineId, err
-		}
-	}
-	//deployment
-	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
+	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
 	if err != nil {
 		log.Println("ERROR: getPipelineRequestForGroupDeployment()", err.Error())
 		debug.PrintStack()
 		return "", err
 	}
-	pipeline, err, code := this.sendDeployRequest(user, request)
+	pipeline, err, code := this.sendDeployRequest(token, user, request)
 	if err != nil {
 		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
 		debug.PrintStack()
@@ -170,8 +144,8 @@ func (this *Analytics) DeployGroup(label string, user string, desc model.GroupEv
 	return pipelineId, nil
 }
 
-func (this *Analytics) UpdateGroupDeployment(pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (err error) {
-	request, err := this.getPipelineRequestForGroupDeployment(label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
+func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (err error) {
+	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
 	if err != nil {
 		return err
 	}
@@ -185,11 +159,7 @@ func (this *Analytics) UpdateGroupDeployment(pipelineId string, label string, us
 	return nil
 }
 
-func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (request PipelineRequest, err error) {
-	shard, err := this.shards.GetShardForUser(user)
-	if err != nil {
-		return request, err
-	}
+func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (request PipelineRequest, err error) {
 	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -269,7 +239,7 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user s
 					},
 					{
 						Name:  "url",
-						Value: shard + this.config.CamundaEventTriggerPath,
+						Value: this.config.EventTriggerUrl,
 					},
 					{
 						Name:  "eventId",
@@ -290,6 +260,10 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(label string, user s
 					{
 						Name:  "topicToPathAndCharacteristic",
 						Value: string(topicToPathAndCharacteristicStr),
+					},
+					{
+						Name:  "userToken",
+						Value: string(token),
 					},
 				},
 			},
@@ -330,11 +304,7 @@ func (this *Analytics) Remove(user string, pipelineId string) error {
 	return nil
 }
 
-func (this *Analytics) sendDeployRequest(user string, request PipelineRequest) (result Pipeline, err error, code int) {
-	token, err := this.auth.GetUserToken(user)
-	if err != nil {
-		return result, err, http.StatusInternalServerError
-	}
+func (this *Analytics) sendDeployRequest(token auth.AuthToken, user string, request PipelineRequest) (result Pipeline, err error, code int) {
 	body, err := json.Marshal(request)
 	if err != nil {
 		return result, err, http.StatusInternalServerError
@@ -409,25 +379,12 @@ func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (
 	return result, err, http.StatusOK
 }
 
-func (this *Analytics) DeployImport(label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (pipelineId string, err error) {
-	//check if eventId already exists
-	pipelineId, exists, err := this.GetPipelineByEventId(user, desc.EventId)
-	if err != nil {
-		return pipelineId, err
-	}
-
-	if exists {
-		err = this.Remove(user, pipelineId)
-		if err != nil {
-			return pipelineId, err
-		}
-	}
-	//deployment
-	request, err := this.getPipelineRequestForImportDeployment(label, user, desc, topic, path, castFrom, castTo)
+func (this *Analytics) DeployImport(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (pipelineId string, err error) {
+	request, err := this.getPipelineRequestForImportDeployment(token, label, user, desc, topic, path, castFrom, castTo)
 	if err != nil {
 		return "", err
 	}
-	pipeline, err, code := this.sendDeployRequest(user, request)
+	pipeline, err, code := this.sendDeployRequest(token, user, request)
 	if err != nil {
 		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
 		debug.PrintStack()
@@ -437,11 +394,7 @@ func (this *Analytics) DeployImport(label string, user string, desc model.GroupE
 	return pipelineId, nil
 }
 
-func (this *Analytics) getPipelineRequestForImportDeployment(label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (request PipelineRequest, err error) {
-	shard, err := this.shards.GetShardForUser(user)
-	if err != nil {
-		return request, err
-	}
+func (this *Analytics) getPipelineRequestForImportDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (request PipelineRequest, err error) {
 	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -509,7 +462,7 @@ func (this *Analytics) getPipelineRequestForImportDeployment(label string, user 
 					},
 					{
 						Name:  "url",
-						Value: shard + this.config.CamundaEventTriggerPath,
+						Value: this.config.EventTriggerUrl,
 					},
 					{
 						Name:  "eventId",
@@ -526,6 +479,10 @@ func (this *Analytics) getPipelineRequestForImportDeployment(label string, user 
 					{
 						Name:  "convertTo",
 						Value: convertTo,
+					},
+					{
+						Name:  "userToken",
+						Value: string(token),
 					},
 				},
 			},
