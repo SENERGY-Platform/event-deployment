@@ -25,6 +25,11 @@ type DevicesMock struct {
 	GetDeviceInfosOfGroupValues map[string][]model.Device //key = groupId
 }
 
+func (this *DevicesMock) GetDeviceTypeSelectables(criteria []model.FilterCriteria) (result []model.DeviceTypeSelectable, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (this *DevicesMock) GetDeviceInfosOfDevices(deviceIds []string) (devices []model.Device, deviceTypeIds []string, err error, code int) {
 	allDevices := map[string]model.Device{}
 	for _, group := range this.GetDeviceInfosOfGroupValues {

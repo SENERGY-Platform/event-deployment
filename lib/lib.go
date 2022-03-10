@@ -26,24 +26,19 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/imports"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/kafka"
-	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
 )
 
 func StartDefault(ctx context.Context, config config.Config) error {
-	return Start(ctx, config, kafka.Factory, events.Factory, analytics.Factory, marshaller.Factory, devices.Factory, api.Start)
+	return Start(ctx, config, kafka.Factory, events.Factory, analytics.Factory, devices.Factory, api.Start)
 }
 
-func Start(ctx context.Context, config config.Config, sourcing interfaces.SourcingFactory, events interfaces.EventsFactory, analytics interfaces.AnalyticsFactory, marshaller interfaces.MarshallerFactory, devices interfaces.DevicesFactory, apiFactory func(ctx context.Context, config config.Config, ctrl interfaces.Events) error) error {
+func Start(ctx context.Context, config config.Config, sourcing interfaces.SourcingFactory, events interfaces.EventsFactory, analytics interfaces.AnalyticsFactory, devices interfaces.DevicesFactory, apiFactory func(ctx context.Context, config config.Config, ctrl interfaces.Events) error) error {
 	a, err := analytics.New(ctx, config)
 	if err != nil {
 		return err
 	}
-	m, err := marshaller.New(ctx, config)
-	if err != nil {
-		return err
-	}
 
-	event, err := events.New(ctx, config, a, m, devices.New(config), imports.New(config))
+	event, err := events.New(ctx, config, a, devices.New(config), imports.New(config))
 	if err != nil {
 		return err
 	}

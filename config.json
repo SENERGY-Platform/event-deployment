@@ -2,7 +2,7 @@
   "log_level":"CALL",
   "api_port":"8080",
   "kafka_url":"kafka:9092",
-  "marshaller_url": "http://marshaller:8080",
+  "device_repository_url": "http://device-repository:8080",
   "flow_engine_url":"http://kong:8000/analytics/flow-engine/v2",
   "flow_parser_url":"http://kong:8000/analytics/flow-parser/v2",
   "pipeline_repo_url": "http://kong:8000/analytics/pipeline",
@@ -10,7 +10,7 @@
   "consumer_group":"event_manager",
   "converter_url": "http://converter:8080/conversions",
   "debug":true,
-  "deployment_topic":"deployments",
+  "deployment_topic":"deployments_v3",
   "connectivity_test":false,
   "event_trigger_url":"http://camunda-wrapper:8080/engine-rest/message",
 
@@ -26,5 +26,9 @@
   "analytics_request_timeout": "30s",
   "http_client_timeout": "30s",
   "http_server_timeout": "30s",
-  "http_server_read_timeout": "3s"
+  "http_server_read_timeout": "3s",
+
+  "device_path_prefix": "",
+  "group_path_prefix": "",
+  "import_path_prefix": ""
 }

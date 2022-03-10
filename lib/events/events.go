@@ -23,9 +23,8 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
 	"log"
 	"net/http"
@@ -38,15 +37,14 @@ type EventsFactory struct{}
 var Factory = &EventsFactory{}
 
 type Events struct {
-	config     config.Config
-	analytics  interfaces.Analytics
-	marshaller interfaces.Marshaller
-	devices    interfaces.Devices
-	imports    interfaces.Imports
+	config    config.Config
+	analytics interfaces.Analytics
+	devices   interfaces.Devices
+	imports   interfaces.Imports
 }
 
-func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, marshaller interfaces.Marshaller, devices interfaces.Devices, imports interfaces.Imports) (interfaces.Events, error) {
-	return &Events{config: config, analytics: analytics, marshaller: marshaller, devices: devices, imports: imports}, nil
+func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports) (interfaces.Events, error) {
+	return &Events{config: config, analytics: analytics, devices: devices, imports: imports}, nil
 }
 
 func (this *Events) HandleCommand(msg []byte) error {
@@ -61,8 +59,12 @@ func (this *Events) HandleCommand(msg []byte) error {
 	}
 	switch cmd.Command {
 	case "PUT":
-		if cmd.DeploymentV2 != nil {
-			err = this.Deploy(cmd.Owner, *cmd.DeploymentV2)
+		if cmd.Version != deploymentmodel.CurrentVersion {
+			log.Println("ERROR: unexpected deployment version", cmd.Version)
+			return nil
+		}
+		if cmd.Deployment != nil {
+			err = this.Deploy(cmd.Owner, *cmd.Deployment)
 		}
 		return err
 	case "DELETE":
@@ -160,18 +162,6 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 
 var ErrMissingCharacteristicInEvent = errors.New("missing characteristic id in event")
 
-func (this *Events) GetPathAndCharacteristicForEvent(event *deploymentmodel.MessageEvent) (path string, characteristicId string, err error) {
-	if event.Selection.FilterCriteria.CharacteristicId == nil {
-		return "", "", ErrMissingCharacteristicInEvent
-	}
-	if event.Selection.SelectedServiceId == nil {
-		err = errors.New("missing service id")
-		debug.PrintStack()
-		return
-	}
-	return this.marshaller.FindPath(*event.Selection.SelectedServiceId, *event.Selection.FilterCriteria.CharacteristicId)
-}
-
 //expects event.Selection.SelectedDeviceId and event.Selection.SelectedServiceId to be set
 func (this *Events) deployEventForDevice(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
 	if event == nil {
@@ -188,19 +178,12 @@ func (this *Events) deployEventForDevice(token auth.AuthToken, label string, own
 	}
 	var path string
 	var castFrom string
-	var err error
-	if event.Selection.SelectedCharacteristicId != nil && event.Selection.SelectedPath != nil {
-		castFrom = *event.Selection.SelectedCharacteristicId
-		path = *event.Selection.SelectedPath
+	if event.Selection.SelectedPath != nil {
+		castFrom = event.Selection.SelectedPath.CharacteristicId
+		path = this.config.DevicePathPrefix + event.Selection.SelectedPath.Path
 	} else {
-		path, castFrom, err = this.GetPathAndCharacteristicForEvent(event)
-	}
-	if err == ErrMissingCharacteristicInEvent || err == marshaller.ErrCharacteristicNotFoundInService || err == marshaller.ErrServiceNotFound {
-		log.Println("WARNING: error on marshaller request;", err, "-> ignore event", event)
+		log.Println("WARNING: missing SelectedPath --> ignore event", event)
 		return nil
-	}
-	if err != nil {
-		return err
 	}
 	pipelineId, err := this.analytics.Deploy(
 		token,
@@ -369,12 +352,7 @@ func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDesc
 	if err != nil {
 		return nil, nil, nil, serviceToPathAndCharacteristic, err, code
 	}
-	options, err := this.marshaller.FindPathOptions(
-		deviceTypeIds,
-		desc.FunctionId,
-		desc.AspectId,
-		[]string{},
-		true)
+	options, err := this.getDeviceGroupPathOptions(desc, deviceTypeIds)
 	if err != nil {
 		log.Println("ERROR: unable to find path options", err)
 		return nil, nil, nil, serviceToPathAndCharacteristic, err, http.StatusInternalServerError
@@ -451,8 +429,10 @@ func (this *Events) deployEventForImport(token auth.AuthToken, label string, own
 		return nil
 	}
 	var castFrom string
-	if event.Selection.SelectedCharacteristicId != nil {
-		castFrom = *event.Selection.SelectedCharacteristicId
+	path := ""
+	if event.Selection.SelectedPath != nil {
+		castFrom = event.Selection.SelectedPath.CharacteristicId
+		path = event.Selection.SelectedPath.Path
 	}
 	return this.deployEventForImportWithDescription(token, label, owner, model.GroupEventDescription{
 		ImportId:      *event.Selection.SelectedImportId,
@@ -462,7 +442,7 @@ func (this *Events) deployEventForImport(token auth.AuthToken, label string, own
 		AspectId:      *event.Selection.FilterCriteria.AspectId,
 		FlowId:        event.FlowId,
 		OperatorValue: event.Value,
-		Path:          *event.Selection.SelectedPath,
+		Path:          path,
 	}, castFrom, *event.Selection.FilterCriteria.CharacteristicId)
 }
 
@@ -491,7 +471,7 @@ func (this *Events) deployEventForImportWithDescription(token auth.AuthToken, la
 		owner,
 		desc,
 		topic,
-		desc.Path,
+		this.config.ImportPathPrefix+desc.Path,
 		castFrom,
 		castTo)
 	if err != nil {

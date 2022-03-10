@@ -208,7 +208,7 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 			TopicName:  ServiceIdToTopic(serviceId),
 			Values: []NodeValue{{
 				Name: "value",
-				Path: path,
+				Path: this.config.GroupPathPrefix + path,
 			}},
 		})
 	}

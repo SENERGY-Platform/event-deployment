@@ -22,7 +22,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
-	"github.com/SENERGY-Platform/event-deployment/lib/marshaller"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
 	uuid "github.com/satori/go.uuid"
@@ -89,39 +88,6 @@ func testDeployment(t *testing.T, testcase string) {
 		return
 	}
 
-	marshallerMock := mocks.MarshallerMock{
-		FindPathValues:       map[string]map[string]marshaller.Response{},
-		FindPathOptionsValue: map[string]map[string]map[string][]model.PathOptionsResultElement{},
-	}
-
-	marshallerResponsesFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/marshallerresponses.json"
-	if fileExists(marshallerResponsesFilePath) {
-		marshallerResponsesJson, err := ioutil.ReadFile(marshallerResponsesFilePath)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		err = json.Unmarshal(marshallerResponsesJson, &marshallerMock.FindPathValues)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-	}
-
-	pathoptionsFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/marshallerresponses_pathoptions.json"
-	if fileExists(pathoptionsFilePath) {
-		marshallerResponsesPathoptionsJson, err := ioutil.ReadFile(pathoptionsFilePath)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		err = json.Unmarshal(marshallerResponsesPathoptionsJson, &marshallerMock.FindPathOptionsValue)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-	}
-
 	devicesMock := mocks.DevicesMock{
 		GetDeviceInfosOfGroupValues: map[string][]model.Device{},
 	}
@@ -170,7 +136,7 @@ func testDeployment(t *testing.T, testcase string) {
 		return
 	}
 
-	event, err := events.Factory.New(ctx, conf, a, &marshallerMock, &devicesMock, &mocks.ImportsMock{})
+	event, err := events.Factory.New(ctx, conf, a, &devicesMock, &mocks.ImportsMock{})
 	if err != nil {
 		t.Error(err)
 		return

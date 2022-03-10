@@ -22,7 +22,7 @@ import (
 )
 
 type EventsFactory interface {
-	New(ctx context.Context, config config.Config, analytics Analytics, marshaller Marshaller, devices Devices, imports Imports) (Events, error)
+	New(ctx context.Context, config config.Config, analytics Analytics, devices Devices, imports Imports) (Events, error)
 }
 
 type Events interface {

@@ -52,3 +52,28 @@ type PathAndCharacteristic struct {
 	JsonPath         string `json:"json_path"`
 	CharacteristicId string `json:"characteristic_id"`
 }
+
+type FilterCriteria struct {
+	FunctionId    string `json:"function_id"`
+	DeviceClassId string `json:"device_class_id"`
+	AspectId      string `json:"aspect_id"`
+}
+
+type DeviceTypeSelectable struct {
+	DeviceTypeId string `json:"device_type_id,omitempty"`
+	//Services           []Service                      `json:"services,omitempty"`
+	ServicePathOptions map[string][]ServicePathOption `json:"service_path_options,omitempty"`
+}
+
+type ServicePathOption struct {
+	ServiceId        string `json:"service_id"`
+	Path             string `json:"path"`
+	CharacteristicId string `json:"characteristic_id"`
+	//AspectNode            AspectNode     `json:"aspect_node"`
+	FunctionId            string      `json:"function_id"`
+	IsVoid                bool        `json:"is_void"`
+	Value                 interface{} `json:"value,omitempty"`
+	IsControllingFunction bool        `json:"is_controlling_function"`
+	//Configurables         []Configurable `json:"configurables,omitempty"`
+	//Type                  Type           `json:"type,omitempty"`
+}

@@ -32,7 +32,6 @@ import (
 type ConfigStruct struct {
 	LogLevel         string `json:"log_level"`
 	ApiPort          string `json:"api_port"`
-	MarshallerUrl    string `json:"marshaller_url"`
 	ConverterUrl     string `json:"converter_url"`
 	KafkaUrl         string `json:"kafka_url"`
 	FlowEngineUrl    string `json:"flow_engine_url"`
@@ -44,6 +43,12 @@ type ConfigStruct struct {
 	DeploymentTopic  string `json:"deployment_topic"`
 	ConnectivityTest bool   `json:"connectivity_test"`
 	EventTriggerUrl  string `json:"event_trigger_url"`
+
+	DevicePathPrefix string `json:"device_path_prefix"`
+	GroupPathPrefix  string `json:"group_path_prefix"`
+	ImportPathPrefix string `json:"import_path_prefix"`
+
+	DeviceRepositoryUrl string `json:"device_repository_url"`
 
 	//if not configured: no device-group updates handled
 	DeviceGroupTopic string `json:"device_group_topic"`
