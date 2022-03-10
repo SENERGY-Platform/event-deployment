@@ -31,6 +31,7 @@ import (
 	"os"
 	"reflect"
 	"runtime/debug"
+	"sort"
 	"sync"
 	"testing"
 )
@@ -100,6 +101,20 @@ func testDeployment(t *testing.T, testcase string) {
 			return
 		}
 		err = json.Unmarshal(groupdevicesJson, &devicesMock.GetDeviceInfosOfGroupValues)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	}
+
+	deviceTypeSelectablesPath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/devicetypeselectables.json"
+	if fileExists(deviceTypeSelectablesPath) {
+		deviceTypeSelectablesJson, err := ioutil.ReadFile(deviceTypeSelectablesPath)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		err = json.Unmarshal(deviceTypeSelectablesJson, &devicesMock.GetDeviceTypeSelectablesValues)
 		if err != nil {
 			t.Error(err)
 			return
@@ -195,6 +210,18 @@ func createTestFlowEngineApi(t *testing.T, fullTestCasePath string) (endpointUrl
 			if err != nil {
 				t.Error(err)
 				return
+			}
+			for i, node := range actualRequest.Nodes {
+				sort.Slice(node.Inputs, func(i, j int) bool {
+					return node.Inputs[i].TopicName < node.Inputs[j].TopicName
+				})
+				actualRequest.Nodes[i] = node
+			}
+			for i, node := range expectedRequests[count].Nodes {
+				sort.Slice(node.Inputs, func(i, j int) bool {
+					return node.Inputs[i].TopicName < node.Inputs[j].TopicName
+				})
+				expectedRequests[count].Nodes[i] = node
 			}
 			if !reflect.DeepEqual(expectedRequests[count], actualRequest) {
 				expectedJson, _ := json.Marshal(expectedRequests[count])

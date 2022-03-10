@@ -100,6 +100,20 @@ func testGroupUpdate(t *testing.T, testcase string) {
 		}
 	}
 
+	deviceTypeSelectablesPath := GROUPUPDATE_EXAMPLES_DIR + testcase + "/devicetypeselectables.json"
+	if fileExists(deviceTypeSelectablesPath) {
+		deviceTypeSelectablesJson, err := ioutil.ReadFile(deviceTypeSelectablesPath)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		err = json.Unmarshal(deviceTypeSelectablesJson, &devicesMock.GetDeviceTypeSelectablesValues)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	}
+
 	closeTestPipelineRepoApi := func() {}
 	conf.PipelineRepoUrl, closeTestPipelineRepoApi, err = createTestPipelineRepoApi(GROUPUPDATE_EXAMPLES_DIR + testcase + "/knownpipelines.json")
 	if err != nil {

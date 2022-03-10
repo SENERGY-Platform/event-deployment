@@ -19,15 +19,31 @@ package mocks
 import (
 	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
+	"net/http"
 )
 
 type DevicesMock struct {
-	GetDeviceInfosOfGroupValues map[string][]model.Device //key = groupId
+	GetDeviceInfosOfGroupValues    map[string][]model.Device //key = groupId
+	GetDeviceTypeSelectablesValues map[string]map[string][]model.DeviceTypeSelectable
 }
 
 func (this *DevicesMock) GetDeviceTypeSelectables(criteria []model.FilterCriteria) (result []model.DeviceTypeSelectable, err error, code int) {
-	//TODO implement me
-	panic("implement me")
+	if len(criteria) != 1 {
+		return nil, errors.New("expect exactly 1 criteria"), http.StatusInternalServerError
+	}
+	functionId := criteria[0].FunctionId
+	aspectId := criteria[0].AspectId
+	functionMap, ok := this.GetDeviceTypeSelectablesValues[functionId]
+	if !ok {
+		//no function found
+		return result, nil, http.StatusOK
+	}
+	result, ok = functionMap[aspectId]
+	if !ok {
+		//no aspect found
+		return result, nil, http.StatusOK
+	}
+	return result, nil, http.StatusOK
 }
 
 func (this *DevicesMock) GetDeviceInfosOfDevices(deviceIds []string) (devices []model.Device, deviceTypeIds []string, err error, code int) {

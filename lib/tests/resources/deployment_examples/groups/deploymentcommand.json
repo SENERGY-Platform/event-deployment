@@ -1,8 +1,10 @@
 {
+  "version": 3,
   "command": "PUT",
   "id": "someid",
   "owner": "testuserid",
-  "deployment_v2": {
+  "deployment": {
+    "version": 3,
     "id": "someid",
     "name": "Events Example",
     "elements": [
