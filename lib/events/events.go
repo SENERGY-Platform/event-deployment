@@ -47,15 +47,40 @@ func (this *EventsFactory) New(ctx context.Context, config config.Config, analyt
 	return &Events{config: config, analytics: analytics, devices: devices, imports: imports}, nil
 }
 
+type VersionWrapper struct {
+	Command string `json:"command"`
+	Id      string `json:"id"`
+	Version int64  `json:"version"`
+	Owner   string `json:"owner"`
+}
+
 func (this *Events) HandleCommand(msg []byte) error {
 	if this.config.Debug {
 		log.Println("DEBUG: receive deployment command:", string(msg))
 	}
-	cmd := messages.DeploymentCommand{}
-	err := json.Unmarshal(msg, &cmd)
+
+	version := VersionWrapper{}
+	err := json.Unmarshal(msg, &version)
 	if err != nil {
+		log.Println("ERROR: consumed invalid message --> ignore", err)
 		debug.PrintStack()
-		return err
+		return nil
+	}
+	if version.Version != deploymentmodel.CurrentVersion {
+		log.Println("ERROR: consumed unexpected deployment version", version.Version)
+		if version.Command == "DELETE" {
+			log.Println("handle legacy delete")
+			return this.Remove(version.Owner, version.Id)
+		}
+		return nil
+	}
+
+	cmd := messages.DeploymentCommand{}
+	err = json.Unmarshal(msg, &cmd)
+	if err != nil {
+		log.Println("ERROR: invalid message --> ignore", err)
+		debug.PrintStack()
+		return nil
 	}
 	switch cmd.Command {
 	case "PUT":
