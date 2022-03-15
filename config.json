@@ -28,7 +28,7 @@
   "http_server_timeout": "30s",
   "http_server_read_timeout": "3s",
 
-  "device_path_prefix": "",
-  "group_path_prefix": "",
-  "import_path_prefix": ""
+  "device_path_prefix": "value.",
+  "group_path_prefix": "value.",
+  "import_path_prefix": "value."
 }

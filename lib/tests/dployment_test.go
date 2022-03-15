@@ -71,6 +71,9 @@ func testDeployment(t *testing.T, testcase string) {
 	conf.AuthClientSecret = "mocked"
 	conf.AuthClientId = "mocked"
 	conf.PermSearchUrl = "mocked"
+	conf.ImportPathPrefix = ""
+	conf.DevicePathPrefix = ""
+	conf.GroupPathPrefix = ""
 
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := sync.WaitGroup{}
