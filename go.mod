@@ -1,6 +1,6 @@
 module github.com/SENERGY-Platform/event-deployment
 
-go 1.17
+go 1.18
 
 require (
 	github.com/SENERGY-Platform/process-deployment v0.0.0-20220310102727-15c5da4899f1
