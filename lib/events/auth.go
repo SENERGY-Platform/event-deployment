@@ -35,7 +35,7 @@ func (this *Claims) Valid() error {
 }
 
 func parse(token string) (claims Claims, err error) {
-	if strings.HasPrefix(token, "Bearer ") {
+	if len(token) > 7 && strings.ToLower(token[:7]) == "bearer " {
 		token = token[7:]
 	}
 	_, _, err = new(jwt.Parser).ParseUnverified(token, &claims)
