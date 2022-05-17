@@ -105,7 +105,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 	if err != nil {
 		return err
 	}
-	token, err := auth.NewAuth(this.config).GenerateInternalUserToken(owner)
+	token, err := auth.NewAuth(this.config).GetUserToken(owner)
 	if err != nil {
 		return err
 	}

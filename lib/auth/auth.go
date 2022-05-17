@@ -19,6 +19,7 @@ package auth
 import (
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/cache"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/golang-jwt/jwt"
 	"log"
@@ -48,12 +49,15 @@ type OpenidToken struct {
 }
 
 type Auth struct {
-	openid *OpenidToken
-	config config.Config
+	openid         *OpenidToken
+	config         config.Config
+	userTokenCache cache.Cache
 }
 
 func NewAuth(config config.Config) *Auth {
-	return &Auth{config: config}
+	return &Auth{config: config, userTokenCache: cache.New(&cache.CacheConfig{
+		L1Expiration: 600,
+	})}
 }
 
 func (this *Auth) Ensure() (token AuthToken, err error) {
@@ -89,6 +93,14 @@ func (this *Auth) Ensure() (token AuthToken, err error) {
 }
 
 func (this *Auth) GetUserToken(userid string) (token AuthToken, err error) {
+	err = this.userTokenCache.Use("user_token."+userid, func() (interface{}, error) {
+		temp, err := this.getUserToken(userid)
+		return temp, err
+	}, &token)
+	return token, err
+}
+
+func (this *Auth) getUserToken(userid string) (token AuthToken, err error) {
 	resp, err := http.PostForm(this.config.AuthEndpoint+"/auth/realms/master/protocol/openid-connect/token", url.Values{
 		"client_id":         {this.config.AuthClientId},
 		"client_secret":     {this.config.AuthClientSecret},
