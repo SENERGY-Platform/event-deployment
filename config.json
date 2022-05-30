@@ -30,5 +30,7 @@
 
   "device_path_prefix": "value.",
   "group_path_prefix": "value.",
-  "import_path_prefix": "value."
+  "import_path_prefix": "value.",
+
+  "enable_multiple_paths": false
 }

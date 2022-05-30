@@ -119,11 +119,14 @@ func (this *Events) deployElement(token auth.AuthToken, owner string, deployment
 	event := element.MessageEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
 		label := element.Name + " (" + event.EventId + ")"
-		if event.Selection.SelectedDeviceGroupId != nil {
+		if event.Selection.SelectedDeviceGroupId != nil && *event.Selection.SelectedDeviceGroupId != "" {
 			return this.deployEventForDeviceGroup(token, label, owner, deploymentId, event)
 		}
-		if event.Selection.SelectedDeviceId != nil && event.Selection.SelectedServiceId != nil {
+		if event.Selection.SelectedDeviceId != nil && event.Selection.SelectedServiceId != nil && *event.Selection.SelectedServiceId != "" {
 			return this.deployEventForDevice(token, label, owner, deploymentId, event)
+		}
+		if event.Selection.SelectedDeviceId != nil && !(event.Selection.SelectedServiceId != nil && *event.Selection.SelectedServiceId != "") {
+			return this.deployEventForDeviceWithoutService(token, label, owner, deploymentId, event)
 		}
 		if event.Selection.SelectedImportId != nil {
 			return this.deployEventForImport(token, label, owner, deploymentId, event)
@@ -276,7 +279,7 @@ func (this *Events) deployEventForDeviceGroupWithDescription(token auth.AuthToke
 		log.Println("WARNING: DeviceGroupsAndImportsEnabled() = false; configure AuthClientId, AuthClientSecret, AuthEndpoint, PermSearchUrl")
 		return nil
 	}
-	if desc.DeviceGroupId == "" {
+	if desc.DeviceGroupId == "" && len(desc.DeviceIds) == 0 {
 		debug.PrintStack()
 		return errors.New("missing device group id") //programming error -> dont ignore
 	}
@@ -365,7 +368,7 @@ func (this *Events) updateEventPipelineForDeviceGroup(token auth.AuthToken, pipe
 	return nil
 }
 
-func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDescription) (serviceIds []string, serviceToDevices map[string][]string, serviceToPath map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, err error, code int) {
+func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDescription) (serviceIds []string, serviceToDevices map[string][]string, serviceToPath map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, err error, code int) {
 	serviceToPathAndCharacteristic = map[string][]model.PathAndCharacteristic{}
 	var devices []model.Device
 	var deviceTypeIds []string
@@ -384,7 +387,7 @@ func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDesc
 	}
 	serviceIds = []string{}
 	serviceToDevices = map[string][]string{}
-	serviceToPath = map[string]string{}
+	serviceToPath = map[string][]string{}
 	serviceToPathToCharacteristic := map[string]map[string]string{}
 	for _, device := range devices {
 		for _, option := range options[device.DeviceTypeId] {
@@ -392,9 +395,9 @@ func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDesc
 				serviceToDevices[option.ServiceId] = append(serviceToDevices[option.ServiceId], device.Id)
 				if _, ok := serviceToPath[option.ServiceId]; !ok {
 					serviceIds = append(serviceIds, option.ServiceId)
-					serviceToPath[option.ServiceId] = option.JsonPath[0]
 				}
 				for _, path := range option.JsonPath {
+					serviceToPath[option.ServiceId] = append(serviceToPath[option.ServiceId], path)
 					if _, ok := serviceToPathToCharacteristic[option.ServiceId]; !ok {
 						serviceToPathToCharacteristic[option.ServiceId] = map[string]string{}
 					}
@@ -507,4 +510,42 @@ func (this *Events) deployEventForImportWithDescription(token auth.AuthToken, la
 		return nil
 	}
 	return nil
+}
+
+func (this *Events) deployEventForDeviceWithoutService(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+	if !this.DeviceGroupsAndImportsEnabled() {
+		log.Println("WARNING: DeviceGroupsAndImportsEnabled() = false; configure AuthClientId, AuthClientSecret, AuthEndpoint, PermSearchUrl")
+		return nil
+	}
+	if event == nil {
+		debug.PrintStack()
+		return errors.New("missing event element") //programming error -> dont ignore
+	}
+	if event.Selection.SelectedDeviceId == nil {
+		debug.PrintStack()
+		return errors.New("missing device id") //programming error -> dont ignore
+	}
+	if event.Selection.FilterCriteria.FunctionId == nil {
+		log.Println("WARNING: try to deploy device (no service selection) event without function id --> ignore", label, deploymentId, event)
+		return nil
+	}
+	if event.Selection.FilterCriteria.AspectId == nil {
+		log.Println("WARNING: try to deploy (no service selection) event without aspect id --> ignore", label, deploymentId, event)
+		return nil
+	}
+	characteristicId := ""
+	if event.Selection.FilterCriteria.CharacteristicId != nil {
+		characteristicId = *event.Selection.FilterCriteria.CharacteristicId
+	}
+
+	return this.deployEventForDeviceGroupWithDescription(token, label, owner, model.GroupEventDescription{
+		DeviceIds:        []string{*event.Selection.SelectedDeviceId},
+		EventId:          event.EventId,
+		DeploymentId:     deploymentId,
+		CharacteristicId: characteristicId,
+		FunctionId:       *event.Selection.FilterCriteria.FunctionId,
+		AspectId:         *event.Selection.FilterCriteria.AspectId,
+		FlowId:           event.FlowId,
+		OperatorValue:    event.Value,
+	})
 }

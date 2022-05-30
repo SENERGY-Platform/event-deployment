@@ -65,6 +65,8 @@ type ConfigStruct struct {
 	HttpClientTimeout          string `json:"http_client_timeout"`
 	HttpServerTimeout          string `json:"http_server_timeout"`
 	HttpServerReadTimeout      string `json:"http_server_read_timeout"`
+
+	EnableMultiplePaths bool `json:"enable_multiple_paths"`
 }
 
 type Config = *ConfigStruct

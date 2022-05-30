@@ -26,6 +26,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
 	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -203,6 +204,7 @@ func createTestFlowEngineApi(t *testing.T, fullTestCasePath string) (endpointUrl
 
 	count := 0
 	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("endpoint-mock receive:", r.Method, r.URL.Path)
 		if (r.Method == "POST" || r.Method == "PUT") && r.URL.Path == "/pipeline" {
 			if count >= len(expectedRequests) {
 				t.Error("to many requests to flow engine \n\n", len(expectedRequests))

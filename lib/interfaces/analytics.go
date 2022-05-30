@@ -28,8 +28,8 @@ type AnalyticsFactory interface {
 }
 
 type Analytics interface {
-	UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, owner string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (err error)
-	DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error)
+	UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, owner string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (err error)
+	DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error)
 	DeployImport(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (pipelineId string, err error)
 	Deploy(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error)
 	Remove(user string, pipelineId string) error

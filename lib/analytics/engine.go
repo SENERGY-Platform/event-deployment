@@ -124,11 +124,11 @@ func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, d
 	return pipelineId, nil
 }
 
-func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error) {
+func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error) {
 	if this.config.Debug {
 		log.Println("DEBUG: DeployGroup()")
 	}
-	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
+	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic)
 	if err != nil {
 		log.Println("ERROR: getPipelineRequestForGroupDeployment()", err.Error())
 		debug.PrintStack()
@@ -144,8 +144,8 @@ func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user stri
 	return pipelineId, nil
 }
 
-func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (err error) {
-	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathMapping, serviceToPathAndCharacteristic)
+func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (err error) {
+	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic)
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId st
 	return nil
 }
 
-func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathMapping map[string]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (request PipelineRequest, err error) {
+func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (request PipelineRequest, err error) {
 	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -197,19 +197,31 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 			log.Println("WARNING: missing deviceIds for service in DeployGroup()", serviceId, " --> skip service for group event deployment")
 			continue
 		}
-		path := serviceToPathMapping[serviceId]
-		if path == "" {
+		paths := serviceToPathsMapping[serviceId]
+		if len(paths) == 0 {
 			log.Println("WARNING: missing path for service in DeployGroup()", serviceId, " --> skip service for group event deployment")
 			continue
 		}
+		values := []NodeValue{}
+		if this.config.EnableMultiplePaths {
+			for _, path := range paths {
+				values = append(values, NodeValue{
+					Name: "value",
+					Path: this.config.GroupPathPrefix + path,
+				})
+			}
+		} else {
+			values = []NodeValue{{
+				Name: "value",
+				Path: this.config.GroupPathPrefix + paths[0],
+			}}
+		}
+
 		inputs = append(inputs, NodeInput{
 			FilterIds:  deviceIds,
 			FilterType: DeviceFilterType,
 			TopicName:  ServiceIdToTopic(serviceId),
-			Values: []NodeValue{{
-				Name: "value",
-				Path: this.config.GroupPathPrefix + path,
-			}},
+			Values:     values,
 		})
 	}
 
