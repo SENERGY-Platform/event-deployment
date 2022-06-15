@@ -169,7 +169,7 @@ func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId st
 		return err
 	}
 	request.Id = pipelineId
-	_, err, code := this.sendUpdateRequest(user, request)
+	_, err, code := this.sendUpdateRequest(token, user, request)
 	if err != nil {
 		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
 		debug.PrintStack()
@@ -394,7 +394,7 @@ func (this *Analytics) sendDeployRequest(token auth.AuthToken, user string, requ
 	return result, err, http.StatusOK
 }
 
-func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (result Pipeline, err error, code int) {
+func (this *Analytics) sendUpdateRequest(token auth.AuthToken, user string, request PipelineRequest) (result Pipeline, err error, code int) {
 	body, err := json.Marshal(request)
 	if err != nil {
 		return result, err, http.StatusInternalServerError
@@ -415,6 +415,11 @@ func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (
 		return result, err, http.StatusInternalServerError
 	}
 	req.Header.Set("X-UserId", user)
+	token.UseInRequest(req)
+	req.Header.Set("X-UserId", user)
+	if this.config.Debug {
+		log.Println("DEBUG: send analytics deployment with token:", req.Header.Get("Authorization"))
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		debug.PrintStack()
