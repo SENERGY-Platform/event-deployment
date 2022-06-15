@@ -10,7 +10,7 @@
   "consumer_group":"event_manager",
   "converter_url": "http://converter:8080/conversions",
   "extended_converter_url": "http://converter:8080/extended-conversions",
-  "debug":true,
+  "debug":false,
   "deployment_topic":"deployments_v3",
   "connectivity_test":false,
   "event_trigger_url":"http://camunda-wrapper:8080/engine-rest/message",
