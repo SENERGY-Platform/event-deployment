@@ -1,19 +1,52 @@
 [{
   "flowId":"flow_id_1",
   "name":"StartEvent_1 (event_id_1)",
-  "description":"{\"device_id\":\"lifx1\",\"service_id\":\"urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097\",\"value_path\":\"value.energy.level\",\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\"}",
+  "description":"{\"device_group_id\":\"urn:infai:ses:device-group:dg1\",\"function_id\":\"urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869\",\"aspect_id\":\"urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6\",\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\",\"flow_id\":\"flow_id_1\"}",
   "nodes":[
     {
       "nodeId":"test-flow-cell-id",
       "inputs":[
         {
-          "filterIds":"lifx1",
-          "filterType": "deviceId",
-          "topicName":"urn_infai_ses_service_137fdd3e-bf55-4129-b71a-f33df8223097",
+          "filterIds":"urn:infai:ses:device:d1",
+          "filterType":"deviceId",
+          "topicName":"urn_infai_ses_service_s1",
           "values":[
             {
               "name":"value",
-              "path":"value.energy.level"
+              "path":"dt1.s1.v1"
+            }
+          ]
+        },
+        {
+          "filterIds":"urn:infai:ses:device:d2,urn:infai:ses:device:d3",
+          "filterType":"deviceId",
+          "topicName":"urn_infai_ses_service_s2",
+          "values":[
+            {
+              "name":"value",
+              "path":"dt2.s2.v1"
+            }
+          ]
+        },
+        {
+          "filterIds":"urn:infai:ses:device:d4,urn:infai:ses:device:d5",
+          "filterType":"deviceId",
+          "topicName":"urn_infai_ses_service_s3",
+          "values":[
+            {
+              "name":"value",
+              "path":"dt3.s3.v1"
+            }
+          ]
+        },
+        {
+          "filterIds":"urn:infai:ses:device:d4,urn:infai:ses:device:d5",
+          "filterType":"deviceId",
+          "topicName":"urn_infai_ses_service_s4",
+          "values":[
+            {
+              "name":"value",
+              "path":"dt3.s4.v1"
             }
           ]
         }
@@ -33,15 +66,14 @@
         },
         {
           "name":"converterUrl",
-          "value": "http://converter:8080/conversions"
+          "value":"http://converter:8080/conversions"
         },
         {
           "name":"extendedConverterUrl",
           "value": "http://converter:8080/extended-conversions"
         },
         {
-          "name":"convertFrom",
-          "value":"service-characteristic-id"
+          "name":"convertFrom"
         },
         {
           "name":"convertTo",
@@ -50,6 +82,10 @@
         {
           "name":"castExtensions",
           "value":"[{\"from\":\"foo\",\"to\":\"bar\",\"distance\":0,\"formula\":\"42\",\"placeholder_name\":\"\"}]"
+        },
+        {
+          "name":"topicToPathAndCharacteristic",
+          "value":"{\"urn_infai_ses_service_s1\":[{\"json_path\":\"dt1.s1.v1\",\"characteristic_id\":\"v1_cid\"}],\"urn_infai_ses_service_s2\":[{\"json_path\":\"dt2.s2.v1\",\"characteristic_id\":\"v1_cid\"},{\"json_path\":\"dt2.s2.v2\",\"characteristic_id\":\"v2_cid\"}],\"urn_infai_ses_service_s3\":[{\"json_path\":\"dt3.s3.v1\",\"characteristic_id\":\"v1_cid\"}],\"urn_infai_ses_service_s4\":[{\"json_path\":\"dt3.s4.v1\",\"characteristic_id\":\"v1_cid\"},{\"json_path\":\"dt3.s4.v2\",\"characteristic_id\":\"v2_cid\"}]}"
         },
         {
           "name": "userToken",

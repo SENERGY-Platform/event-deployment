@@ -69,11 +69,19 @@
           "value":"http://converter:8080/conversions"
         },
         {
+          "name":"extendedConverterUrl",
+          "value": "http://converter:8080/extended-conversions"
+        },
+        {
           "name":"convertFrom"
         },
         {
           "name":"convertTo",
           "value":"urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43"
+        },
+        {
+          "name":"castExtensions",
+          "value":""
         },
         {
           "name":"topicToPathAndCharacteristic",

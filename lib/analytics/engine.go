@@ -59,9 +59,11 @@ func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, d
 	convertFrom := ""
 	convertTo := ""
 	converterUrl := ""
+	extendedConverterUrl := ""
 	castExtensionsJson := ""
 	if castFrom != castTo {
 		converterUrl = this.config.ConverterUrl
+		extendedConverterUrl = this.config.ExtendedConverterUrl
 		convertFrom = castFrom
 		convertTo = castTo
 		if len(castExtensions) > 0 {
@@ -109,6 +111,10 @@ func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, d
 						Value: converterUrl,
 					},
 					{
+						Name:  "extendedConverterUrl",
+						Value: extendedConverterUrl,
+					},
+					{
 						Name:  "convertFrom",
 						Value: convertFrom,
 					},
@@ -137,11 +143,11 @@ func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, d
 	return pipelineId, nil
 }
 
-func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (pipelineId string, err error) {
+func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension) (pipelineId string, err error) {
 	if this.config.Debug {
 		log.Println("DEBUG: DeployGroup()")
 	}
-	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic)
+	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic, castExtensions)
 	if err != nil {
 		log.Println("ERROR: getPipelineRequestForGroupDeployment()", err.Error())
 		debug.PrintStack()
@@ -157,8 +163,8 @@ func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user stri
 	return pipelineId, nil
 }
 
-func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (err error) {
-	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic)
+func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension) (err error) {
+	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic, castExtensions)
 	if err != nil {
 		return err
 	}
@@ -172,7 +178,7 @@ func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId st
 	return nil
 }
 
-func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic) (request PipelineRequest, err error) {
+func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension) (request PipelineRequest, err error) {
 	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -248,6 +254,16 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 		return request, err
 	}
 
+	castExtensionsJson := ""
+	if len(castExtensions) > 0 {
+		castExtensionsJsonTemp, err := json.Marshal(castExtensions)
+		if err != nil {
+			debug.PrintStack()
+			return request, err
+		}
+		castExtensionsJson = string(castExtensionsJsonTemp)
+	}
+
 	return PipelineRequest{
 		FlowId:      desc.FlowId,
 		Name:        label,
@@ -275,12 +291,20 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 						Value: this.config.ConverterUrl,
 					},
 					{
+						Name:  "extendedConverterUrl",
+						Value: this.config.ExtendedConverterUrl,
+					},
+					{
 						Name:  "convertFrom",
 						Value: "",
 					},
 					{
 						Name:  "convertTo",
 						Value: desc.CharacteristicId,
+					},
+					{
+						Name:  "castExtensions",
+						Value: castExtensionsJson,
 					},
 					{
 						Name:  "topicToPathAndCharacteristic",
@@ -465,9 +489,11 @@ func (this *Analytics) getPipelineRequestForImportDeployment(token auth.AuthToke
 	convertFrom := ""
 	convertTo := ""
 	converterUrl := ""
+	extendedConverterUrl := ""
 	castExtensionsJson := ""
 	if castFrom != castTo {
 		converterUrl = this.config.ConverterUrl
+		extendedConverterUrl = this.config.ExtendedConverterUrl
 		convertFrom = castFrom
 		convertTo = castTo
 		if len(castExtensions) > 0 {
@@ -505,6 +531,10 @@ func (this *Analytics) getPipelineRequestForImportDeployment(token auth.AuthToke
 					{
 						Name:  "converterUrl",
 						Value: converterUrl,
+					},
+					{
+						Name:  "extendedConverterUrl",
+						Value: extendedConverterUrl,
 					},
 					{
 						Name:  "convertFrom",

@@ -1,0 +1,22 @@
+{
+    "group-id": [
+        {
+            "id": "",
+            "name": "",
+            "device_type_id": ""
+        }
+    ],
+
+    "urn:infai:ses:device-group:dg1": [
+        {
+            "id": "urn:infai:ses:device:d4",
+            "name": "",
+            "device_type_id": "urn:infai:ses:device-type:dt3"
+        },
+        {
+            "id": "urn:infai:ses:device:d5",
+            "name": "",
+            "device_type_id": "urn:infai:ses:device-type:dt3"
+        }
+    ]
+}

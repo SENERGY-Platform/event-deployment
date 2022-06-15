@@ -1,0 +1,11 @@
+{
+    "test-concept": {
+        "conversions": [
+            {
+                "from": "foo",
+                "to": "bar",
+                "formula": "42"
+            }
+        ]
+    }
+}

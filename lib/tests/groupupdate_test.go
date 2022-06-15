@@ -117,7 +117,7 @@ func testGroupUpdate(t *testing.T, testcase string) {
 		}
 	}
 
-	functionsPath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/functions.json"
+	functionsPath := GROUPUPDATE_EXAMPLES_DIR + testcase + "/functions.json"
 	if fileExists(functionsPath) {
 		functionsJson, err := ioutil.ReadFile(functionsPath)
 		if err != nil {
@@ -131,7 +131,7 @@ func testGroupUpdate(t *testing.T, testcase string) {
 		}
 	}
 
-	conceptsPath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/concepts.json"
+	conceptsPath := GROUPUPDATE_EXAMPLES_DIR + testcase + "/concepts.json"
 	if fileExists(conceptsPath) {
 		conceptsJson, err := ioutil.ReadFile(conceptsPath)
 		if err != nil {

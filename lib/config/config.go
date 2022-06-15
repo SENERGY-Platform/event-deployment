@@ -30,19 +30,20 @@ import (
 )
 
 type ConfigStruct struct {
-	LogLevel         string `json:"log_level"`
-	ApiPort          string `json:"api_port"`
-	ConverterUrl     string `json:"converter_url"`
-	KafkaUrl         string `json:"kafka_url"`
-	FlowEngineUrl    string `json:"flow_engine_url"`
-	FlowParserUrl    string `json:"flow_parser_url"`
-	PipelineRepoUrl  string `json:"pipeline_repo_url"`
-	ImportDeployUrl  string `json:"import_deploy_url"`
-	ConsumerGroup    string `json:"consumer_group"`
-	Debug            bool   `json:"debug"`
-	DeploymentTopic  string `json:"deployment_topic"`
-	ConnectivityTest bool   `json:"connectivity_test"`
-	EventTriggerUrl  string `json:"event_trigger_url"`
+	LogLevel             string `json:"log_level"`
+	ApiPort              string `json:"api_port"`
+	ConverterUrl         string `json:"converter_url"`
+	ExtendedConverterUrl string `json:"extended_converter_url"`
+	KafkaUrl             string `json:"kafka_url"`
+	FlowEngineUrl        string `json:"flow_engine_url"`
+	FlowParserUrl        string `json:"flow_parser_url"`
+	PipelineRepoUrl      string `json:"pipeline_repo_url"`
+	ImportDeployUrl      string `json:"import_deploy_url"`
+	ConsumerGroup        string `json:"consumer_group"`
+	Debug                bool   `json:"debug"`
+	DeploymentTopic      string `json:"deployment_topic"`
+	ConnectivityTest     bool   `json:"connectivity_test"`
+	EventTriggerUrl      string `json:"event_trigger_url"`
 
 	DevicePathPrefix string `json:"device_path_prefix"`
 	GroupPathPrefix  string `json:"group_path_prefix"`

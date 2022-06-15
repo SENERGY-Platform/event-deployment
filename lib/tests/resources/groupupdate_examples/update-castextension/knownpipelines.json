@@ -1,0 +1,20 @@
+[
+    {
+        "id": "14c1bc72-9aa3-4a4b-91dc-b6c8e3886531",
+        "flowId":"flow_id_1",
+        "name":"StartEvent_1 (event_id_1)",
+        "description":"{\"device_group_id\":\"urn:infai:ses:device-group:dg1\",\"function_id\":\"urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869\",\"aspect_id\":\"urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6\",\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\",\"flow_id\":\"flow_id_1\"}"
+    },
+    {
+        "id": "14c1bc72-9aa3-4a4b-91dc-b6c8e3886532",
+        "flowId":"flow_id_1",
+        "name":"StartEvent_1 (event_id_1)",
+        "description":"{\"device_group_id\":\"urn:infai:ses:device-group:dg2\",\"function_id\":\"urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869\",\"aspect_id\":\"urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6\",\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\",\"flow_id\":\"flow_id_1\"}"
+    },
+    {
+        "id": "14c1bc72-9aa3-4a4b-91dc-b6c8e3886533",
+        "flowId":"flow_id_2",
+        "name":"not-event-pipeline",
+        "description":"a normal pipeline, not used for process events"
+    }
+]

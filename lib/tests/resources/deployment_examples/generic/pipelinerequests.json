@@ -36,6 +36,10 @@
           "value": "http://converter:8080/conversions"
         },
         {
+          "name":"extendedConverterUrl",
+          "value": "http://converter:8080/extended-conversions"
+        },
+        {
           "name":"convertFrom",
           "value":"service-characteristic-id"
         },

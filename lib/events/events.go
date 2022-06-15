@@ -329,6 +329,27 @@ func (this *Events) deployEventForDeviceGroupWithDescription(token auth.AuthToke
 		}
 		return err
 	}
+
+	//find cast extensions
+	castExtensions := []model.ConverterExtension{}
+	function, err, code := this.devices.GetFunction(desc.FunctionId)
+	if err != nil {
+		if code != http.StatusNotFound {
+			//ignore not found errors to prevent unresolvable kafka consumption loop
+			return err
+		}
+	} else if function.ConceptId != "" {
+		concept, err, code := this.devices.GetConcept(function.ConceptId)
+		if err != nil {
+			if code != http.StatusNotFound {
+				//ignore not found errors to prevent unresolvable kafka consumption loop
+				return err
+			}
+		} else {
+			castExtensions = concept.Conversions
+		}
+	}
+
 	pipelineId, err := this.analytics.DeployGroup(
 		token,
 		label,
@@ -337,7 +358,8 @@ func (this *Events) deployEventForDeviceGroupWithDescription(token auth.AuthToke
 		serviceIds,
 		serviceToDevices,
 		serviceToPath,
-		serviceToPathAndCharacteristic)
+		serviceToPathAndCharacteristic,
+		castExtensions)
 	if err != nil {
 		return err
 	}
@@ -378,6 +400,26 @@ func (this *Events) updateEventPipelineForDeviceGroup(token auth.AuthToken, pipe
 		return err
 	}
 
+	//find cast extensions
+	castExtensions := []model.ConverterExtension{}
+	function, err, code := this.devices.GetFunction(desc.FunctionId)
+	if err != nil {
+		if code != http.StatusNotFound {
+			//ignore not found errors to prevent unresolvable kafka consumption loop
+			return err
+		}
+	} else if function.ConceptId != "" {
+		concept, err, code := this.devices.GetConcept(function.ConceptId)
+		if err != nil {
+			if code != http.StatusNotFound {
+				//ignore not found errors to prevent unresolvable kafka consumption loop
+				return err
+			}
+		} else {
+			castExtensions = concept.Conversions
+		}
+	}
+
 	err = this.analytics.UpdateGroupDeployment(
 		token,
 		pipelineId,
@@ -387,7 +429,8 @@ func (this *Events) updateEventPipelineForDeviceGroup(token auth.AuthToken, pipe
 		serviceIds,
 		serviceToDevices,
 		serviceToPath,
-		serviceToPathAndCharacteristic)
+		serviceToPathAndCharacteristic,
+		castExtensions)
 	if err != nil {
 		return err
 	}

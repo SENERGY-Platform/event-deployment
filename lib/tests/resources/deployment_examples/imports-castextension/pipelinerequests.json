@@ -36,6 +36,10 @@
           "value": "http://converter:8080/conversions"
         },
         {
+          "name":"extendedConverterUrl",
+          "value": "http://converter:8080/extended-conversions"
+        },
+        {
           "name":"convertFrom",
           "value":"urn:infai:ses:characteristic:75b2d113-1d03-4ef8-977a-8dbcbb31a683"
         },
