@@ -375,6 +375,9 @@ func (this *Analytics) sendDeployRequest(token auth.AuthToken, user string, requ
 	}
 	token.UseInRequest(req)
 	req.Header.Set("X-UserId", user)
+	if this.config.Debug {
+		log.Println("DEBUG: send analytics deployment with token:", req.Header.Get("Authorization"))
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		debug.PrintStack()

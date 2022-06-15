@@ -232,6 +232,7 @@ func createTestFlowEngineApi(t *testing.T, fullTestCasePath string) (endpointUrl
 
 	count := 0
 	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("ANALYTICS-AUTH:", r.Header.Get("Authorization"))
 		log.Println("endpoint-mock receive:", r.Method, r.URL.Path)
 		if (r.Method == "POST" || r.Method == "PUT") && r.URL.Path == "/pipeline" {
 			if count >= len(expectedRequests) {
