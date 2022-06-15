@@ -204,11 +204,36 @@ func (this *Events) deployEventForDevice(token auth.AuthToken, label string, own
 		debug.PrintStack()
 		return errors.New("missing service id") //programming error -> dont ignore
 	}
+
 	var path string
 	var castFrom string
+	castExtensions := []model.ConverterExtension{}
+
 	if event.Selection.SelectedPath != nil {
 		castFrom = event.Selection.SelectedPath.CharacteristicId
 		path = this.config.DevicePathPrefix + event.Selection.SelectedPath.Path
+
+		//find cast extensions
+		if event.Selection.FilterCriteria.FunctionId != nil {
+			function, err, code := this.devices.GetFunction(*event.Selection.FilterCriteria.FunctionId)
+			if err != nil {
+				if code != http.StatusNotFound {
+					//ignore not found errors to prevent unresolvable kafka consumption loop
+					return err
+				}
+			} else if function.ConceptId != "" {
+				concept, err, code := this.devices.GetConcept(function.ConceptId)
+				if err != nil {
+					if code != http.StatusNotFound {
+						//ignore not found errors to prevent unresolvable kafka consumption loop
+						return err
+					}
+				} else {
+					castExtensions = concept.Conversions
+				}
+			}
+		}
+
 	} else {
 		log.Println("WARNING: missing SelectedPath --> ignore event", event)
 		return nil
@@ -225,7 +250,8 @@ func (this *Events) deployEventForDevice(token auth.AuthToken, label string, own
 		event.Value,
 		path,
 		castFrom,
-		*event.Selection.FilterCriteria.CharacteristicId)
+		*event.Selection.FilterCriteria.CharacteristicId,
+		castExtensions)
 	if err != nil {
 		return err
 	}
@@ -456,11 +482,35 @@ func (this *Events) deployEventForImport(token auth.AuthToken, label string, own
 		log.Println("WARNING: try to deploy group event without aspect id --> ignore", label, deploymentId, event)
 		return nil
 	}
+
 	var castFrom string
 	path := ""
+	castExtensions := []model.ConverterExtension{}
+
 	if event.Selection.SelectedPath != nil {
 		castFrom = event.Selection.SelectedPath.CharacteristicId
 		path = event.Selection.SelectedPath.Path
+
+		//find cast extensions
+		if event.Selection.FilterCriteria.FunctionId != nil {
+			function, err, code := this.devices.GetFunction(*event.Selection.FilterCriteria.FunctionId)
+			if err != nil {
+				if code != http.StatusNotFound {
+					//ignore not found errors to prevent unresolvable kafka consumption loop
+					return err
+				}
+			} else if function.ConceptId != "" {
+				concept, err, code := this.devices.GetConcept(function.ConceptId)
+				if err != nil {
+					if code != http.StatusNotFound {
+						//ignore not found errors to prevent unresolvable kafka consumption loop
+						return err
+					}
+				} else {
+					castExtensions = concept.Conversions
+				}
+			}
+		}
 	}
 	return this.deployEventForImportWithDescription(token, label, owner, model.GroupEventDescription{
 		ImportId:      *event.Selection.SelectedImportId,
@@ -471,10 +521,10 @@ func (this *Events) deployEventForImport(token auth.AuthToken, label string, own
 		FlowId:        event.FlowId,
 		OperatorValue: event.Value,
 		Path:          path,
-	}, castFrom, *event.Selection.FilterCriteria.CharacteristicId)
+	}, castFrom, *event.Selection.FilterCriteria.CharacteristicId, castExtensions)
 }
 
-func (this *Events) deployEventForImportWithDescription(token auth.AuthToken, label string, owner string, desc model.GroupEventDescription, castFrom string, castTo string) error {
+func (this *Events) deployEventForImportWithDescription(token auth.AuthToken, label string, owner string, desc model.GroupEventDescription, castFrom string, castTo string, castExtensions []model.ConverterExtension) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
 	}
@@ -501,7 +551,8 @@ func (this *Events) deployEventForImportWithDescription(token auth.AuthToken, la
 		topic,
 		this.config.ImportPathPrefix+desc.Path,
 		castFrom,
-		castTo)
+		castTo,
+		castExtensions)
 	if err != nil {
 		return err
 	}

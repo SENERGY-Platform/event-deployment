@@ -29,7 +29,7 @@ import (
 	"strings"
 )
 
-func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string) (pipelineId string, err error) {
+func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string, castExtensions []model.ConverterExtension) (pipelineId string, err error) {
 	flowCells, err, code := this.GetFlowInputs(flowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -59,10 +59,19 @@ func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, d
 	convertFrom := ""
 	convertTo := ""
 	converterUrl := ""
+	castExtensionsJson := ""
 	if castFrom != castTo {
 		converterUrl = this.config.ConverterUrl
 		convertFrom = castFrom
 		convertTo = castTo
+		if len(castExtensions) > 0 {
+			castExtensionsJsonTemp, err := json.Marshal(castExtensions)
+			if err != nil {
+				debug.PrintStack()
+				return "", err
+			}
+			castExtensionsJson = string(castExtensionsJsonTemp)
+		}
 	}
 
 	pipeline, err, code := this.sendDeployRequest(token, user, PipelineRequest{
@@ -106,6 +115,10 @@ func (this *Analytics) Deploy(token auth.AuthToken, label string, user string, d
 					{
 						Name:  "convertTo",
 						Value: convertTo,
+					},
+					{
+						Name:  "castExtensions",
+						Value: castExtensionsJson,
 					},
 					{
 						Name:  "userToken",
@@ -391,8 +404,8 @@ func (this *Analytics) sendUpdateRequest(user string, request PipelineRequest) (
 	return result, err, http.StatusOK
 }
 
-func (this *Analytics) DeployImport(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (pipelineId string, err error) {
-	request, err := this.getPipelineRequestForImportDeployment(token, label, user, desc, topic, path, castFrom, castTo)
+func (this *Analytics) DeployImport(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string, castExtensions []model.ConverterExtension) (pipelineId string, err error) {
+	request, err := this.getPipelineRequestForImportDeployment(token, label, user, desc, topic, path, castFrom, castTo, castExtensions)
 	if err != nil {
 		return "", err
 	}
@@ -406,7 +419,7 @@ func (this *Analytics) DeployImport(token auth.AuthToken, label string, user str
 	return pipelineId, nil
 }
 
-func (this *Analytics) getPipelineRequestForImportDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string) (request PipelineRequest, err error) {
+func (this *Analytics) getPipelineRequestForImportDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string, castExtensions []model.ConverterExtension) (request PipelineRequest, err error) {
 	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -452,10 +465,19 @@ func (this *Analytics) getPipelineRequestForImportDeployment(token auth.AuthToke
 	convertFrom := ""
 	convertTo := ""
 	converterUrl := ""
+	castExtensionsJson := ""
 	if castFrom != castTo {
 		converterUrl = this.config.ConverterUrl
 		convertFrom = castFrom
 		convertTo = castTo
+		if len(castExtensions) > 0 {
+			castExtensionsJsonTemp, err := json.Marshal(castExtensions)
+			if err != nil {
+				debug.PrintStack()
+				return request, err
+			}
+			castExtensionsJson = string(castExtensionsJsonTemp)
+		}
 	}
 
 	return PipelineRequest{
@@ -491,6 +513,10 @@ func (this *Analytics) getPipelineRequestForImportDeployment(token auth.AuthToke
 					{
 						Name:  "convertTo",
 						Value: convertTo,
+					},
+					{
+						Name:  "castExtensions",
+						Value: castExtensionsJson,
 					},
 					{
 						Name:  "userToken",

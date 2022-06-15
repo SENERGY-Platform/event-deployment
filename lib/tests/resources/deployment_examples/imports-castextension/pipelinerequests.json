@@ -1,19 +1,19 @@
 [{
-  "flowId":"flow_id_1",
-  "name":"StartEvent_1 (event_id_1)",
-  "description":"{\"device_id\":\"lifx1\",\"service_id\":\"urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097\",\"value_path\":\"value.energy.level\",\"operator_value\":\"value_1\",\"event_id\":\"event_id_1\",\"deployment_id\":\"someid\"}",
+  "flowId":"flow-id",
+  "name":"getTemperatureFunction celcius (event-id)",
+  "description":"{\"import_id\":\"urn:infai:ses:import:123\",\"function_id\":\"urn:infai:ses:measuring-function:f2769eb9-b6ad-4f7e-bd28-e4ea043d2f8b\",\"aspect_id\":\"urn:infai:ses:aspect:a14c5efb-b0b6-46c3-982e-9fded75b5ab6\",\"operator_value\":\"1\",\"event_id\":\"event-id\",\"deployment_id\":\"someid\",\"flow_id\":\"flow-id\"}",
   "nodes":[
     {
       "nodeId":"test-flow-cell-id",
       "inputs":[
         {
-          "filterIds":"lifx1",
-          "filterType": "deviceId",
-          "topicName":"urn_infai_ses_service_137fdd3e-bf55-4129-b71a-f33df8223097",
+          "filterIds":"urn:infai:ses:import:123",
+          "filterType": "ImportId",
+          "topicName":"urn_infai_ses_import_123",
           "values":[
             {
               "name":"value",
-              "path":"value.energy.level"
+              "path":"value.value"
             }
           ]
         }
@@ -21,7 +21,7 @@
       "config":[
         {
           "name":"value",
-          "value":"value_1"
+          "value":"1"
         },
         {
           "name":"url",
@@ -29,7 +29,7 @@
         },
         {
           "name":"eventId",
-          "value":"event_id_1"
+          "value":"event-id"
         },
         {
           "name":"converterUrl",
@@ -37,15 +37,15 @@
         },
         {
           "name":"convertFrom",
-          "value":"service-characteristic-id"
+          "value":"urn:infai:ses:characteristic:75b2d113-1d03-4ef8-977a-8dbcbb31a683"
         },
         {
           "name":"convertTo",
-          "value":"urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43"
+          "value":"urn:infai:ses:characteristic:5ba31623-0ccb-4488-bfb7-f73b50e03b5a"
         },
         {
           "name":"castExtensions",
-          "value":""
+          "value":"[{\"from\":\"foo\",\"to\":\"bar\",\"distance\":0,\"formula\":\"42\",\"placeholder_name\":\"\"}]"
         },
         {
           "name": "userToken",

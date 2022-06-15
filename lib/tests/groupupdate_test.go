@@ -117,6 +117,34 @@ func testGroupUpdate(t *testing.T, testcase string) {
 		}
 	}
 
+	functionsPath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/functions.json"
+	if fileExists(functionsPath) {
+		functionsJson, err := ioutil.ReadFile(functionsPath)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		err = json.Unmarshal(functionsJson, &devicesMock.Functions)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	}
+
+	conceptsPath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/concepts.json"
+	if fileExists(conceptsPath) {
+		conceptsJson, err := ioutil.ReadFile(conceptsPath)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		err = json.Unmarshal(conceptsJson, &devicesMock.Concepts)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	}
+
 	closeTestPipelineRepoApi := func() {}
 	conf.PipelineRepoUrl, closeTestPipelineRepoApi, err = createTestPipelineRepoApi(GROUPUPDATE_EXAMPLES_DIR + testcase + "/knownpipelines.json")
 	if err != nil {

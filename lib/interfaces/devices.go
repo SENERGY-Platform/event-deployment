@@ -29,4 +29,6 @@ type Devices interface {
 	GetDeviceInfosOfGroup(groupId string) (devices []model.Device, deviceTypeIds []string, err error, code int)
 	GetDeviceInfosOfDevices(deviceIds []string) (devices []model.Device, deviceTypeIds []string, err error, code int)
 	GetDeviceTypeSelectables(criteria []model.FilterCriteria) (result []model.DeviceTypeSelectable, err error, code int)
+	GetConcept(conceptId string) (result model.Concept, err error, code int)
+	GetFunction(functionId string) (result model.Function, err error, code int)
 }

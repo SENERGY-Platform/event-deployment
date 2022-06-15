@@ -77,3 +77,29 @@ type ServicePathOption struct {
 	//Configurables         []Configurable `json:"configurables,omitempty"`
 	//Type                  Type           `json:"type,omitempty"`
 }
+
+type Function struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Description string `json:"description"`
+	ConceptId   string `json:"concept_id"`
+	RdfType     string `json:"rdf_type"`
+}
+
+type Concept struct {
+	Id                   string               `json:"id"`
+	Name                 string               `json:"name"`
+	CharacteristicIds    []string             `json:"characteristic_ids"`
+	BaseCharacteristicId string               `json:"base_characteristic_id"`
+	RdfType              string               `json:"rdf_type"`
+	Conversions          []ConverterExtension `json:"conversions"`
+}
+
+type ConverterExtension struct {
+	From            string `json:"from"`
+	To              string `json:"to"`
+	Distance        int64  `json:"distance"`
+	Formula         string `json:"formula"`
+	PlaceholderName string `json:"placeholder_name"`
+}

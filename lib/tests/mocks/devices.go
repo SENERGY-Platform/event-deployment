@@ -25,6 +25,8 @@ import (
 type DevicesMock struct {
 	GetDeviceInfosOfGroupValues    map[string][]model.Device //key = groupId
 	GetDeviceTypeSelectablesValues map[string]map[string][]model.DeviceTypeSelectable
+	Functions                      map[string]model.Function
+	Concepts                       map[string]model.Concept
 }
 
 func (this *DevicesMock) GetDeviceTypeSelectables(criteria []model.FilterCriteria) (result []model.DeviceTypeSelectable, err error, code int) {
@@ -80,5 +82,21 @@ func (this *DevicesMock) GetDeviceInfosOfGroup(groupId string) (devices []model.
 			}
 		}
 		return devices, deviceTypeIds, nil, 200
+	}
+}
+
+func (this *DevicesMock) GetConcept(conceptId string) (result model.Concept, err error, code int) {
+	if result, ok := this.Concepts[conceptId]; ok {
+		return result, nil, http.StatusOK
+	} else {
+		return result, errors.New("not found"), http.StatusNotFound
+	}
+}
+
+func (this *DevicesMock) GetFunction(functionId string) (result model.Function, err error, code int) {
+	if result, ok := this.Functions[functionId]; ok {
+		return result, nil, http.StatusOK
+	} else {
+		return result, errors.New("not found"), http.StatusNotFound
 	}
 }
