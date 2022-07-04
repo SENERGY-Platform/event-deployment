@@ -131,6 +131,9 @@ func (this *Events) deployElement(token auth.AuthToken, owner string, deployment
 		if event.Selection.SelectedImportId != nil {
 			return this.deployEventForImport(token, label, owner, deploymentId, event)
 		}
+		if event.Selection.SelectedGenericEventSource != nil {
+			return this.deployEventForGenericSource(token, label, owner, deploymentId, event)
+		}
 	}
 	return nil
 }
@@ -238,7 +241,7 @@ func (this *Events) deployEventForDevice(token auth.AuthToken, label string, own
 		log.Println("WARNING: missing SelectedPath --> ignore event", event)
 		return nil
 	}
-	pipelineId, err := this.analytics.Deploy(
+	pipelineId, err := this.analytics.DeployDevice(
 		token,
 		label,
 		owner,
@@ -567,6 +570,72 @@ func (this *Events) deployEventForImport(token auth.AuthToken, label string, own
 	}, castFrom, *event.Selection.FilterCriteria.CharacteristicId, castExtensions)
 }
 
+func (this *Events) deployEventForGenericSource(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+	if event == nil {
+		debug.PrintStack()
+		return errors.New("missing event element") //programming error -> dont ignore
+	}
+	if event.Selection.SelectedGenericEventSource == nil {
+		debug.PrintStack()
+		return errors.New("missing selected_generic_source") //programming error -> dont ignore
+	}
+	if event.Selection.SelectedGenericEventSource.FilterType == "" {
+		log.Println("WARNING: try to deploy selected_generic_source event without filter_type --> ignore", label, deploymentId, event)
+		return nil
+	}
+	if event.Selection.SelectedGenericEventSource.FilterIds == "" {
+		log.Println("WARNING: try to deploy selected_generic_source event without filter_ids --> ignore", label, deploymentId, event)
+		return nil
+	}
+	if event.Selection.SelectedGenericEventSource.Topic == "" {
+		log.Println("WARNING: try to deploy selected_generic_source event without topic --> ignore", label, deploymentId, event)
+		return nil
+	}
+	if event.Selection.SelectedPath == nil || event.Selection.SelectedPath.Path == "" {
+		log.Println("WARNING: try to deploy selected_generic_source event without path --> ignore", label, deploymentId, event)
+		return nil
+	}
+
+	var castFrom string
+	path := event.Selection.SelectedPath.Path
+	castExtensions := []model.ConverterExtension{}
+
+	if event.Selection.SelectedPath.CharacteristicId != "" {
+		castFrom = event.Selection.SelectedPath.CharacteristicId
+
+		//find cast extensions
+		if event.Selection.FilterCriteria.FunctionId != nil {
+			function, err, code := this.devices.GetFunction(*event.Selection.FilterCriteria.FunctionId)
+			if err != nil {
+				if code != http.StatusNotFound {
+					//ignore not found errors to prevent unresolvable kafka consumption loop
+					return err
+				}
+			} else if function.ConceptId != "" {
+				concept, err, code := this.devices.GetConcept(function.ConceptId)
+				if err != nil {
+					if code != http.StatusNotFound {
+						//ignore not found errors to prevent unresolvable kafka consumption loop
+						return err
+					}
+				} else {
+					castExtensions = concept.Conversions
+				}
+			}
+		}
+	}
+	return this.deployEventForGenericSourceWithDescription(token, label, owner, model.GroupEventDescription{
+		GenericEventSource: event.Selection.SelectedGenericEventSource,
+		EventId:            event.EventId,
+		DeploymentId:       deploymentId,
+		FunctionId:         *event.Selection.FilterCriteria.FunctionId,
+		AspectId:           *event.Selection.FilterCriteria.AspectId,
+		FlowId:             event.FlowId,
+		OperatorValue:      event.Value,
+		Path:               path,
+	}, castFrom, *event.Selection.FilterCriteria.CharacteristicId, castExtensions)
+}
+
 func (this *Events) deployEventForImportWithDescription(token auth.AuthToken, label string, owner string, desc model.GroupEventDescription, castFrom string, castTo string, castExtensions []model.ConverterExtension) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
@@ -593,6 +662,40 @@ func (this *Events) deployEventForImportWithDescription(token auth.AuthToken, la
 		desc,
 		topic,
 		this.config.ImportPathPrefix+desc.Path,
+		castFrom,
+		castTo,
+		castExtensions)
+	if err != nil {
+		return err
+	}
+	if pipelineId == "" {
+		log.Println("WARNING: event not deployed in analytics -> ignore event", desc)
+		return nil
+	}
+	return nil
+}
+
+func (this *Events) deployEventForGenericSourceWithDescription(token auth.AuthToken, label string, owner string, desc model.GroupEventDescription, castFrom string, castTo string, castExtensions []model.ConverterExtension) error {
+	if !this.DeviceGroupsAndImportsEnabled() {
+		return nil
+	}
+	if desc.GenericEventSource == nil {
+		debug.PrintStack()
+		return errors.New("missing import id") //programming error -> dont ignore
+	}
+	if desc.DeploymentId == "" {
+		log.Println("WARNING: try to deploy import event without deployment id --> ignore", label, desc)
+		return nil
+	}
+	if desc.Path == "" {
+		return errors.New("missing path") //programming error -> dont ignore
+	}
+	pipelineId, err := this.analytics.DeployGenericSource(
+		token,
+		label,
+		owner,
+		desc,
+		this.config.GenericSourcePathPrefix+desc.Path,
 		castFrom,
 		castTo,
 		castExtensions)

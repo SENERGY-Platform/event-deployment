@@ -16,6 +16,8 @@
 
 package model
 
+import "github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+
 type DeviceGroup struct {
 	Id        string   `json:"id"`
 	Name      string   `json:"name"`
@@ -35,17 +37,18 @@ type PathOptionsResultElement struct {
 }
 
 type GroupEventDescription struct {
-	ImportId         string
-	Path             string
-	DeviceGroupId    string
-	DeviceIds        []string //optional
-	EventId          string
-	DeploymentId     string
-	FunctionId       string
-	AspectId         string
-	FlowId           string
-	OperatorValue    string
-	CharacteristicId string
+	GenericEventSource *deploymentmodel.GenericEventSource
+	ImportId           string
+	Path               string
+	DeviceGroupId      string
+	DeviceIds          []string //optional
+	EventId            string
+	DeploymentId       string
+	FunctionId         string
+	AspectId           string
+	FlowId             string
+	OperatorValue      string
+	CharacteristicId   string
 }
 
 type PathAndCharacteristic struct {

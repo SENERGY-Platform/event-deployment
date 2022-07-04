@@ -45,9 +45,10 @@ type ConfigStruct struct {
 	ConnectivityTest     bool   `json:"connectivity_test"`
 	EventTriggerUrl      string `json:"event_trigger_url"`
 
-	DevicePathPrefix string `json:"device_path_prefix"`
-	GroupPathPrefix  string `json:"group_path_prefix"`
-	ImportPathPrefix string `json:"import_path_prefix"`
+	DevicePathPrefix        string `json:"device_path_prefix"`
+	GroupPathPrefix         string `json:"group_path_prefix"`
+	ImportPathPrefix        string `json:"import_path_prefix"`
+	GenericSourcePathPrefix string `json:"generic_source_path_prefix"`
 
 	DeviceRepositoryUrl string `json:"device_repository_url"`
 

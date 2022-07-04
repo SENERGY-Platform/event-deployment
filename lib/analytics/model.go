@@ -16,7 +16,10 @@
 
 package analytics
 
-import uuid "github.com/satori/go.uuid"
+import (
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	uuid "github.com/satori/go.uuid"
+)
 
 type PipelineRequest struct {
 	Id          string         `json:"id,omitempty"`
@@ -119,15 +122,16 @@ type Flow struct {
 }
 
 type EventPipelineDescription struct {
-	ImportId      string `json:"import_id,omitempty"`
-	DeviceGroupId string `json:"device_group_id,omitempty"`
-	DeviceId      string `json:"device_id,omitempty"`
-	ServiceId     string `json:"service_id,omitempty"`
-	FunctionId    string `json:"function_id,omitempty"`
-	AspectId      string `json:"aspect_id,omitempty"`
-	ValuePath     string `json:"value_path,omitempty"`
-	OperatorValue string `json:"operator_value"`
-	EventId       string `json:"event_id"`
-	DeploymentId  string `json:"deployment_id"`
-	FlowId        string `json:"flow_id,omitempty"`
+	GenericEventSource *deploymentmodel.GenericEventSource `json:"generic_event_source,omitempty"`
+	ImportId           string                              `json:"import_id,omitempty"`
+	DeviceGroupId      string                              `json:"device_group_id,omitempty"`
+	DeviceId           string                              `json:"device_id,omitempty"`
+	ServiceId          string                              `json:"service_id,omitempty"`
+	FunctionId         string                              `json:"function_id,omitempty"`
+	AspectId           string                              `json:"aspect_id,omitempty"`
+	ValuePath          string                              `json:"value_path,omitempty"`
+	OperatorValue      string                              `json:"operator_value"`
+	EventId            string                              `json:"event_id"`
+	DeploymentId       string                              `json:"deployment_id"`
+	FlowId             string                              `json:"flow_id,omitempty"`
 }
