@@ -83,6 +83,8 @@ func (this *Events) HandleCommand(msg []byte) error {
 		return nil
 	}
 	switch cmd.Command {
+	case "RIGHTS":
+		return nil
 	case "PUT":
 		if cmd.Version != deploymentmodel.CurrentVersion {
 			log.Println("ERROR: unexpected deployment version", cmd.Version)

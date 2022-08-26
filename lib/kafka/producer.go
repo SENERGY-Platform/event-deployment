@@ -57,6 +57,8 @@ func NewProducer(ctx context.Context, config config.Config, topic string) (inter
 		Async:       false,
 		Logger:      logger,
 		ErrorLogger: log.New(os.Stderr, "[KAFKA-ERROR] ", 0),
+		BatchSize:   1,
+		Balancer:    &kafka.Hash{},
 	}
 	go func() {
 		<-ctx.Done()
