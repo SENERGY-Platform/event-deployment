@@ -270,7 +270,8 @@ func (this *Events) deployEventForDevice(token auth.AuthToken, label string, own
 			event.Value,
 			serializedPath,
 			functionId,
-			aspectNodeId)
+			aspectNodeId,
+			*event.Selection.FilterCriteria.CharacteristicId)
 	} else {
 		pipelineId, err = this.analytics.DeployDevice(
 			token,

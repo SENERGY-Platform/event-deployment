@@ -26,7 +26,7 @@ import (
 	"strings"
 )
 
-func (this *Analytics) DeployDeviceWithMarshaller(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, functionId string, aspectNodeId string) (pipelineId string, err error) {
+func (this *Analytics) DeployDeviceWithMarshaller(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, functionId string, aspectNodeId string, targetCharacteristicId string) (pipelineId string, err error) {
 	flowCells, err, code := this.GetFlowInputs(flowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -49,6 +49,15 @@ func (this *Analytics) DeployDeviceWithMarshaller(token auth.AuthToken, label st
 		DeploymentId:  deploymentId,
 		UseMarshaller: true,
 	})
+	if err != nil {
+		debug.PrintStack()
+		return "", err
+	}
+
+	topicToServiceId := map[string]string{
+		ServiceIdToTopic(serviceId): serviceId,
+	}
+	topicToServiceIdJson, err := json.Marshal(topicToServiceId)
 	if err != nil {
 		debug.PrintStack()
 		return "", err
@@ -99,6 +108,14 @@ func (this *Analytics) DeployDeviceWithMarshaller(token auth.AuthToken, label st
 					{
 						Name:  "aspectNodeId",
 						Value: aspectNodeId,
+					},
+					{
+						Name:  "targetCharacteristicId",
+						Value: targetCharacteristicId,
+					},
+					{
+						Name:  "topicToServiceId",
+						Value: string(topicToServiceIdJson),
 					},
 					{
 						Name:  "userToken",

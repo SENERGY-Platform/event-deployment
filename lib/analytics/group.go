@@ -157,6 +157,15 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 	}
 
 	if useMarshaller {
+		topicToServiceId := map[string]string{}
+		for _, id := range serviceIds {
+			topicToServiceId[ServiceIdToTopic(id)] = id
+		}
+		topicToServiceIdJson, err := json.Marshal(topicToServiceId)
+		if err != nil {
+			debug.PrintStack()
+			return request, err
+		}
 		return PipelineRequest{
 			FlowId:      desc.FlowId,
 			Name:        label,
@@ -190,6 +199,14 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 						{
 							Name:  "aspectNodeId",
 							Value: desc.AspectId,
+						},
+						{
+							Name:  "targetCharacteristicId",
+							Value: desc.CharacteristicId,
+						},
+						{
+							Name:  "topicToServiceId",
+							Value: string(topicToServiceIdJson),
 						},
 						{
 							Name:  "userToken",

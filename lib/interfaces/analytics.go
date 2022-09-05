@@ -33,7 +33,7 @@ type Analytics interface {
 	DeployImport(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, topic string, path string, castFrom string, castTo string, castExtensions []model.ConverterExtension) (pipelineId string, err error)
 	DeployGenericSource(token auth.AuthToken, label string, owner string, desc model.GroupEventDescription, path string, from string, to string, extensions []model.ConverterExtension) (pipelineId string, err error)
 	DeployDevice(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string, castExtensions []model.ConverterExtension) (pipelineId string, err error)
-	DeployDeviceWithMarshaller(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, functionId string, aspectNodeId string) (pipelineId string, err error)
+	DeployDeviceWithMarshaller(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, functionId string, aspectNodeId string, targetCharacteristicId string) (pipelineId string, err error)
 	Remove(user string, pipelineId string) error
 	GetPipelinesByDeploymentId(owner string, deploymentId string) (pipelineIds []string, err error)
 	GetPipelineByEventId(owner string, eventId string) (pipelineId string, exists bool, err error)
