@@ -27,11 +27,11 @@ import (
 	"strings"
 )
 
-func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension) (pipelineId string, err error) {
+func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension, useMarshaller bool) (pipelineId string, err error) {
 	if this.config.Debug {
 		log.Println("DEBUG: DeployGroup()")
 	}
-	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic, castExtensions)
+	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic, castExtensions, useMarshaller)
 	if err != nil {
 		log.Println("ERROR: getPipelineRequestForGroupDeployment()", err.Error())
 		debug.PrintStack()
@@ -47,8 +47,8 @@ func (this *Analytics) DeployGroup(token auth.AuthToken, label string, user stri
 	return pipelineId, nil
 }
 
-func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension) (err error) {
-	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic, castExtensions)
+func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId string, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension, useMarshaller bool) (err error) {
+	request, err := this.getPipelineRequestForGroupDeployment(token, label, user, desc, serviceIds, serviceToDeviceIdsMapping, serviceToPathsMapping, serviceToPathAndCharacteristic, castExtensions, useMarshaller)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (this *Analytics) UpdateGroupDeployment(token auth.AuthToken, pipelineId st
 	return nil
 }
 
-func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension) (request PipelineRequest, err error) {
+func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken, label string, user string, desc model.GroupEventDescription, serviceIds []string, serviceToDeviceIdsMapping map[string][]string, serviceToPathsMapping map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, castExtensions []model.ConverterExtension, useMarshaller bool) (request PipelineRequest, err error) {
 	flowCells, err, code := this.GetFlowInputs(desc.FlowId, user)
 	if err != nil {
 		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
@@ -87,6 +87,7 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 		EventId:       desc.EventId,
 		DeploymentId:  desc.DeploymentId,
 		FlowId:        desc.FlowId,
+		UseMarshaller: desc.UseMarshaller,
 	})
 	if err != nil {
 		debug.PrintStack()
@@ -106,18 +107,25 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 			continue
 		}
 		values := []NodeValue{}
-		if this.config.EnableMultiplePaths {
-			for _, path := range paths {
-				values = append(values, NodeValue{
-					Name: "value",
-					Path: this.config.GroupPathPrefix + path,
-				})
-			}
-		} else {
+		if useMarshaller {
 			values = []NodeValue{{
 				Name: "value",
-				Path: this.config.GroupPathPrefix + paths[0],
+				Path: strings.TrimSuffix(this.config.GroupPathPrefix, "."),
 			}}
+		} else {
+			if this.config.EnableMultiplePaths {
+				for _, path := range paths {
+					values = append(values, NodeValue{
+						Name: "value",
+						Path: this.config.GroupPathPrefix + path,
+					})
+				}
+			} else {
+				values = []NodeValue{{
+					Name: "value",
+					Path: this.config.GroupPathPrefix + paths[0],
+				}}
+			}
 		}
 
 		inputs = append(inputs, NodeInput{
@@ -148,58 +156,103 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 		castExtensionsJson = string(castExtensionsJsonTemp)
 	}
 
-	return PipelineRequest{
-		FlowId:      desc.FlowId,
-		Name:        label,
-		Description: string(description),
-		WindowTime:  0,
-		Nodes: []PipelineNode{
-			{
-				NodeId: flowCells[0].Id,
-				Inputs: inputs,
-				Config: []NodeConfig{
-					{
-						Name:  "value",
-						Value: desc.OperatorValue,
-					},
-					{
-						Name:  "url",
-						Value: this.config.EventTriggerUrl,
-					},
-					{
-						Name:  "eventId",
-						Value: desc.EventId,
-					},
-					{
-						Name:  "converterUrl",
-						Value: this.config.ConverterUrl,
-					},
-					{
-						Name:  "extendedConverterUrl",
-						Value: this.config.ExtendedConverterUrl,
-					},
-					{
-						Name:  "convertFrom",
-						Value: "",
-					},
-					{
-						Name:  "convertTo",
-						Value: desc.CharacteristicId,
-					},
-					{
-						Name:  "castExtensions",
-						Value: castExtensionsJson,
-					},
-					{
-						Name:  "topicToPathAndCharacteristic",
-						Value: string(topicToPathAndCharacteristicStr),
-					},
-					{
-						Name:  "userToken",
-						Value: string(token),
+	if useMarshaller {
+		return PipelineRequest{
+			FlowId:      desc.FlowId,
+			Name:        label,
+			Description: string(description),
+			WindowTime:  0,
+			Nodes: []PipelineNode{
+				{
+					NodeId: flowCells[0].Id,
+					Inputs: inputs,
+					Config: []NodeConfig{
+						{
+							Name:  "value",
+							Value: desc.OperatorValue,
+						},
+						{
+							Name:  "url",
+							Value: this.config.EventTriggerUrl,
+						},
+						{
+							Name:  "eventId",
+							Value: desc.EventId,
+						},
+						{
+							Name:  "marshallerUrl",
+							Value: this.config.MarshallerUrl,
+						},
+						{
+							Name:  "functionId",
+							Value: desc.FunctionId,
+						},
+						{
+							Name:  "aspectNodeId",
+							Value: desc.AspectId,
+						},
+						{
+							Name:  "userToken",
+							Value: string(token),
+						},
 					},
 				},
 			},
-		},
-	}, nil
+		}, nil
+	} else {
+		return PipelineRequest{
+			FlowId:      desc.FlowId,
+			Name:        label,
+			Description: string(description),
+			WindowTime:  0,
+			Nodes: []PipelineNode{
+				{
+					NodeId: flowCells[0].Id,
+					Inputs: inputs,
+					Config: []NodeConfig{
+						{
+							Name:  "value",
+							Value: desc.OperatorValue,
+						},
+						{
+							Name:  "url",
+							Value: this.config.EventTriggerUrl,
+						},
+						{
+							Name:  "eventId",
+							Value: desc.EventId,
+						},
+						{
+							Name:  "converterUrl",
+							Value: this.config.ConverterUrl,
+						},
+						{
+							Name:  "extendedConverterUrl",
+							Value: this.config.ExtendedConverterUrl,
+						},
+						{
+							Name:  "convertFrom",
+							Value: "",
+						},
+						{
+							Name:  "convertTo",
+							Value: desc.CharacteristicId,
+						},
+						{
+							Name:  "castExtensions",
+							Value: castExtensionsJson,
+						},
+						{
+							Name:  "topicToPathAndCharacteristic",
+							Value: string(topicToPathAndCharacteristicStr),
+						},
+						{
+							Name:  "userToken",
+							Value: string(token),
+						},
+					},
+				},
+			},
+		}, nil
+	}
 }

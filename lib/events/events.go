@@ -195,7 +195,7 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 
 var ErrMissingCharacteristicInEvent = errors.New("missing characteristic id in event")
 
-//expects event.Selection.SelectedDeviceId and event.Selection.SelectedServiceId to be set
+// expects event.Selection.SelectedDeviceId and event.Selection.SelectedServiceId to be set
 func (this *Events) deployEventForDevice(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
 	if event == nil {
 		debug.PrintStack()
@@ -243,20 +243,51 @@ func (this *Events) deployEventForDevice(token auth.AuthToken, label string, own
 		log.Println("WARNING: missing SelectedPath --> ignore event", event)
 		return nil
 	}
-	pipelineId, err := this.analytics.DeployDevice(
-		token,
-		label,
-		owner,
-		deploymentId,
-		event.FlowId,
-		event.EventId,
-		*event.Selection.SelectedDeviceId,
-		*event.Selection.SelectedServiceId,
-		event.Value,
-		path,
-		castFrom,
-		*event.Selection.FilterCriteria.CharacteristicId,
-		castExtensions)
+	var pipelineId string
+	var err error
+	if event.UseMarshaller {
+		functionId := ""
+		if event.Selection.FilterCriteria.FunctionId != nil {
+			functionId = *event.Selection.FilterCriteria.FunctionId
+		}
+		aspectNodeId := ""
+		if event.Selection.FilterCriteria.AspectId != nil {
+			aspectNodeId = *event.Selection.FilterCriteria.AspectId
+		}
+		serializedPath := ""
+		if event.Selection.SelectedPath != nil {
+			serializedPath = event.Selection.SelectedPath.Path
+		}
+		pipelineId, err = this.analytics.DeployDeviceWithMarshaller(
+			token,
+			label,
+			owner,
+			deploymentId,
+			event.FlowId,
+			event.EventId,
+			*event.Selection.SelectedDeviceId,
+			*event.Selection.SelectedServiceId,
+			event.Value,
+			serializedPath,
+			functionId,
+			aspectNodeId)
+	} else {
+		pipelineId, err = this.analytics.DeployDevice(
+			token,
+			label,
+			owner,
+			deploymentId,
+			event.FlowId,
+			event.EventId,
+			*event.Selection.SelectedDeviceId,
+			*event.Selection.SelectedServiceId,
+			event.Value,
+			path,
+			castFrom,
+			*event.Selection.FilterCriteria.CharacteristicId,
+			castExtensions)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -302,6 +333,7 @@ func (this *Events) deployEventForDeviceGroup(token auth.AuthToken, label string
 		AspectId:         *event.Selection.FilterCriteria.AspectId,
 		FlowId:           event.FlowId,
 		OperatorValue:    event.Value,
+		UseMarshaller:    event.UseMarshaller,
 	})
 }
 
@@ -364,7 +396,8 @@ func (this *Events) deployEventForDeviceGroupWithDescription(token auth.AuthToke
 		serviceToDevices,
 		serviceToPath,
 		serviceToPathAndCharacteristic,
-		castExtensions)
+		castExtensions,
+		desc.UseMarshaller)
 	if err != nil {
 		return err
 	}
@@ -435,7 +468,8 @@ func (this *Events) updateEventPipelineForDeviceGroup(token auth.AuthToken, pipe
 		serviceToDevices,
 		serviceToPath,
 		serviceToPathAndCharacteristic,
-		castExtensions)
+		castExtensions,
+		desc.UseMarshaller)
 	if err != nil {
 		return err
 	}
@@ -746,5 +780,6 @@ func (this *Events) deployEventForDeviceWithoutService(token auth.AuthToken, lab
 		AspectId:         *event.Selection.FilterCriteria.AspectId,
 		FlowId:           event.FlowId,
 		OperatorValue:    event.Value,
+		UseMarshaller:    event.UseMarshaller,
 	})
 }

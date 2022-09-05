@@ -3,7 +3,7 @@ module github.com/SENERGY-Platform/event-deployment
 go 1.18
 
 require (
-	github.com/SENERGY-Platform/process-deployment v0.0.0-20220704073237-509c847c7fe5
+	github.com/SENERGY-Platform/process-deployment v0.0.0-20220905084332-12878d4ea714
 	github.com/Shopify/sarama v1.27.2
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/coocood/freecache v1.1.0

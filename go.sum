@@ -9,6 +9,8 @@ github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20220704073237-509c847c7fe5 h1:gNFUb4+x3pmMCjxvdNj7pSmFTgGkcjXxWStzUeaaJkk=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20220704073237-509c847c7fe5/go.mod h1:x/RMsEzpXSRwMFhKFB5a8yVD+X3GZQtYE+HRDCYqPzQ=
+github.com/SENERGY-Platform/process-deployment v0.0.0-20220905084332-12878d4ea714 h1:4G1lnIUTappxsQ6B7tXhI/7NCto+VGv7J0G/ZLjvocY=
+github.com/SENERGY-Platform/process-deployment v0.0.0-20220905084332-12878d4ea714/go.mod h1:x/RMsEzpXSRwMFhKFB5a8yVD+X3GZQtYE+HRDCYqPzQ=
 github.com/Shopify/sarama v1.27.2 h1:1EyY1dsxNDUQEv0O/4TsjosHI2CgB1uo9H/v56xzTxc=
 github.com/Shopify/sarama v1.27.2/go.mod h1:g5s5osgELxgM+Md9Qni9rzo7Rbt+vvFQI4bt/Mc93II=
 github.com/Shopify/toxiproxy v2.1.4+incompatible h1:TKdv8HiTLgE5wdJuEML90aBgNWsokNbMijUGhmcoBJc=

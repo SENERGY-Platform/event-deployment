@@ -49,6 +49,7 @@ type GroupEventDescription struct {
 	FlowId             string
 	OperatorValue      string
 	CharacteristicId   string
+	UseMarshaller      bool
 }
 
 type PathAndCharacteristic struct {

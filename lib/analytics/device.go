@@ -23,7 +23,99 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"runtime/debug"
+	"strings"
 )
+
+func (this *Analytics) DeployDeviceWithMarshaller(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, functionId string, aspectNodeId string) (pipelineId string, err error) {
+	flowCells, err, code := this.GetFlowInputs(flowId, user)
+	if err != nil {
+		log.Println("ERROR: unable to get flow inputs", err.Error(), code)
+		debug.PrintStack()
+		return "", err
+	}
+	if len(flowCells) != 1 {
+		err = errors.New("expect flow to have exact one operator")
+		log.Println("ERROR: ", err.Error())
+		debug.PrintStack()
+		return "", err
+	}
+
+	description, err := json.Marshal(EventPipelineDescription{
+		DeviceId:      deviceId,
+		ServiceId:     serviceId,
+		ValuePath:     path,
+		OperatorValue: value,
+		EventId:       eventId,
+		DeploymentId:  deploymentId,
+		UseMarshaller: true,
+	})
+	if err != nil {
+		debug.PrintStack()
+		return "", err
+	}
+
+	pipeline, err, code := this.sendDeployRequest(token, user, PipelineRequest{
+		FlowId:      flowId,
+		Name:        label,
+		Description: string(description),
+		WindowTime:  0,
+		Nodes: []PipelineNode{
+			{
+				NodeId: flowCells[0].Id,
+				Inputs: []NodeInput{{
+					FilterIds:  deviceId,
+					FilterType: DeviceFilterType,
+					TopicName:  ServiceIdToTopic(serviceId),
+					Values: []NodeValue{{
+						Name: "value",
+						Path: strings.TrimSuffix(this.config.DevicePathPrefix, "."),
+					}},
+				}},
+				Config: []NodeConfig{
+					{
+						Name:  "value",
+						Value: value,
+					},
+					{
+						Name:  "url",
+						Value: this.config.EventTriggerUrl,
+					},
+					{
+						Name:  "eventId",
+						Value: eventId,
+					},
+					{
+						Name:  "marshallerUrl",
+						Value: this.config.MarshallerUrl,
+					},
+					{
+						Name:  "path",
+						Value: path,
+					},
+					{
+						Name:  "functionId",
+						Value: functionId,
+					},
+					{
+						Name:  "aspectNodeId",
+						Value: aspectNodeId,
+					},
+					{
+						Name:  "userToken",
+						Value: string(token),
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		log.Println("ERROR: unable to deploy pipeline", err.Error(), code)
+		debug.PrintStack()
+		return "", err
+	}
+	pipelineId = pipeline.Id.String()
+	return pipelineId, nil
+}
 
 func (this *Analytics) DeployDevice(token auth.AuthToken, label string, user string, deploymentId string, flowId string, eventId string, deviceId string, serviceId string, value string, path string, castFrom string, castTo string, castExtensions []model.ConverterExtension) (pipelineId string, err error) {
 	flowCells, err, code := this.GetFlowInputs(flowId, user)

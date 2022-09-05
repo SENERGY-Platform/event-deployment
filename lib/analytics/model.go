@@ -134,4 +134,5 @@ type EventPipelineDescription struct {
 	EventId            string                              `json:"event_id"`
 	DeploymentId       string                              `json:"deployment_id"`
 	FlowId             string                              `json:"flow_id,omitempty"`
+	UseMarshaller      bool                                `json:"use_marshaller,omitempty"`
 }

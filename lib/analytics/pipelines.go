@@ -93,6 +93,7 @@ func (this *Analytics) GetPipelinesByDeviceGroupId(owner string, groupId string)
 				AspectId:      desc.AspectId,
 				FlowId:        desc.FlowId,
 				OperatorValue: desc.OperatorValue,
+				UseMarshaller: desc.UseMarshaller,
 			}
 		}
 	}
