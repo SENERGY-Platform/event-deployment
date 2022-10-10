@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
+	"strings"
 	"time"
 )
 
@@ -40,4 +41,9 @@ func (this *FactoryType) New(ctx context.Context, config config.Config) (interfa
 		return nil, err
 	}
 	return &Analytics{config: config, timeout: timeout, auth: auth.NewAuth(config)}, nil
+}
+
+func trimIdParams(id string) (result string) {
+	result, _, _ = strings.Cut(id, "$")
+	return result
 }

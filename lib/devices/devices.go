@@ -140,7 +140,7 @@ func (this *Devices) GetDeviceTypeSelectables(criteria []model.FilterCriteria) (
 	if err != nil {
 		return result, err, http.StatusInternalServerError
 	}
-	req, err := http.NewRequest("POST", this.config.DeviceRepositoryUrl+"/query/device-type-selectables?interactions-filter=event", requestBody)
+	req, err := http.NewRequest("POST", this.config.DeviceRepositoryUrl+"/query/device-type-selectables?interactions-filter=event&include_id_modified=true", requestBody)
 	if err != nil {
 		debug.PrintStack()
 		return result, err, http.StatusInternalServerError

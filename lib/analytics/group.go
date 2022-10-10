@@ -96,7 +96,11 @@ func (this *Analytics) getPipelineRequestForGroupDeployment(token auth.AuthToken
 
 	inputs := []NodeInput{}
 	for _, serviceId := range serviceIds {
-		deviceIds := strings.Join(serviceToDeviceIdsMapping[serviceId], ",")
+		deviceIdList := []string{}
+		for _, id := range serviceToDeviceIdsMapping[serviceId] {
+			deviceIdList = append(deviceIdList, trimIdParams(id))
+		}
+		deviceIds := strings.Join(deviceIdList, ",")
 		if deviceIds == "" {
 			log.Println("WARNING: missing deviceIds for service in DeployGroup()", serviceId, " --> skip service for group event deployment")
 			continue

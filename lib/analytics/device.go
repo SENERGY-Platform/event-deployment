@@ -72,7 +72,7 @@ func (this *Analytics) DeployDeviceWithMarshaller(token auth.AuthToken, label st
 			{
 				NodeId: flowCells[0].Id,
 				Inputs: []NodeInput{{
-					FilterIds:  deviceId,
+					FilterIds:  trimIdParams(deviceId),
 					FilterType: DeviceFilterType,
 					TopicName:  ServiceIdToTopic(serviceId),
 					Values: []NodeValue{{
@@ -190,7 +190,7 @@ func (this *Analytics) DeployDevice(token auth.AuthToken, label string, user str
 			{
 				NodeId: flowCells[0].Id,
 				Inputs: []NodeInput{{
-					FilterIds:  deviceId,
+					FilterIds:  trimIdParams(deviceId),
 					FilterType: DeviceFilterType,
 					TopicName:  ServiceIdToTopic(serviceId),
 					Values: []NodeValue{{

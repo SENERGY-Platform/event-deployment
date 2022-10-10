@@ -477,6 +477,8 @@ func (this *Events) updateEventPipelineForDeviceGroup(token auth.AuthToken, pipe
 	return nil
 }
 
+const IdParameterSeperator = "$"
+
 func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDescription) (serviceIds []string, serviceToDevices map[string][]string, serviceToPath map[string][]string, serviceToPathAndCharacteristic map[string][]model.PathAndCharacteristic, err error, code int) {
 	serviceToPathAndCharacteristic = map[string][]model.PathAndCharacteristic{}
 	var devices []model.Device
