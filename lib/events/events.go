@@ -528,6 +528,7 @@ func (this *Events) getServicesPathsAndDevicesForEvent(desc model.GroupEventDesc
 			return serviceToPathAndCharacteristic[serviceId][i].JsonPath < serviceToPathAndCharacteristic[serviceId][j].JsonPath
 		})
 	}
+	sort.Strings(serviceIds)
 	return serviceIds, serviceToDevices, serviceToPath, serviceToPathAndCharacteristic, nil, http.StatusOK
 }
 
