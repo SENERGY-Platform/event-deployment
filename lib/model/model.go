@@ -16,19 +16,14 @@
 
 package model
 
-import "github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+import (
+	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+)
 
-type DeviceGroup struct {
-	Id        string   `json:"id"`
-	Name      string   `json:"name"`
-	DeviceIds []string `json:"device_ids"`
-}
+type DeviceGroup = models.DeviceGroup
 
-type Device struct {
-	Id           string `json:"id"`
-	Name         string `json:"name"`
-	DeviceTypeId string `json:"device_type_id"`
-}
+type Device = models.Device
 
 type PathOptionsResultElement struct {
 	ServiceId              string            `json:"service_id"`
@@ -57,15 +52,15 @@ type PathAndCharacteristic struct {
 	CharacteristicId string `json:"characteristic_id"`
 }
 
-type FilterCriteria struct {
+type FilterCriteria = struct {
 	FunctionId    string `json:"function_id"`
 	DeviceClassId string `json:"device_class_id"`
 	AspectId      string `json:"aspect_id"`
 }
 
 type DeviceTypeSelectable struct {
-	DeviceTypeId string `json:"device_type_id,omitempty"`
-	//Services           []Service                      `json:"services,omitempty"`
+	DeviceTypeId       string                         `json:"device_type_id,omitempty"`
+	Services           []models.Service               `json:"services,omitempty"`
 	ServicePathOptions map[string][]ServicePathOption `json:"service_path_options,omitempty"`
 }
 
@@ -82,28 +77,8 @@ type ServicePathOption struct {
 	//Type                  Type           `json:"type,omitempty"`
 }
 
-type Function struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	DisplayName string `json:"display_name"`
-	Description string `json:"description"`
-	ConceptId   string `json:"concept_id"`
-	RdfType     string `json:"rdf_type"`
-}
+type Function = models.Function
 
-type Concept struct {
-	Id                   string               `json:"id"`
-	Name                 string               `json:"name"`
-	CharacteristicIds    []string             `json:"characteristic_ids"`
-	BaseCharacteristicId string               `json:"base_characteristic_id"`
-	RdfType              string               `json:"rdf_type"`
-	Conversions          []ConverterExtension `json:"conversions"`
-}
+type Concept = models.Concept
 
-type ConverterExtension struct {
-	From            string `json:"from"`
-	To              string `json:"to"`
-	Distance        int64  `json:"distance"`
-	Formula         string `json:"formula"`
-	PlaceholderName string `json:"placeholder_name"`
-}
+type ConverterExtension = models.ConverterExtension

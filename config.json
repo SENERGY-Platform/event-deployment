@@ -16,6 +16,12 @@
   "connectivity_test":false,
   "event_trigger_url":"http://camunda-wrapper:8080/engine-rest/message",
 
+  "conditional_event_repo_mongo_url": "",
+  "conditional_event_repo_mongo_table": "event_descriptions",
+  "conditional_event_repo_mongo_desc_collection": "event_descriptions",
+
+  "import_repository_url": "",
+
   "device_group_topic": "device-groups",
   "perm_search_url": "",
 

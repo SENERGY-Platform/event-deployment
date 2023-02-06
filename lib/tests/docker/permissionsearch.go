@@ -59,7 +59,7 @@ func PermSearch(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, elasti
 	if err != nil {
 		return "", "", err
 	}
-	container, err := pool.Run("fgseitsrancher.wifa.intern.uni-leipzig.de:5000/permission-search", "dev", []string{
+	container, err := pool.Run("ghcr.io/senergy-platform/permission-search", "dev", []string{
 		"KAFKA_URL=" + kafkaUrl,
 		"ELASTIC_URL=" + "http://" + elasticIp + ":9200",
 	})

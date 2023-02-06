@@ -24,8 +24,10 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"log"
 	"net/http"
+	"net/url"
 	"runtime/debug"
 )
 
@@ -127,6 +129,41 @@ func (this *Devices) GetDevicesWithIds(token auth.AuthToken, ids []string) (resu
 		},
 	}, &result)
 	return
+}
+
+func (this *Devices) GetService(serviceId string) (result models.Service, err error, code int) {
+	token, err := this.auth.Ensure()
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	req, err := http.NewRequest("GET", this.config.DeviceRepositoryUrl+"/services/"+url.PathEscape(serviceId), nil)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	token.UseInRequest(req)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		err = errors.New(buf.String())
+		log.Println("ERROR: ", resp.StatusCode, err)
+		debug.PrintStack()
+		return result, err, resp.StatusCode
+	}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+
+	return result, nil, http.StatusOK
 }
 
 func (this *Devices) GetDeviceTypeSelectables(criteria []model.FilterCriteria) (result []model.DeviceTypeSelectable, err error, code int) {

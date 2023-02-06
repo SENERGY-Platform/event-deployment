@@ -28,8 +28,8 @@ import (
 func FlowRepo(ctx context.Context, wg *sync.WaitGroup, mongoIp string) (hostport string, containerip string, err error) {
 	pool, err := dockertest.NewPool("")
 	container, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "fgseitsrancher.wifa.intern.uni-leipzig.de:5000/analytics-flow-repo",
-		Tag:        "prod",
+		Repository: "ghcr.io/senergy-platform/analytics-flow-repo",
+		Tag:        "latest",
 		Env:        []string{"MONGO_ADDR=" + mongoIp},
 	}, func(config *docker.HostConfig) {
 	})

@@ -51,6 +51,12 @@ type ConfigStruct struct {
 	ImportPathPrefix        string `json:"import_path_prefix"`
 	GenericSourcePathPrefix string `json:"generic_source_path_prefix"`
 
+	ConditionalEventRepoMongoUrl            string `json:"conditional_event_repo_mongo_url"`
+	ConditionalEventRepoMongoTable          string `json:"conditional_event_repo_mongo_table"`
+	ConditionalEventRepoMongoDescCollection string `json:"conditional_event_repo_mongo_desc_collection"`
+
+	ImportRepositoryUrl string `json:"import_repository_url"`
+
 	DeviceRepositoryUrl string `json:"device_repository_url"`
 
 	//if not configured: no device-group updates handled

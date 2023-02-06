@@ -19,6 +19,7 @@ package interfaces
 import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 )
 
 type DevicesFactory interface {
@@ -31,4 +32,5 @@ type Devices interface {
 	GetDeviceTypeSelectables(criteria []model.FilterCriteria) (result []model.DeviceTypeSelectable, err error, code int)
 	GetConcept(conceptId string) (result model.Concept, err error, code int)
 	GetFunction(functionId string) (result model.Function, err error, code int)
+	GetService(serviceId string) (result models.Service, err error, code int)
 }

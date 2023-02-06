@@ -28,8 +28,8 @@ import (
 func FlowParser(ctx context.Context, wg *sync.WaitGroup, flowRepoIp string) (hostport string, containerip string, err error) {
 	pool, err := dockertest.NewPool("")
 	container, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "fgseitsrancher.wifa.intern.uni-leipzig.de:5000/flow-parser",
-		Tag:        "prod",
+		Repository: "ghcr.io/senergy-platform/analytics-flow-parser",
+		Tag:        "latest",
 		Env:        []string{"FLOW_API_ENDPOINT=http://" + flowRepoIp + ":5000"},
 	}, func(config *docker.HostConfig) {
 	})

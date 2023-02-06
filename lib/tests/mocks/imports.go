@@ -17,11 +17,22 @@
 package mocks
 
 import (
+	"github.com/SENERGY-Platform/process-deployment/lib/model/importmodel"
 	"net/http"
 	"strings"
 )
 
 type ImportsMock struct{}
+
+func (this *ImportsMock) GetImportInstance(user string, importId string) (importInstance importmodel.Import, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *ImportsMock) GetImportType(user string, importTypeId string) (importInstance importmodel.ImportType, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
 
 func (this *ImportsMock) GetTopic(_ string, importId string) (topic string, err error, code int) {
 	return strings.ReplaceAll(importId, ":", "_"), nil, http.StatusOK

@@ -19,6 +19,7 @@ package mocks
 import (
 	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
@@ -27,6 +28,11 @@ type DevicesMock struct {
 	GetDeviceTypeSelectablesValues map[string]map[string][]model.DeviceTypeSelectable
 	Functions                      map[string]model.Function
 	Concepts                       map[string]model.Concept
+}
+
+func (this *DevicesMock) GetService(serviceId string) (result models.Service, err error, code int) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (this *DevicesMock) GetDeviceTypeSelectables(criteria []model.FilterCriteria) (result []model.DeviceTypeSelectable, err error, code int) {

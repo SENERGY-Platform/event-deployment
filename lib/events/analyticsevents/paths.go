@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package events
+package analyticsevents
 
 import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"

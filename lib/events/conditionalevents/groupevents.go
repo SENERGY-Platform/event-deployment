@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 InfAI (CC SES)
+ * Copyright 2020 InfAI (CC SES)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package interfaces
+package conditionalevents
 
 import (
-	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/importmodel"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 )
 
-type ImportsFactory interface {
-	New(config config.Config) Imports
-}
-
-type Imports interface {
-	GetTopic(user string, importId string) (topic string, err error, code int)
-	GetImportInstance(user string, importId string) (importInstance importmodel.Import, err error, code int)
-	GetImportType(user string, importTypeId string) (importInstance importmodel.ImportType, err error, code int)
+func (this *Events) UpdateDeviceGroup(owner string, group model.DeviceGroup) error {
+	//TODO
+	panic("not implemented")
 }
