@@ -1,0 +1,561 @@
+[
+    {
+        "user_id": "testuserid",
+        "deployment_id": "someid",
+        "device_group_id": "",
+        "device_id": "",
+        "service_id": "",
+        "import_id": "urn:infai:ses:import:import1",
+        "script": "x == 42",
+        "value_variable": "x",
+        "variables": null,
+        "qos": 0,
+        "event_id": "event_id_1",
+        "characteristic_id": "urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43",
+        "function_id": "urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869",
+        "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6",
+        "path": "",
+        "service_for_marshaller": {
+            "id": "urn:infai:ses:import-type:a93420ae-ff5f-4c44-ee6b-5d3313f946d2",
+            "local_id": "",
+            "name": "yr-forecast",
+            "description": "",
+            "interaction": "event",
+            "protocol_id": "",
+            "inputs": null,
+            "outputs": [
+                {
+                    "id": "",
+                    "content_variable": {
+                        "id": "",
+                        "name": "import_id",
+                        "is_void": false,
+                        "type": "https://schema.org/Text",
+                        "sub_content_variables": null,
+                        "characteristic_id": "",
+                        "value": null,
+                        "serialization_options": null
+                    },
+                    "serialization": "",
+                    "protocol_segment_id": ""
+                },
+                {
+                    "id": "",
+                    "content_variable": {
+                        "id": "",
+                        "name": "time",
+                        "is_void": false,
+                        "type": "https://schema.org/Text",
+                        "sub_content_variables": null,
+                        "characteristic_id": "urn:infai:ses:characteristic:6bc41b45-a9f3-4d87-9c51-dd3e11257800",
+                        "value": null,
+                        "serialization_options": null
+                    },
+                    "serialization": "",
+                    "protocol_segment_id": ""
+                },
+                {
+                    "id": "",
+                    "content_variable": {
+                        "id": "",
+                        "name": "value",
+                        "is_void": false,
+                        "type": "https://schema.org/StructuredValue",
+                        "sub_content_variables": [
+                            {
+                                "id": "",
+                                "name": "units",
+                                "is_void": false,
+                                "type": "https://schema.org/StructuredValue",
+                                "sub_content_variables": [
+                                    {
+                                        "id": "",
+                                        "name": "air_pressure_at_sea_level",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "air_temperature",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "air_temperature_max",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "air_temperature_min",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "cloud_area_fraction",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "cloud_area_fraction_high",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "cloud_area_fraction_low",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "cloud_area_fraction_medium",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "dew_point_temperature",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "fog_area_fraction",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "precipitation_amount",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "precipitation_amount_max",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "precipitation_amount_min",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "probability_of_precipitation",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "probability_of_thunder",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "relative_humidity",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "ultraviolet_index_clear_sky",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "wind_from_direction",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "wind_speed",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    },
+                                    {
+                                        "id": "",
+                                        "name": "wind_speed_of_gust",
+                                        "is_void": false,
+                                        "type": "https://schema.org/Text",
+                                        "sub_content_variables": null,
+                                        "characteristic_id": "",
+                                        "value": null,
+                                        "serialization_options": null
+                                    }
+                                ],
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "forecasted_for",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:6bc41b45-a9f3-4d87-9c51-dd3e11257800",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_air_pressure_at_sea_level",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:eb33cf65-b0a2-413d-891d-cada05be01ed",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_air_temperature",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:5ba31623-0ccb-4488-bfb7-f73b50e03b5a",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_cloud_area_fraction",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_cloud_area_fraction_high",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_cloud_area_fraction_low",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_cloud_area_fraction_medium",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_dew_point_temperature",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:5ba31623-0ccb-4488-bfb7-f73b50e03b5a",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_fog_area_fraction",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_relative_humidity",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_ultraviolet_index_clear_sky",
+                                "is_void": false,
+                                "type": "https://schema.org/Integer",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:0a61343d-c0d1-4af8-9329-3829c30ba59f",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_wind_from_direction",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:005ca5d3-44da-4fc8-b2b8-a88e3209e9f7",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_wind_speed",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:04bce19c-839d-45de-8cfb-bd470715f4cd",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "instant_wind_speed_of_gust",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:04bce19c-839d-45de-8cfb-bd470715f4cd",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "12_hours_probability_of_precipitation",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "1_hours_precipitation_amount",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:7424a147-fb0e-4e71-a666-6c4997928e61",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "1_hours_precipitation_amount_max",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:7424a147-fb0e-4e71-a666-6c4997928e61",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "1_hours_precipitation_amount_min",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:7424a147-fb0e-4e71-a666-6c4997928e61",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "1_hours_probability_of_precipitation",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "1_hours_probability_of_thunder",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "6_hours_air_temperature_max",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:5ba31623-0ccb-4488-bfb7-f73b50e03b5a",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "6_hours_air_temperature_min",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:5ba31623-0ccb-4488-bfb7-f73b50e03b5a",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "6_hours_precipitation_amount",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:7424a147-fb0e-4e71-a666-6c4997928e61",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "6_hours_precipitation_amount_max",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:7424a147-fb0e-4e71-a666-6c4997928e61",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "6_hours_precipitation_amount_min",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:7424a147-fb0e-4e71-a666-6c4997928e61",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "6_hours_probability_of_precipitation",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:46f808f4-bb9e-4cc2-bd50-dc33ca74f273",
+                                "value": null,
+                                "serialization_options": null
+                            },
+                            {
+                                "id": "",
+                                "name": "test",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43",
+                                "value": null,
+                                "serialization_options": null,
+                                "function_id": "urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869",
+                                "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                            }
+                        ],
+                        "characteristic_id": "",
+                        "value": null,
+                        "serialization_options": null
+                    },
+                    "serialization": "",
+                    "protocol_segment_id": ""
+                }
+            ],
+            "attributes": null,
+            "service_group_key": ""
+        }
+    }
+]

@@ -1,0 +1,300 @@
+[
+    {
+        "user_id": "testuserid",
+        "deployment_id": "someid",
+        "device_group_id": "urn:infai:ses:device-group:dg1",
+        "device_id": "lifx1",
+        "service_id": "urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097",
+        "import_id": "",
+        "script": "x == 42",
+        "value_variable": "x",
+        "variables": null,
+        "qos": 0,
+        "event_id": "event_id_1",
+        "characteristic_id": "urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43",
+        "function_id": "urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869",
+        "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6",
+        "path": "",
+        "service_for_marshaller": {
+            "id": "urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097",
+            "local_id": "getStatus",
+            "name": "getStatusService",
+            "description": "",
+            "interaction": "event+request",
+            "protocol_id": "urn:infai:ses:protocol:f3a63aeb-187e-4dd9-9ef5-d97a6eb6292b",
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "urn:infai:ses:content:9fa5b0db-61fd-4502-b9af-98da93229260",
+                    "content_variable": {
+                        "id": "urn:infai:ses:content-variable:a3579952-2068-4353-9243-4d0d7f5eabca",
+                        "name": "struct",
+                        "is_void": false,
+                        "type": "https://schema.org/StructuredValue",
+                        "sub_content_variables": [
+                            {
+                                "id": "urn:infai:ses:content-variable:6534ae08-e920-4f94-8be7-043260581584",
+                                "name": "kelvin",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:16007de9-0700-4cf3-95fb-7a54ae2b6924",
+                                "name": "power",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:7621686a-56bc-402d-b4cc-5b266d39736f",
+                                "value": null,
+                                "serialization_options": null,
+                                "function_id": "urn:infai:ses:measuring-function:20d3c1d3-77d7-4181-a9f3-b487add58cd0",
+                                "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:6afe6df0-8fb5-41e2-99fe-e5b69d3f9e42",
+                                "name": "time",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:6bc41b45-a9f3-4d87-9c51-dd3e11257800",
+                                "value": null,
+                                "serialization_options": null,
+                                "function_id": "urn:infai:ses:measuring-function:3b4e0766-0d67-4658-b249-295902cd3290",
+                                "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:df153ef4-f351-41ab-8748-5689496fd006",
+                                "name": "brightness_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "brightness"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:5d3ab5cf-fda1-4218-aad5-6fc0ae48f05f",
+                                "name": "hue_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "hue"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:87baee56-33c3-4985-888e-40c27f063329",
+                                "name": "kelvin_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "kelvin"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:656d4a95-b3bb-4df3-909d-910491c8cc11",
+                                "name": "power_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "power"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:6ac39c66-f726-4e31-8683-74af81ae0acf",
+                                "name": "saturation_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "saturation"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:ea1260e0-c166-45f7-8d3a-140d285c569d",
+                                "name": "time_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "time"
+                            }
+                        ],
+                        "characteristic_id": "urn:infai:ses:characteristic:64928e9f-98ca-42bb-a1e5-adf2a760a2f9",
+                        "value": null,
+                        "serialization_options": null,
+                        "function_id": "urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869",
+                        "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                    },
+                    "serialization": "json",
+                    "protocol_segment_id": "urn:infai:ses:protocol-segment:0d211842-cef8-41ec-ab6b-9dbc31bc3a65"
+                }
+            ],
+            "attributes": [],
+            "service_group_key": ""
+        }
+    },
+    {
+        "user_id": "testuserid",
+        "deployment_id": "someid",
+        "device_group_id": "urn:infai:ses:device-group:dg1",
+        "device_id": "lifx2",
+        "service_id": "urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097",
+        "import_id": "",
+        "script": "x == 42",
+        "value_variable": "x",
+        "variables": null,
+        "qos": 0,
+        "event_id": "event_id_1",
+        "characteristic_id": "urn:infai:ses:characteristic:5b4eea52-e8e5-4e80-9455-0382f81a1b43",
+        "function_id": "urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869",
+        "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6",
+        "path": "",
+        "service_for_marshaller": {
+            "id": "urn:infai:ses:service:137fdd3e-bf55-4129-b71a-f33df8223097",
+            "local_id": "getStatus",
+            "name": "getStatusService",
+            "description": "",
+            "interaction": "event+request",
+            "protocol_id": "urn:infai:ses:protocol:f3a63aeb-187e-4dd9-9ef5-d97a6eb6292b",
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": "urn:infai:ses:content:9fa5b0db-61fd-4502-b9af-98da93229260",
+                    "content_variable": {
+                        "id": "urn:infai:ses:content-variable:a3579952-2068-4353-9243-4d0d7f5eabca",
+                        "name": "struct",
+                        "is_void": false,
+                        "type": "https://schema.org/StructuredValue",
+                        "sub_content_variables": [
+                            {
+                                "id": "urn:infai:ses:content-variable:6534ae08-e920-4f94-8be7-043260581584",
+                                "name": "kelvin",
+                                "is_void": false,
+                                "type": "https://schema.org/Float",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:16007de9-0700-4cf3-95fb-7a54ae2b6924",
+                                "name": "power",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:7621686a-56bc-402d-b4cc-5b266d39736f",
+                                "value": null,
+                                "serialization_options": null,
+                                "function_id": "urn:infai:ses:measuring-function:20d3c1d3-77d7-4181-a9f3-b487add58cd0",
+                                "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:6afe6df0-8fb5-41e2-99fe-e5b69d3f9e42",
+                                "name": "time",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "urn:infai:ses:characteristic:6bc41b45-a9f3-4d87-9c51-dd3e11257800",
+                                "value": null,
+                                "serialization_options": null,
+                                "function_id": "urn:infai:ses:measuring-function:3b4e0766-0d67-4658-b249-295902cd3290",
+                                "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:df153ef4-f351-41ab-8748-5689496fd006",
+                                "name": "brightness_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "brightness"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:5d3ab5cf-fda1-4218-aad5-6fc0ae48f05f",
+                                "name": "hue_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "hue"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:87baee56-33c3-4985-888e-40c27f063329",
+                                "name": "kelvin_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "kelvin"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:656d4a95-b3bb-4df3-909d-910491c8cc11",
+                                "name": "power_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "power"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:6ac39c66-f726-4e31-8683-74af81ae0acf",
+                                "name": "saturation_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "saturation"
+                            },
+                            {
+                                "id": "urn:infai:ses:content-variable:ea1260e0-c166-45f7-8d3a-140d285c569d",
+                                "name": "time_unit",
+                                "is_void": false,
+                                "type": "https://schema.org/Text",
+                                "sub_content_variables": null,
+                                "characteristic_id": "",
+                                "value": null,
+                                "serialization_options": null,
+                                "unit_reference": "time"
+                            }
+                        ],
+                        "characteristic_id": "urn:infai:ses:characteristic:64928e9f-98ca-42bb-a1e5-adf2a760a2f9",
+                        "value": null,
+                        "serialization_options": null,
+                        "function_id": "urn:infai:ses:measuring-function:bdb6a7c8-4a3d-4fe0-bab3-ce02e09b5869",
+                        "aspect_id": "urn:infai:ses:aspect:a7470d73-dde3-41fc-92bd-f16bb28f2da6"
+                    },
+                    "serialization": "json",
+                    "protocol_segment_id": "urn:infai:ses:protocol-segment:0d211842-cef8-41ec-ab6b-9dbc31bc3a65"
+                }
+            ],
+            "attributes": [],
+            "service_group_key": ""
+        }
+    }
+]
