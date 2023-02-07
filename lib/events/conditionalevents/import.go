@@ -72,7 +72,7 @@ func (this *Events) deployEventForImport(token auth.AuthToken, owner string, dep
 			return nil //ignore bad request errors
 		}
 	}
-	outputs := []models.Content{importContentToContent(importType)}
+	outputs := importVariablesToContents(importType.Output.SubContentVariables)
 
 	service := models.Service{
 		Id:          importType.Id,
@@ -85,12 +85,16 @@ func (this *Events) deployEventForImport(token auth.AuthToken, owner string, dep
 	return this.db.SetEventDescription(desc)
 }
 
-func importContentToContent(content importmodel.ImportType) (result models.Content) {
-	return models.Content{
-		Id:              content.Id,
-		ContentVariable: importContentVariableToContentVariable(content.Output),
-		Serialization:   "json",
+func importVariablesToContents(variables []importmodel.ImportContentVariable) (result []models.Content) {
+	for _, v := range variables {
+		result = append(result, importVariableToContent(v))
 	}
+	return
+}
+
+func importVariableToContent(variable importmodel.ImportContentVariable) (result models.Content) {
+	result.ContentVariable = importContentVariableToContentVariable(variable)
+	return
 }
 
 func importContentVariablesToContentVariables(variables []importmodel.ImportContentVariable) (result []models.ContentVariable) {
