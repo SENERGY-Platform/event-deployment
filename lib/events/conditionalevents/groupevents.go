@@ -21,6 +21,21 @@ import (
 )
 
 func (this *Events) UpdateDeviceGroup(owner string, group model.DeviceGroup) error {
-	//TODO
-	panic("not implemented")
+	this.mux.Lock()
+	defer this.mux.Unlock()
+	deployments, err := this.deployments.GetDeploymentByDeviceGroupId(group.Id)
+	if err != nil {
+		return err
+	}
+	for _, depl := range deployments {
+		err = this.removeEvents(owner, depl.Id)
+		if err != nil {
+			return err
+		}
+		err = this.deployEvents(owner, depl)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

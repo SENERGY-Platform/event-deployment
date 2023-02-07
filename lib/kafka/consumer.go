@@ -22,7 +22,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/segmentio/kafka-go"
 	"io"
-	"io/ioutil"
 	"log"
 	"time"
 )
@@ -45,8 +44,8 @@ func NewConsumer(ctx context.Context, config config.Config, topic string, listen
 		GroupID:        config.ConsumerGroup,
 		Topic:          topic,
 		MaxWait:        1 * time.Second,
-		Logger:         log.New(ioutil.Discard, "", 0),
-		ErrorLogger:    log.New(ioutil.Discard, "", 0),
+		Logger:         log.New(io.Discard, "", 0),
+		ErrorLogger:    log.New(io.Discard, "", 0),
 	})
 	go func() {
 		defer r.Close()

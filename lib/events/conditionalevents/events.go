@@ -21,6 +21,7 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/deployments"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/idmodifier"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-worker/pkg/configuration"
@@ -34,14 +35,20 @@ import (
 )
 
 type Events struct {
-	config  config.Config
-	db      *mongo.Mongo
-	devices interfaces.Devices
-	imports interfaces.Imports
+	config      config.Config
+	db          *mongo.Mongo
+	devices     interfaces.Devices
+	imports     interfaces.Imports
+	deployments *deployments.Deployments
+	mux         sync.Mutex
 }
 
 func New(ctx context.Context, config config.Config, devices interfaces.Devices, imports interfaces.Imports) (result *Events, err error) {
 	result = &Events{config: config, devices: devices, imports: imports}
+	result.deployments, err = deployments.New(ctx, &sync.WaitGroup{}, config)
+	if err != nil {
+		return result, err
+	}
 	result.db, err = mongo.New(ctx, &sync.WaitGroup{}, configuration.Config{
 		CloudEventRepoMongoUrl:            config.ConditionalEventRepoMongoUrl,
 		CloudEventRepoMongoTable:          config.ConditionalEventRepoMongoTable,
@@ -51,7 +58,17 @@ func New(ctx context.Context, config config.Config, devices interfaces.Devices, 
 }
 
 func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) error {
-	err := this.Remove(owner, deployment.Id)
+	this.mux.Lock()
+	defer this.mux.Unlock()
+	err := this.deployments.SetDeployment(deployment)
+	if err != nil {
+		return err
+	}
+	return this.deployEvents(owner, deployment)
+}
+
+func (this *Events) deployEvents(owner string, deployment deploymentmodel.Deployment) error {
+	err := this.removeEvents(owner, deployment.Id)
 	if err != nil {
 		return err
 	}
@@ -92,6 +109,16 @@ func (this *Events) deployElement(token auth.AuthToken, owner string, deployment
 }
 
 func (this *Events) Remove(owner string, deploymentId string) error {
+	this.mux.Lock()
+	defer this.mux.Unlock()
+	err := this.deployments.RemoveDeployment(deploymentId)
+	if err != nil {
+		return err
+	}
+	return this.removeEvents(owner, deploymentId)
+}
+
+func (this *Events) removeEvents(owner string, deploymentId string) error {
 	err := this.db.RemoveEventDescriptionsByDeploymentId(deploymentId)
 	return err
 }
@@ -123,10 +150,6 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 		}
 	}
 	return states, nil, http.StatusOK
-}
-
-func (this *Events) DeviceTypeUpdate() {
-	//TODO
 }
 
 func (this *Events) deployDescription(desc model.EventDesc) error {
