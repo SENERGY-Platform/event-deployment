@@ -17,7 +17,6 @@
 package conditionalevents
 
 import (
-	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/idmodifier"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
@@ -26,7 +25,7 @@ import (
 	"runtime/debug"
 )
 
-func (this *Transformer) transformEventForDevice(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
+func (this *Transformer) transformEventForDevice(owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,

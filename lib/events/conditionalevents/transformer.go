@@ -17,7 +17,6 @@
 package conditionalevents
 
 import (
-	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
@@ -36,9 +35,9 @@ type Transformer struct {
 	imports interfaces.Imports
 }
 
-func (this *Transformer) Transform(token auth.AuthToken, owner string, deployment deploymentmodel.Deployment) (result []model.EventDesc, err error) {
+func (this *Transformer) Transform(owner string, deployment deploymentmodel.Deployment) (result []model.EventDesc, err error) {
 	for _, element := range deployment.Elements {
-		temp, err := this.TransformElement(token, owner, deployment.Id, element)
+		temp, err := this.TransformElement(owner, deployment.Id, element)
 		if err != nil {
 			return result, err
 		}
@@ -47,20 +46,20 @@ func (this *Transformer) Transform(token auth.AuthToken, owner string, deploymen
 	return result, nil
 }
 
-func (this *Transformer) TransformElement(token auth.AuthToken, owner string, deploymentId string, element deploymentmodel.Element) (result []model.EventDesc, err error) {
+func (this *Transformer) TransformElement(owner string, deploymentId string, element deploymentmodel.Element) (result []model.EventDesc, err error) {
 	event := element.ConditionalEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
 		if event.Selection.SelectedDeviceGroupId != nil && *event.Selection.SelectedDeviceGroupId != "" {
-			return this.transformEventForDeviceGroup(token, owner, deploymentId, event)
+			return this.transformEventForDeviceGroup(owner, deploymentId, event)
 		}
 		if event.Selection.SelectedDeviceId != nil && event.Selection.SelectedServiceId != nil && *event.Selection.SelectedServiceId != "" {
-			return this.transformEventForDevice(token, owner, deploymentId, event)
+			return this.transformEventForDevice(owner, deploymentId, event)
 		}
 		if event.Selection.SelectedDeviceId != nil && !(event.Selection.SelectedServiceId != nil && *event.Selection.SelectedServiceId != "") {
-			return this.transformEventForDeviceWithoutService(token, owner, deploymentId, event)
+			return this.transformEventForDeviceWithoutService(owner, deploymentId, event)
 		}
 		if event.Selection.SelectedImportId != nil {
-			return this.transformEventForImport(token, owner, deploymentId, event)
+			return this.transformEventForImport(owner, deploymentId, event)
 		}
 		if event.Selection.SelectedGenericEventSource != nil {
 			log.Println("WARNING: generic event sources not supported for conditional events")

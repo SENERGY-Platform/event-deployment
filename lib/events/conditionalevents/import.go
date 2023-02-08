@@ -17,7 +17,6 @@
 package conditionalevents
 
 import (
-	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
@@ -27,7 +26,7 @@ import (
 	"runtime/debug"
 )
 
-func (this *Transformer) transformEventForImport(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
+func (this *Transformer) transformEventForImport(owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,

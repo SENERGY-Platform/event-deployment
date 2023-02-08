@@ -17,7 +17,6 @@
 package conditionalevents
 
 import (
-	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	eventmodel "github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/models/go/models"
@@ -27,7 +26,7 @@ import (
 	"runtime/debug"
 )
 
-func (this *Transformer) transformEventForDeviceGroup(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
+func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,
@@ -96,7 +95,7 @@ func (this *Transformer) transformEventForDeviceGroup(token auth.AuthToken, owne
 	return result, nil
 }
 
-func (this *Transformer) transformEventForDeviceWithoutService(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
+func (this *Transformer) transformEventForDeviceWithoutService(owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,

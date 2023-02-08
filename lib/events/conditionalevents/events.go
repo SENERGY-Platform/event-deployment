@@ -19,7 +19,6 @@ package conditionalevents
 import (
 	"context"
 	"errors"
-	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/deployments"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/idmodifier"
@@ -71,11 +70,7 @@ func (this *Events) deployEvents(owner string, deployment deploymentmodel.Deploy
 	if err != nil {
 		return err
 	}
-	token, err := auth.NewAuth(this.config).GetUserToken(owner)
-	if err != nil {
-		return err
-	}
-	descriptions, err := this.transformer.Transform(token, owner, deployment)
+	descriptions, err := this.transformer.Transform(owner, deployment)
 	if err != nil {
 		return err
 	}
