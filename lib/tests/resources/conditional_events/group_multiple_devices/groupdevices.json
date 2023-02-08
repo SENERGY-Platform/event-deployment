@@ -1,0 +1,24 @@
+{
+    "group-id": [
+        {
+            "id": "",
+            "name": "",
+            "device_type_id": ""
+        }
+    ],
+
+    "urn:infai:ses:device-group:dg1": [
+        {
+            "id": "nope",
+            "device_type_id": "urn:infai:ses:device-type:dt1"
+        },
+        {
+            "id": "lifx1",
+            "device_type_id": "urn:infai:ses:device-type:dt3"
+        },
+        {
+            "id": "lifx2",
+            "device_type_id": "urn:infai:ses:device-type:dt3"
+        }
+    ]
+}

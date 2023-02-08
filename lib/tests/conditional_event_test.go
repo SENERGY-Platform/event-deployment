@@ -34,6 +34,7 @@ import (
 	"os"
 	"reflect"
 	"runtime/debug"
+	"sort"
 	"sync"
 	"testing"
 )
@@ -217,9 +218,29 @@ func testConditionalEvent(t *testing.T, testcase string) {
 		return
 	}
 
+	sortEventDesc := func(list []eventworkermodel.EventDesc) []eventworkermodel.EventDesc {
+		sort.Slice(list, func(i, j int) bool {
+			return list[i].DeploymentId < list[j].DeploymentId
+		})
+		sort.Slice(list, func(i, j int) bool {
+			return list[i].EventId < list[j].EventId
+		})
+		sort.Slice(list, func(i, j int) bool {
+			return list[i].DeviceId < list[j].DeviceId
+		})
+		sort.Slice(list, func(i, j int) bool {
+			return list[i].ServiceId < list[j].ServiceId
+		})
+		return list
+	}
+	expectedEventDescriptions = sortEventDesc(expectedEventDescriptions)
+	actualEventDescriptions = sortEventDesc(actualEventDescriptions)
+
 	if !reflect.DeepEqual(expectedEventDescriptions, actualEventDescriptions) {
 		t.Errorf("\n%#v\n%#v", expectedEventDescriptions, actualEventDescriptions)
 		temp, _ := json.Marshal(actualEventDescriptions)
+		t.Log(string(temp))
+		temp, _ = json.Marshal(expectedEventDescriptions)
 		t.Log(string(temp))
 	}
 
