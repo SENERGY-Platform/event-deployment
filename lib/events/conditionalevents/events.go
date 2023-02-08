@@ -37,14 +37,13 @@ import (
 type Events struct {
 	config      config.Config
 	db          *mongo.Mongo
-	devices     interfaces.Devices
-	imports     interfaces.Imports
+	transformer *Transformer
 	deployments *deployments.Deployments
 	mux         sync.Mutex
 }
 
 func New(ctx context.Context, config config.Config, devices interfaces.Devices, imports interfaces.Imports) (result *Events, err error) {
-	result = &Events{config: config, devices: devices, imports: imports}
+	result = &Events{config: config, transformer: NewTransformer(devices, imports)}
 	result.deployments, err = deployments.New(ctx, &sync.WaitGroup{}, config)
 	if err != nil {
 		return result, err
@@ -76,33 +75,14 @@ func (this *Events) deployEvents(owner string, deployment deploymentmodel.Deploy
 	if err != nil {
 		return err
 	}
-	for _, element := range deployment.Elements {
-		err = this.deployElement(token, owner, deployment.Id, element)
+	descriptions, err := this.transformer.Transform(token, owner, deployment)
+	if err != nil {
+		return err
+	}
+	for _, element := range descriptions {
+		err = this.deployDescription(element)
 		if err != nil {
 			return err
-		}
-	}
-	return nil
-}
-
-func (this *Events) deployElement(token auth.AuthToken, owner string, deploymentId string, element deploymentmodel.Element) (err error) {
-	event := element.ConditionalEvent
-	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
-		if event.Selection.SelectedDeviceGroupId != nil && *event.Selection.SelectedDeviceGroupId != "" {
-			return this.deployEventForDeviceGroup(token, owner, deploymentId, event)
-		}
-		if event.Selection.SelectedDeviceId != nil && event.Selection.SelectedServiceId != nil && *event.Selection.SelectedServiceId != "" {
-			return this.deployEventForDevice(token, owner, deploymentId, event)
-		}
-		if event.Selection.SelectedDeviceId != nil && !(event.Selection.SelectedServiceId != nil && *event.Selection.SelectedServiceId != "") {
-			return this.deployEventForDeviceWithoutService(token, owner, deploymentId, event)
-		}
-		if event.Selection.SelectedImportId != nil {
-			return this.deployEventForImport(token, owner, deploymentId, event)
-		}
-		if event.Selection.SelectedGenericEventSource != nil {
-			log.Println("WARNING: generic event sources not supported for conditional events")
-			return nil
 		}
 	}
 	return nil

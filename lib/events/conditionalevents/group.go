@@ -27,7 +27,7 @@ import (
 	"runtime/debug"
 )
 
-func (this *Events) deployEventForDeviceGroup(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) error {
+func (this *Transformer) transformEventForDeviceGroup(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,
@@ -55,11 +55,11 @@ func (this *Events) deployEventForDeviceGroup(token auth.AuthToken, owner string
 	devices, _, err, code := this.devices.GetDeviceInfosOfGroup(desc.DeviceGroupId)
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			return err
+			return []model.EventDesc{}, err
 		} else {
 			log.Println("ERROR:", code, err)
 			debug.PrintStack()
-			return nil //ignore bad request errors
+			return []model.EventDesc{}, nil //ignore bad request errors
 		}
 	}
 
@@ -75,26 +75,28 @@ func (this *Events) deployEventForDeviceGroup(token auth.AuthToken, owner string
 	}})
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			return err
+			return []model.EventDesc{}, err
 		} else {
 			log.Println("ERROR:", code, err)
 			debug.PrintStack()
-			return nil //ignore bad request errors
+			return []model.EventDesc{}, nil //ignore bad request errors
 		}
 	}
 
+	result = []model.EventDesc{}
 	for _, device := range devices {
-		temp := desc
-		temp.DeviceId = device.Id
-		err = this.deployPartialDescription(temp, dtSelectables, &deviceCache)
+		partial := desc
+		partial.DeviceId = device.Id
+		temp, err := this.transformPartialDescription(partial, dtSelectables, &deviceCache)
 		if err != nil {
-			return err
+			return []model.EventDesc{}, err
 		}
+		result = append(result, temp...)
 	}
-	return nil
+	return result, nil
 }
 
-func (this *Events) deployEventForDeviceWithoutService(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) error {
+func (this *Transformer) transformEventForDeviceWithoutService(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,
@@ -122,11 +124,11 @@ func (this *Events) deployEventForDeviceWithoutService(token auth.AuthToken, own
 	devices, _, err, code := this.devices.GetDeviceInfosOfDevices([]string{desc.DeviceId})
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			return err
+			return []model.EventDesc{}, err
 		} else {
 			log.Println("ERROR:", code, err)
 			debug.PrintStack()
-			return nil //ignore bad request errors
+			return []model.EventDesc{}, nil //ignore bad request errors
 		}
 	}
 
@@ -142,60 +144,60 @@ func (this *Events) deployEventForDeviceWithoutService(token auth.AuthToken, own
 	}})
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			return err
+			return []model.EventDesc{}, err
 		} else {
 			log.Println("ERROR:", code, err)
 			debug.PrintStack()
-			return nil //ignore bad request errors
+			return []model.EventDesc{}, nil //ignore bad request errors
 		}
 	}
 
+	result = []model.EventDesc{}
 	for _, device := range devices {
-		temp := desc
-		temp.DeviceId = device.Id
-		err = this.deployPartialDescription(temp, dtSelectables, &deviceCache)
+		partial := desc
+		partial.DeviceId = device.Id
+		temp, err := this.transformPartialDescription(partial, dtSelectables, &deviceCache)
 		if err != nil {
-			return err
+			return []model.EventDesc{}, err
 		}
+		result = append(result, temp...)
 	}
-	return nil
+	return result, nil
 }
 
-func (this *Events) deployPartialDescription(partialDesc model.EventDesc, selectables []eventmodel.DeviceTypeSelectable, deviceCache *map[string]models.Device) error {
+func (this *Transformer) transformPartialDescription(partialDesc model.EventDesc, selectables []eventmodel.DeviceTypeSelectable, deviceCache *map[string]models.Device) (result []model.EventDesc, err error) {
 	dtId := (*deviceCache)[partialDesc.DeviceId].DeviceTypeId
 	if dtId == "" {
 		devices, _, err, code := this.devices.GetDeviceInfosOfDevices([]string{partialDesc.DeviceId})
 		if err != nil {
 			if code == http.StatusInternalServerError {
-				return err
+				return []model.EventDesc{}, err
 			} else {
 				log.Println("ERROR:", code, err)
 				debug.PrintStack()
-				return nil //ignore bad request errors
+				return []model.EventDesc{}, nil //ignore bad request errors
 			}
 		}
 		if len(devices) == 0 {
 			log.Println("ERROR: unexpected GetDeviceInfosOfDevices() result", devices)
 			debug.PrintStack()
-			return nil
+			return []model.EventDesc{}, nil
 		}
 		device := devices[0]
 		(*deviceCache)[device.Id] = device
 		dtId = device.DeviceTypeId
 	}
 
+	result = []model.EventDesc{}
 	for _, selectable := range selectables {
 		if selectable.DeviceTypeId == dtId {
 			for _, service := range selectable.Services {
 				temp := partialDesc
 				temp.ServiceId = service.Id
 				temp.ServiceForMarshaller = service
-				err := this.deployDescription(temp)
-				if err != nil {
-					return err
-				}
+				result = append(result, temp)
 			}
 		}
 	}
-	return nil
+	return result, nil
 }

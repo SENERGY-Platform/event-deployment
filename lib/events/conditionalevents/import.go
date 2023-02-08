@@ -27,7 +27,7 @@ import (
 	"runtime/debug"
 )
 
-func (this *Events) deployEventForImport(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) error {
+func (this *Transformer) transformEventForImport(token auth.AuthToken, owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,
@@ -55,21 +55,21 @@ func (this *Events) deployEventForImport(token auth.AuthToken, owner string, dep
 	importInstance, err, code := this.imports.GetImportInstance(owner, desc.ImportId)
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			return err
+			return []model.EventDesc{}, err
 		} else {
 			log.Println("ERROR:", code, err)
 			debug.PrintStack()
-			return nil //ignore bad request errors
+			return []model.EventDesc{}, nil //ignore bad request errors
 		}
 	}
 	importType, err, code := this.imports.GetImportType(owner, importInstance.ImportTypeId)
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			return err
+			return []model.EventDesc{}, err
 		} else {
 			log.Println("ERROR:", code, err)
 			debug.PrintStack()
-			return nil //ignore bad request errors
+			return []model.EventDesc{}, nil //ignore bad request errors
 		}
 	}
 	outputs := importVariablesToContents(importType.Output.SubContentVariables)
@@ -82,7 +82,7 @@ func (this *Events) deployEventForImport(token auth.AuthToken, owner string, dep
 	}
 	desc.ServiceForMarshaller = service
 
-	return this.db.SetEventDescription(desc)
+	return []model.EventDesc{desc}, nil
 }
 
 func importVariablesToContents(variables []importmodel.ImportContentVariable) (result []models.Content) {
