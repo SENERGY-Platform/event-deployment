@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/SENERGY-Platform/event-worker v0.0.0-20230206101950-c0664a0fa7a4
 	github.com/SENERGY-Platform/models/go v0.0.0-20230105115534-8edcf0271764
-	github.com/SENERGY-Platform/process-deployment v0.0.0-20230206115324-bb3d272e5a48
+	github.com/SENERGY-Platform/process-deployment v0.0.0-20230208100932-a2a0a983c8ba
 	github.com/Shopify/sarama v1.27.2
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
 	github.com/coocood/freecache v1.1.0
@@ -37,7 +37,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-	github.com/google/uuid v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
