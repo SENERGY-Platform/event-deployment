@@ -13,6 +13,7 @@
   "extended_converter_url": "http://converter:8080/extended-conversions",
   "debug":false,
   "deployment_topic":"deployments_v3",
+  "deployment_done_topic": "process-deployment-done",
   "connectivity_test":false,
   "event_trigger_url":"http://camunda-wrapper:8080/engine-rest/message",
 

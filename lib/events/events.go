@@ -37,8 +37,9 @@ type EventsFactory struct{}
 var Factory = &EventsFactory{}
 
 type Events struct {
-	config   config.Config
-	handlers []Handler
+	config       config.Config
+	handlers     []Handler
+	doneProducer interfaces.Producer
 }
 
 type Handler interface {
@@ -49,7 +50,7 @@ type Handler interface {
 	UpdateDeviceGroup(owner string, group model.DeviceGroup) error
 }
 
-func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports) (result interfaces.Events, err error) {
+func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer) (result interfaces.Events, err error) {
 	analyticsEvents, err := analyticsevents.New(ctx, config, analytics, devices, imports)
 	if err != nil {
 		return nil, err
@@ -62,7 +63,7 @@ func (this *EventsFactory) New(ctx context.Context, config config.Config, analyt
 		}
 		handlers = append(handlers, conditionalEvents)
 	}
-	return &Events{config: config, handlers: handlers}, err
+	return &Events{config: config, handlers: handlers, doneProducer: doneProducer}, err
 }
 
 type VersionWrapper struct {
@@ -127,6 +128,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 			return err
 		}
 	}
+	this.notifyProcessDeploymentDone(deployment.Id)
 	return nil
 }
 
@@ -164,4 +166,31 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 		}
 	}
 	return states, nil, http.StatusOK
+}
+
+func (this *Events) notifyProcessDeploymentDone(id string) {
+	if this.doneProducer != nil {
+		msg, err := json.Marshal(DoneNotification{
+			Command: "PUT",
+			Id:      id,
+			Handler: "github.com/SENERGY-Platform/camunda-engine-wrapper",
+		})
+		if err != nil {
+			log.Println("ERROR:", err)
+			debug.PrintStack()
+			return
+		}
+		err = this.doneProducer.Produce(id, msg)
+		if err != nil {
+			log.Println("ERROR:", err)
+			debug.PrintStack()
+			return
+		}
+	}
+}
+
+type DoneNotification struct {
+	Command string `json:"command"`
+	Id      string `json:"id"`
+	Handler string `json:"handler"`
 }

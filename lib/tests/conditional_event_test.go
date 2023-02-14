@@ -188,7 +188,7 @@ func testConditionalEvent(t *testing.T, testcase string) {
 		return
 	}
 
-	event, err := events.Factory.New(ctx, conf, a, &devicesMock, &mocks.ImportsMock{})
+	event, err := events.Factory.New(ctx, conf, a, &devicesMock, &mocks.ImportsMock{}, nil)
 	if err != nil {
 		t.Error(err)
 		return
