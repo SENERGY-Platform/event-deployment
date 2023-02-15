@@ -26,6 +26,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/imports"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/kafka"
+	"log"
 )
 
 func StartDefault(ctx context.Context, config config.Config) error {
@@ -43,6 +44,7 @@ func Start(ctx context.Context, config config.Config, sourcing interfaces.Sourci
 	}
 	var producer Producer
 	if config.DeploymentDoneTopic != "" && config.DeploymentDoneTopic != "-" {
+		log.Println("use deployment done producer")
 		producer, err = sourcing.NewProducer(ctx, config, config.DeploymentDoneTopic)
 		if err != nil {
 			return err

@@ -170,6 +170,7 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 
 func (this *Events) notifyProcessDeploymentDone(id string) {
 	if this.doneProducer != nil {
+		log.Println("send deployment done", id)
 		msg, err := json.Marshal(DoneNotification{
 			Command: "PUT",
 			Id:      id,
