@@ -170,12 +170,13 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 
 func (this *Events) notifyProcessDeploymentDone(id string) {
 	if this.doneProducer != nil {
-		log.Println("send deployment done", id)
-		msg, err := json.Marshal(DoneNotification{
+		message := DoneNotification{
 			Command: "PUT",
 			Id:      id,
-			Handler: "github.com/SENERGY-Platform/camunda-engine-wrapper",
-		})
+			Handler: "github.com/SENERGY-Platform/event-deployment",
+		}
+		log.Println("send deployment done", message)
+		msg, err := json.Marshal(message)
 		if err != nil {
 			log.Println("ERROR:", err)
 			debug.PrintStack()
