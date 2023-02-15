@@ -37,10 +37,10 @@ type Deployments struct {
 
 var CreateCollections = []func(db *Deployments) error{}
 
-func New(basectx context.Context, wg *sync.WaitGroup, conf config.Config) (*Deployments, error) {
-	ctx, _ := getTimeoutContext(basectx)
+func New(ctx context.Context, wg *sync.WaitGroup, conf config.Config) (*Deployments, error) {
+	timeout, _ := getTimeoutContext(ctx)
 	reg := bson.NewRegistryBuilder().RegisterTypeMapEntry(bsontype.EmbeddedDocument, reflect.TypeOf(bson.M{})).Build() //ensure map marshalling to interface
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.ConditionalEventRepoMongoUrl), options.Client().SetRegistry(reg))
+	client, err := mongo.Connect(timeout, options.Client().ApplyURI(conf.ConditionalEventRepoMongoUrl), options.Client().SetRegistry(reg))
 	if err != nil {
 		return nil, err
 	}
