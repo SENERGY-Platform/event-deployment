@@ -7,8 +7,8 @@ github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEV
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5/go.mod h1:lmUJ/7eu/Q8D7ML55dXQrVaamCz2vxCfdQBasLZfHKk=
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/SENERGY-Platform/event-worker v0.0.0-20230206101950-c0664a0fa7a4 h1:RWeTa+o1zK71mtaqByrSA8089ulbehraAit1OrbGQIc=
-github.com/SENERGY-Platform/event-worker v0.0.0-20230206101950-c0664a0fa7a4/go.mod h1:G7TNfhNQajVq8pIdaLfUlXhTh9tFFPxT5oN6lr4mgzU=
+github.com/SENERGY-Platform/event-worker v0.0.0-20230214132437-6b809e37855b h1:Z2sP3FZpTVUI+dfNxtgbQQ/s3m+/7iWMBbm5hZwa+I4=
+github.com/SENERGY-Platform/event-worker v0.0.0-20230214132437-6b809e37855b/go.mod h1:G7TNfhNQajVq8pIdaLfUlXhTh9tFFPxT5oN6lr4mgzU=
 github.com/SENERGY-Platform/models/go v0.0.0-20230105115534-8edcf0271764 h1:myrBDPxjD0l1QUwYbqTcDqiIOCMaPLMHxkxpspYtEck=
 github.com/SENERGY-Platform/models/go v0.0.0-20230105115534-8edcf0271764/go.mod h1:GqfI+440B0Yz7NshAxm4PgVwRGcNqvbxddoB+xUa6HQ=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20230208100932-a2a0a983c8ba h1:Tkt9bsyvusekH1kvwTuP0QBAkM7m0neWYxaEfIvQAnM=

@@ -3,7 +3,7 @@ module github.com/SENERGY-Platform/event-deployment
 go 1.19
 
 require (
-	github.com/SENERGY-Platform/event-worker v0.0.0-20230206101950-c0664a0fa7a4
+	github.com/SENERGY-Platform/event-worker v0.0.0-20230214132437-6b809e37855b
 	github.com/SENERGY-Platform/models/go v0.0.0-20230105115534-8edcf0271764
 	github.com/SENERGY-Platform/process-deployment v0.0.0-20230208100932-a2a0a983c8ba
 	github.com/Shopify/sarama v1.27.2
