@@ -17,98 +17,44 @@
 package devices
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
-	"log"
-	"net/http"
-	"runtime/debug"
+	"github.com/SENERGY-Platform/permission-search/lib/client"
 )
 
 func (this *Devices) Search(token auth.AuthToken, query QueryMessage, result interface{}) (err error, code int) {
-	requestBody := new(bytes.Buffer)
-	err = json.NewEncoder(requestBody).Encode(query)
+	temp, code, err := this.permissionsearch.Query(string(token), query)
 	if err != nil {
-		return err, http.StatusInternalServerError
+		return err, code
 	}
-	req, err := http.NewRequest("POST", this.config.PermSearchUrl+"/v2/query", requestBody)
+	b, err := json.Marshal(temp)
 	if err != nil {
-		debug.PrintStack()
-		return err, http.StatusInternalServerError
+		return err, 500
 	}
-	token.UseInRequest(req)
-	resp, err := http.DefaultClient.Do(req)
+	err = json.Unmarshal(b, result)
 	if err != nil {
-		debug.PrintStack()
-		return err, http.StatusInternalServerError
+		return err, 500
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-		err = errors.New(buf.String())
-		log.Println("ERROR: ", resp.StatusCode, err)
-		debug.PrintStack()
-		return err, resp.StatusCode
-	}
-	err = json.NewDecoder(resp.Body).Decode(result)
-	if err != nil {
-		debug.PrintStack()
-		return err, http.StatusInternalServerError
-	}
-
-	return nil, http.StatusOK
+	return nil, 200
 }
 
-type QueryMessage struct {
-	Resource string         `json:"resource"`
-	Find     *QueryFind     `json:"find"`
-	ListIds  *QueryListIds  `json:"list_ids"`
-	CheckIds *QueryCheckIds `json:"check_ids"`
-}
-type QueryFind struct {
-	QueryListCommons
-	Search string     `json:"search"`
-	Filter *Selection `json:"filter"`
-}
+type QueryMessage = client.QueryMessage
+type QueryFind = client.QueryFind
 
-type QueryListIds struct {
-	QueryListCommons
-	Ids []string `json:"ids"`
-}
+type QueryListIds = client.QueryListIds
 
-type QueryCheckIds struct {
-	Ids    []string `json:"ids"`
-	Rights string   `json:"rights"`
-}
+type QueryCheckIds = client.QueryCheckIds
 
-type QueryListCommons struct {
-	Limit    int    `json:"limit"`
-	Offset   int    `json:"offset"`
-	Rights   string `json:"rights"`
-	SortBy   string `json:"sort_by"`
-	SortDesc bool   `json:"sort_desc"`
-}
+type QueryListCommons = client.QueryListCommons
 
-type QueryOperationType string
+type QueryOperationType = client.QueryOperationType
 
 const (
-	QueryEqualOperation             QueryOperationType = "=="
-	QueryUnequalOperation           QueryOperationType = "!="
-	QueryAnyValueInFeatureOperation QueryOperationType = "any_value_in_feature"
+	QueryEqualOperation             = client.QueryEqualOperation
+	QueryUnequalOperation           = client.QueryUnequalOperation
+	QueryAnyValueInFeatureOperation = client.QueryAnyValueInFeatureOperation
 )
 
-type ConditionConfig struct {
-	Feature   string             `json:"feature"`
-	Operation QueryOperationType `json:"operation"`
-	Value     interface{}        `json:"value"`
-	Ref       string             `json:"ref"`
-}
+type ConditionConfig = client.ConditionConfig
 
-type Selection struct {
-	And       []Selection     `json:"and"`
-	Or        []Selection     `json:"or"`
-	Not       *Selection      `json:"not"`
-	Condition ConditionConfig `json:"condition"`
-}
+type Selection = client.Selection

@@ -71,7 +71,7 @@ func TestDevices(t *testing.T) {
 		return
 	}
 
-	permSearchPort, _, err := docker.PermSearch(ctx, wg, kafkaUrl, esIp)
+	permSearchPort, _, err := docker.PermSearch(ctx, wg, false, kafkaUrl, esIp)
 	if err != nil {
 		t.Error(err)
 		return

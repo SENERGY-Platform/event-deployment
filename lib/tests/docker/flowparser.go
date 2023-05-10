@@ -18,36 +18,49 @@ package docker
 
 import (
 	"context"
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
-	"net/http"
 	"sync"
 )
 
-func FlowParser(ctx context.Context, wg *sync.WaitGroup, flowRepoIp string) (hostport string, containerip string, err error) {
-	pool, err := dockertest.NewPool("")
-	container, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "ghcr.io/senergy-platform/analytics-flow-parser",
-		Tag:        "latest",
-		Env:        []string{"FLOW_API_ENDPOINT=http://" + flowRepoIp + ":5000"},
-	}, func(config *docker.HostConfig) {
+func FlowParser(ctx context.Context, wg *sync.WaitGroup, flowRepoIp string) (hostPort string, ipAddress string, err error) {
+	log.Println("start analytics-flow-parser")
+	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image: "ghcr.io/senergy-platform/analytics-flow-parser",
+			Env: map[string]string{
+				"FLOW_API_ENDPOINT": "http://" + flowRepoIp + ":5000",
+			},
+			ExposedPorts:    []string{"5000/tcp"},
+			WaitingFor:      wait.ForListeningPort("5000/tcp"),
+			AlwaysPullImage: true,
+		},
+		Started: true,
 	})
 	if err != nil {
-		return hostport, containerip, err
+		return "", "", err
 	}
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-ctx.Done()
-		log.Println("DEBUG: remove container " + container.Container.Name)
-		container.Close()
-		wg.Done()
+		log.Println("DEBUG: remove container analytics-flow-parser", c.Terminate(context.Background()))
 	}()
-	hostport = container.GetPort("5000/tcp")
-	containerip = container.Container.NetworkSettings.IPAddress
-	err = pool.Retry(func() error {
-		_, err = http.Get("http://localhost:" + hostport)
-		return err
-	})
-	return
+	//err = docker.Dockerlog(ctx, c, "ANALYTICS-FLOW-PARSER")
+	if err != nil {
+		return "", "", err
+	}
+
+	ipAddress, err = c.ContainerIP(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	temp, err := c.MappedPort(ctx, "5000/tcp")
+	if err != nil {
+		return "", "", err
+	}
+	hostPort = temp.Port()
+
+	return hostPort, ipAddress, err
 }

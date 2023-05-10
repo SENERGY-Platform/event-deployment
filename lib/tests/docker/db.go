@@ -18,73 +18,87 @@ package docker
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
 	"sync"
-	"time"
 )
 
-func Mysql(ctx context.Context, wg *sync.WaitGroup) (hostport string, containerip string, err error) {
-	pool, err := dockertest.NewPool("")
-	container, err := pool.RunWithOptions(&dockertest.RunOptions{Repository: "mariadb", Tag: "10.5", Env: []string{"MYSQL_ROOT_PASSWORD=secret"}}, func(config *docker.HostConfig) {
-		config.Tmpfs = map[string]string{"/var/lib/mysql": "rw"}
+func Mysql(ctx context.Context, wg *sync.WaitGroup) (hostPort string, ipAddress string, err error) {
+	log.Println("start mysql")
+	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image: "mariadb:10.5",
+			Env: map[string]string{
+				"MYSQL_ROOT_PASSWORD": "secret",
+				"MYSQL_DATABASE":      "mysql",
+			},
+			ExposedPorts: []string{"3306/tcp"},
+			WaitingFor: wait.ForAll(
+				wait.ForListeningPort("3306/tcp"),
+			),
+			Tmpfs: map[string]string{"/var/lib/mysql": "rw"},
+		},
+		Started: true,
 	})
 	if err != nil {
 		return "", "", err
 	}
+
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-ctx.Done()
-		log.Println("DEBUG: remove container " + container.Container.Name)
-		container.Close()
-		wg.Done()
+		log.Println("DEBUG: remove container mysql", c.Terminate(context.Background()))
 	}()
-	hostport = container.GetPort("3306/tcp")
-	containerip = container.Container.NetworkSettings.IPAddress
-	conStr := fmt.Sprintf("root:secret@(localhost:%s)/mysql?parseTime=true", hostport)
-	err = pool.Retry(func() error {
-		var err error
-		db, err := sql.Open("mysql", conStr)
-		if err != nil {
-			return err
-		}
-		return db.Ping()
-	})
-	return
+
+	ipAddress, err = c.ContainerIP(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	temp, err := c.MappedPort(ctx, "3306/tcp")
+	if err != nil {
+		return "", "", err
+	}
+	hostPort = temp.Port()
+
+	return hostPort, ipAddress, err
 }
 
 func Mongo(ctx context.Context, wg *sync.WaitGroup) (hostport string, containerip string, err error) {
-	pool, err := dockertest.NewPool("")
-	container, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "mongo",
-		Tag:        "4.1.11",
-	}, func(config *docker.HostConfig) {
-		config.Tmpfs = map[string]string{"/data/db": "rw"}
+	log.Println("start mongo")
+	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image:        "mongo:4.1.11",
+			ExposedPorts: []string{"27017/tcp"},
+			WaitingFor: wait.ForAll(
+				wait.ForLog("waiting for connections"),
+				wait.ForListeningPort("27017/tcp"),
+			),
+			Tmpfs: map[string]string{"/data/db": "rw"},
+		},
+		Started: true,
 	})
 	if err != nil {
 		return "", "", err
 	}
+
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-ctx.Done()
-		log.Println("DEBUG: remove container " + container.Container.Name)
-		container.Close()
-		wg.Done()
+		log.Println("DEBUG: remove container mongo", c.Terminate(context.Background()))
 	}()
-	hostport = container.GetPort("27017/tcp")
-	containerip = container.Container.NetworkSettings.IPAddress
-	err = pool.Retry(func() error {
-		log.Println("try mongodb connection...")
-		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:"+hostport))
-		err = client.Ping(ctx, readpref.Primary())
-		return err
-	})
-	return
+
+	containerip, err = c.ContainerIP(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	temp, err := c.MappedPort(ctx, "27017/tcp")
+	if err != nil {
+		return "", "", err
+	}
+	hostport = temp.Port()
+
+	return hostport, containerip, err
 }

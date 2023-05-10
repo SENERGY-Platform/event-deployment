@@ -25,6 +25,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/permission-search/lib/client"
 	"log"
 	"net/http"
 	"net/url"
@@ -40,8 +41,9 @@ func (this *FactoryType) New(config config.Config) interfaces.Devices {
 var Factory = &FactoryType{}
 
 type Devices struct {
-	config config.Config
-	auth   Auth
+	config           config.Config
+	auth             Auth
+	permissionsearch client.Client
 }
 
 type Auth interface {
@@ -54,8 +56,9 @@ func New(config config.Config) *Devices {
 
 func NewWithAuth(config config.Config, auth Auth) *Devices {
 	return &Devices{
-		config: config,
-		auth:   auth,
+		config:           config,
+		auth:             auth,
+		permissionsearch: client.NewClient(config.PermSearchUrl),
 	}
 }
 
