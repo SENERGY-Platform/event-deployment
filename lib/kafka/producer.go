@@ -21,7 +21,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/segmentio/kafka-go"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 )
@@ -33,12 +33,7 @@ type Producer struct {
 
 func NewProducer(ctx context.Context, config config.Config, topic string) (interfaces.Producer, error) {
 	result := &Producer{ctx: ctx}
-	broker, err := GetBroker(config.KafkaUrl)
-	if err != nil {
-		log.Println("ERROR: unable to get broker list", err)
-		return nil, err
-	}
-	err = InitTopic(config.KafkaUrl, topic)
+	err := InitTopic(config.KafkaUrl, topic)
 	if err != nil {
 		log.Println("ERROR: unable to create topic", err)
 		return nil, err
@@ -46,13 +41,13 @@ func NewProducer(ctx context.Context, config config.Config, topic string) (inter
 	var logger *log.Logger = nil
 
 	if config.Debug {
-		logger = log.New(os.Stdout, "[KAFKA]", 0)
+		logger = log.New(os.Stdout, "[KAFKA]", log.LstdFlags)
 	} else {
-		logger = log.New(ioutil.Discard, "", 0)
+		logger = log.New(io.Discard, "", 0)
 	}
 
 	result.writer = &kafka.Writer{
-		Addr:        kafka.TCP(broker...),
+		Addr:        kafka.TCP(config.KafkaUrl),
 		Topic:       topic,
 		Async:       false,
 		Logger:      logger,
