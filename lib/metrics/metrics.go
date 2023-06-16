@@ -70,8 +70,10 @@ func New() *Metrics {
 		),
 	}
 
+	reg.MustRegister(m.DeployedProcesses)
 	reg.MustRegister(m.DeployedConditionalEvents)
 	reg.MustRegister(m.DeployedAnalyticsEvents)
+	reg.MustRegister(m.RemovedProcesses)
 	reg.MustRegister(m.RemovedConditionalEvents)
 	reg.MustRegister(m.RemovedAnalyticsEvents)
 
