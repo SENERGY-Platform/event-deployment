@@ -23,6 +23,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/deployments"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/idmodifier"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
+	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/event-worker/pkg/configuration"
 	"github.com/SENERGY-Platform/event-worker/pkg/eventrepo/cloud/mongo"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
@@ -39,10 +40,11 @@ type Events struct {
 	transformer *Transformer
 	deployments *deployments.Deployments
 	mux         sync.Mutex
+	metrics     *metrics.Metrics
 }
 
-func New(ctx context.Context, config config.Config, devices interfaces.Devices, imports interfaces.Imports) (result *Events, err error) {
-	result = &Events{config: config, transformer: NewTransformer(devices, imports)}
+func New(ctx context.Context, config config.Config, devices interfaces.Devices, imports interfaces.Imports, m *metrics.Metrics) (result *Events, err error) {
+	result = &Events{config: config, transformer: NewTransformer(devices, imports), metrics: m}
 	result.deployments, err = deployments.New(ctx, &sync.WaitGroup{}, config)
 	if err != nil {
 		return result, err
@@ -94,7 +96,8 @@ func (this *Events) Remove(owner string, deploymentId string) error {
 }
 
 func (this *Events) removeEvents(owner string, deploymentId string) error {
-	err := this.db.RemoveEventDescriptionsByDeploymentId(deploymentId)
+	count, err := this.db.RemoveEventDescriptionsByDeploymentId(deploymentId)
+	this.metrics.RemovedConditionalEvents.Add(float64(count))
 	return err
 }
 
@@ -128,6 +131,7 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 }
 
 func (this *Events) deployDescription(desc model.EventDesc) error {
+	this.metrics.DeployedConditionalEvents.Inc()
 	desc.DeviceId, _ = idmodifier.SplitModifier(desc.DeviceId)
 	desc.ServiceId, _ = idmodifier.SplitModifier(desc.ServiceId)
 	return this.db.SetEventDescription(desc)

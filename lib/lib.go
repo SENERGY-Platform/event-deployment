@@ -26,6 +26,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/imports"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/kafka"
+	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"log"
 )
 
@@ -50,7 +51,8 @@ func Start(ctx context.Context, config config.Config, sourcing interfaces.Sourci
 			return err
 		}
 	}
-	event, err := events.New(ctx, config, a, devices.New(config), imports.New(config), producer)
+	m := metrics.New().Serve(ctx, config.MetricsPort)
+	event, err := events.New(ctx, config, a, devices.New(config), imports.New(config), producer, m)
 	if err != nil {
 		return err
 	}

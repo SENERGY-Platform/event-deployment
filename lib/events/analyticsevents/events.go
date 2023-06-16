@@ -22,6 +22,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
+	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"log"
@@ -35,10 +36,11 @@ type Events struct {
 	analytics interfaces.Analytics
 	devices   interfaces.Devices
 	imports   interfaces.Imports
+	metrics   *metrics.Metrics
 }
 
-func New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports) (result *Events, err error) {
-	return &Events{config: config, analytics: analytics, devices: devices, imports: imports}, err
+func New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, m *metrics.Metrics) (result *Events, err error) {
+	return &Events{config: config, analytics: analytics, devices: devices, imports: imports, metrics: m}, err
 }
 
 func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) error {
@@ -60,6 +62,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 }
 
 func (this *Events) deployElement(token auth.AuthToken, owner string, deploymentId string, element deploymentmodel.Element) (err error) {
+	this.metrics.DeployedAnalyticsEvents.Inc()
 	event := element.MessageEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
 		label := element.Name + " (" + event.EventId + ")"
@@ -88,6 +91,7 @@ func (this *Events) Remove(owner string, deploymentId string) error {
 		return err
 	}
 	for _, id := range pipelineIds {
+		this.metrics.RemovedAnalyticsEvents.Inc()
 		err = this.analytics.Remove(owner, id)
 		if err != nil {
 			return err

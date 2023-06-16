@@ -32,6 +32,7 @@ import (
 type ConfigStruct struct {
 	LogLevel             string `json:"log_level"`
 	ApiPort              string `json:"api_port"`
+	MetricsPort          string `json:"metrics_port"`
 	MarshallerUrl        string `json:"marshaller_url"`
 	ConverterUrl         string `json:"converter_url"`
 	ExtendedConverterUrl string `json:"extended_converter_url"`

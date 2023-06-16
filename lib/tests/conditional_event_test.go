@@ -22,6 +22,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
+	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
@@ -188,7 +189,7 @@ func testConditionalEvent(t *testing.T, testcase string) {
 		return
 	}
 
-	event, err := events.Factory.New(ctx, conf, a, &devicesMock, &mocks.ImportsMock{}, nil)
+	event, err := events.Factory.New(ctx, conf, a, &devicesMock, &mocks.ImportsMock{}, nil, metrics.New())
 	if err != nil {
 		t.Error(err)
 		return

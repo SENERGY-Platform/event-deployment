@@ -1,6 +1,7 @@
 {
   "log_level":"CALL",
   "api_port":"8080",
+  "metrics_port": "2112",
   "kafka_url":"kafka:9092",
   "device_repository_url": "http://device-repository:8080",
   "flow_engine_url":"http://kong:8000/analytics/flow-engine/v2",

@@ -24,6 +24,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/events/analyticsevents"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
+	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
@@ -40,6 +41,7 @@ type Events struct {
 	config       config.Config
 	handlers     []Handler
 	doneProducer interfaces.Producer
+	metrics      *metrics.Metrics
 }
 
 type Handler interface {
@@ -50,20 +52,20 @@ type Handler interface {
 	UpdateDeviceGroup(owner string, group model.DeviceGroup) error
 }
 
-func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer) (result interfaces.Events, err error) {
-	analyticsEvents, err := analyticsevents.New(ctx, config, analytics, devices, imports)
+func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer, m *metrics.Metrics) (result interfaces.Events, err error) {
+	analyticsEvents, err := analyticsevents.New(ctx, config, analytics, devices, imports, m)
 	if err != nil {
 		return nil, err
 	}
 	handlers := []Handler{analyticsEvents}
 	if config.ConditionalEventRepoMongoUrl != "" && config.ConditionalEventRepoMongoUrl != "-" {
-		conditionalEvents, err := conditionalevents.New(ctx, config, devices, imports)
+		conditionalEvents, err := conditionalevents.New(ctx, config, devices, imports, m)
 		if err != nil {
 			return nil, err
 		}
 		handlers = append(handlers, conditionalEvents)
 	}
-	return &Events{config: config, handlers: handlers, doneProducer: doneProducer}, err
+	return &Events{config: config, handlers: handlers, doneProducer: doneProducer, metrics: m}, err
 }
 
 type VersionWrapper struct {
@@ -128,6 +130,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 			return err
 		}
 	}
+	this.metrics.DeployedProcesses.Inc()
 	this.notifyProcessDeploymentDone(deployment.Id)
 	return nil
 }
@@ -139,6 +142,7 @@ func (this *Events) Remove(owner string, deploymentId string) (err error) {
 			return err
 		}
 	}
+	this.metrics.RemovedProcesses.Inc()
 	return nil
 }
 

@@ -19,10 +19,11 @@ package interfaces
 import (
 	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 )
 
 type EventsFactory interface {
-	New(ctx context.Context, config config.Config, analytics Analytics, devices Devices, imports Imports, doneProducer Producer) (Events, error)
+	New(ctx context.Context, config config.Config, analytics Analytics, devices Devices, imports Imports, doneProducer Producer, m *metrics.Metrics) (Events, error)
 }
 
 type Events interface {
