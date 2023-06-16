@@ -62,9 +62,9 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 }
 
 func (this *Events) deployElement(token auth.AuthToken, owner string, deploymentId string, element deploymentmodel.Element) (err error) {
-	this.metrics.DeployedAnalyticsEvents.Inc()
 	event := element.MessageEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
+		this.metrics.DeployedAnalyticsEvents.Inc()
 		label := element.Name + " (" + event.EventId + ")"
 		if event.Selection.SelectedDeviceGroupId != nil && *event.Selection.SelectedDeviceGroupId != "" {
 			return this.deployEventForDeviceGroup(token, label, owner, deploymentId, event)
