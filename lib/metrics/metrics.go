@@ -47,16 +47,16 @@ func New() *Metrics {
 			Help: "count of deployed conditional events since startup",
 		}),
 		DeployedAnalyticsEvents: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "event_manager_removed_conditional_events",
-			Help: "count of removed conditional events since startup",
+			Name: "event_manager_deployed_analytics_events",
+			Help: "count of deployed analytics events since startup",
 		}),
 		RemovedProcesses: prometheus.NewCounter(prometheus.CounterOpts{
 			Name: "event_manager_removed_processes",
 			Help: "count of removed processes since startup",
 		}),
 		RemovedConditionalEvents: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "event_manager_deployed_analytics_events",
-			Help: "count of deployed analytics events since startup",
+			Name: "event_manager_removed_conditional_events",
+			Help: "count of removed conditional events since startup",
 		}),
 		RemovedAnalyticsEvents: prometheus.NewCounter(prometheus.CounterOpts{
 			Name: "event_manager_removed_analytics_events",
