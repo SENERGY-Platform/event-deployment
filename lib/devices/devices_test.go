@@ -65,7 +65,7 @@ func TestDevices(t *testing.T) {
 	}
 	conf.KafkaUrl = kafkaUrl
 
-	_, esIp, err := docker.ElasticSearch(ctx, wg)
+	_, esIp, err := docker.OpenSearch(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
