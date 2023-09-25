@@ -53,11 +53,14 @@ type Handler interface {
 }
 
 func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer, m *metrics.Metrics) (result interfaces.Events, err error) {
-	analyticsEvents, err := analyticsevents.New(ctx, config, analytics, devices, imports, m)
-	if err != nil {
-		return nil, err
+	handlers := []Handler{}
+	if config.EnableAnalyticsEvents {
+		analyticsEvents, err := analyticsevents.New(ctx, config, analytics, devices, imports, m)
+		if err != nil {
+			return nil, err
+		}
+		handlers = append(handlers, analyticsEvents)
 	}
-	handlers := []Handler{analyticsEvents}
 	if config.ConditionalEventRepoMongoUrl != "" && config.ConditionalEventRepoMongoUrl != "-" {
 		conditionalEvents, err := conditionalevents.New(ctx, config, devices, imports, m)
 		if err != nil {
