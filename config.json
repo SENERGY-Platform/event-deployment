@@ -45,5 +45,6 @@
   "generic_source_path_prefix": "",
 
   "enable_multiple_paths": false,
-  "enable_analytics_events": true
+  "enable_analytics_events": true,
+  "ignore_analytics_event_errors": true
 }

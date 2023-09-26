@@ -80,8 +80,9 @@ type ConfigStruct struct {
 	HttpServerTimeout          string `json:"http_server_timeout"`
 	HttpServerReadTimeout      string `json:"http_server_read_timeout"`
 
-	EnableMultiplePaths   bool `json:"enable_multiple_paths"`
-	EnableAnalyticsEvents bool `json:"enable_analytics_events"`
+	EnableMultiplePaths        bool `json:"enable_multiple_paths"`
+	EnableAnalyticsEvents      bool `json:"enable_analytics_events"`
+	IgnoreAnalyticsEventErrors bool `json:"ignore_analytics_event_errors"`
 }
 
 type Config = *ConfigStruct

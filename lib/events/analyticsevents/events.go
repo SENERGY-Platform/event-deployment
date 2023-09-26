@@ -46,6 +46,9 @@ func New(ctx context.Context, config config.Config, analytics interfaces.Analyti
 func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) error {
 	err := this.Remove(owner, deployment.Id)
 	if err != nil {
+		if this.config.IgnoreAnalyticsEventErrors {
+			return nil
+		}
 		return err
 	}
 	token, err := auth.NewAuth(this.config).GetUserToken(owner)
@@ -55,6 +58,9 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 	for _, element := range deployment.Elements {
 		err = this.deployElement(token, owner, deployment.Id, element)
 		if err != nil {
+			if this.config.IgnoreAnalyticsEventErrors {
+				return nil
+			}
 			return err
 		}
 	}
