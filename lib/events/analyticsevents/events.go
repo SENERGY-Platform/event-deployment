@@ -51,7 +51,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 		}
 		return err
 	}
-	token, err := auth.NewAuth(this.config).GetUserToken(owner)
+	token, err := auth.NewAuthWithoutCache(this.config).GetUserToken(owner)
 	if err != nil {
 		return err
 	}

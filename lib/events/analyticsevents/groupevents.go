@@ -28,7 +28,7 @@ func (this *Events) UpdateDeviceGroup(owner string, group model.DeviceGroup) err
 		log.Println("unable to get pipelines for device-group", owner, group.Id, err)
 		return err
 	}
-	token, err := auth.NewAuth(this.config).GetUserToken(owner)
+	token, err := auth.NewAuthWithoutCache(this.config).GetUserToken(owner)
 	if err != nil {
 		return err
 	}

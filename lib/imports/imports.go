@@ -28,7 +28,7 @@ import (
 
 type FactoryType struct{}
 
-func (this *FactoryType) New(config config.Config) interfaces.Imports {
+func (this *FactoryType) New(config config.Config) (interfaces.Imports, error) {
 	return New(config)
 }
 
@@ -39,11 +39,15 @@ type Imports struct {
 	auth   *auth.Auth
 }
 
-func New(config config.Config) *Imports {
+func New(config config.Config) (*Imports, error) {
+	a, err := auth.NewAuth(config)
+	if err != nil {
+		return nil, err
+	}
 	return &Imports{
 		config: config,
-		auth:   auth.NewAuth(config),
-	}
+		auth:   a,
+	}, nil
 }
 
 func (this *Imports) GetTopic(user string, importId string) (topic string, err error, code int) {

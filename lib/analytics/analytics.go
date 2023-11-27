@@ -40,7 +40,11 @@ func (this *FactoryType) New(ctx context.Context, config config.Config) (interfa
 	if err != nil {
 		return nil, err
 	}
-	return &Analytics{config: config, timeout: timeout, auth: auth.NewAuth(config)}, nil
+	a, err := auth.NewAuth(config)
+	if err != nil {
+		return nil, err
+	}
+	return &Analytics{config: config, timeout: timeout, auth: a}, nil
 }
 
 func trimIdParams(id string) (result string) {

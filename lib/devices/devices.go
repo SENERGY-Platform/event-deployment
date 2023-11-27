@@ -34,7 +34,7 @@ import (
 
 type FactoryType struct{}
 
-func (this *FactoryType) New(config config.Config) interfaces.Devices {
+func (this *FactoryType) New(config config.Config) (interfaces.Devices, error) {
 	return New(config)
 }
 
@@ -50,8 +50,12 @@ type Auth interface {
 	Ensure() (token auth.AuthToken, err error)
 }
 
-func New(config config.Config) *Devices {
-	return NewWithAuth(config, auth.NewAuth(config))
+func New(config config.Config) (*Devices, error) {
+	a, err := auth.NewAuth(config)
+	if err != nil {
+		return nil, err
+	}
+	return NewWithAuth(config, a), nil
 }
 
 func NewWithAuth(config config.Config, auth Auth) *Devices {

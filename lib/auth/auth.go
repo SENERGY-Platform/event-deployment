@@ -19,8 +19,8 @@ package auth
 import (
 	"encoding/json"
 	"errors"
-	"github.com/SENERGY-Platform/event-deployment/lib/cache"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/service-commons/pkg/cache"
 	"github.com/golang-jwt/jwt"
 	"log"
 	"net/http"
@@ -32,6 +32,8 @@ import (
 
 	"io/ioutil"
 )
+
+const CacheExpiration = 600 * time.Second
 
 type AuthToken string
 
@@ -51,13 +53,19 @@ type OpenidToken struct {
 type Auth struct {
 	openid         *OpenidToken
 	config         config.Config
-	userTokenCache cache.Cache
+	userTokenCache *cache.Cache
 }
 
-func NewAuth(config config.Config) *Auth {
-	return &Auth{config: config, userTokenCache: cache.New(&cache.CacheConfig{
-		L1Expiration: 600,
-	})}
+func NewAuth(config config.Config) (*Auth, error) {
+	c, err := cache.New(cache.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return &Auth{config: config, userTokenCache: c}, nil
+}
+
+func NewAuthWithoutCache(config config.Config) *Auth {
+	return &Auth{config: config}
 }
 
 func (this *Auth) Ensure() (token AuthToken, err error) {
@@ -93,11 +101,9 @@ func (this *Auth) Ensure() (token AuthToken, err error) {
 }
 
 func (this *Auth) GetUserToken(userid string) (token AuthToken, err error) {
-	err = this.userTokenCache.Use("user_token."+userid, func() (interface{}, error) {
-		temp, err := this.getUserToken(userid)
-		return temp, err
-	}, &token)
-	return token, err
+	return cache.Use(this.userTokenCache, "user_token."+userid, func() (AuthToken, error) {
+		return this.getUserToken(userid)
+	}, CacheExpiration)
 }
 
 func (this *Auth) getUserToken(userid string) (token AuthToken, err error) {

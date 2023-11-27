@@ -78,7 +78,11 @@ func TestDevices(t *testing.T) {
 	}
 	conf.PermSearchUrl = "http://localhost:" + permSearchPort
 
-	devices := New(conf)
+	devices, err := New(conf)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	time.Sleep(5 * time.Second)
 

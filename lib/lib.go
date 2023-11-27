@@ -52,7 +52,17 @@ func Start(ctx context.Context, config config.Config, sourcing interfaces.Sourci
 		}
 	}
 	m := metrics.New().Serve(ctx, config.MetricsPort)
-	event, err := events.New(ctx, config, a, devices.New(config), imports.New(config), producer, m)
+
+	i, err := imports.New(config)
+	if err != nil {
+		return err
+	}
+	d, err := devices.New(config)
+	if err != nil {
+		return err
+	}
+
+	event, err := events.New(ctx, config, a, d, i, producer, m)
 	if err != nil {
 		return err
 	}

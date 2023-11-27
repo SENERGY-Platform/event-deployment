@@ -23,7 +23,7 @@ import (
 )
 
 type DevicesFactory interface {
-	New(config config.Config) Devices
+	New(config config.Config) (Devices, error)
 }
 
 type Devices interface {
