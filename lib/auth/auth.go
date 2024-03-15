@@ -103,6 +103,8 @@ func (this *Auth) Ensure() (token AuthToken, err error) {
 func (this *Auth) GetUserToken(userid string) (token AuthToken, err error) {
 	return cache.Use(this.userTokenCache, "user_token."+userid, func() (AuthToken, error) {
 		return this.getUserToken(userid)
+	}, func(token AuthToken) error {
+		return nil
 	}, CacheExpiration)
 }
 

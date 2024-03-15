@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/api/util"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
+	"github.com/SENERGY-Platform/service-commons/pkg/accesslog"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -68,5 +69,5 @@ func Router(config config.Config, ctrl interfaces.Events) http.Handler {
 	}
 	log.Println("add logging and cors")
 	corsHandler := util.NewCors(router)
-	return util.NewLogger(corsHandler, config.LogLevel)
+	return accesslog.New(corsHandler)
 }
