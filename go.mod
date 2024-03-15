@@ -4,10 +4,10 @@ go 1.22
 
 require (
 	github.com/IBM/sarama v1.43.0
-	github.com/SENERGY-Platform/event-worker v1.0.10
+	github.com/SENERGY-Platform/event-worker v1.0.11
 	github.com/SENERGY-Platform/models/go v0.0.0-20230824080159-16585960df38
 	github.com/SENERGY-Platform/permission-search v0.0.7
-	github.com/SENERGY-Platform/process-deployment v0.0.4
+	github.com/SENERGY-Platform/process-deployment v0.0.5
 	github.com/SENERGY-Platform/service-commons v0.0.0-20240314112519-5bde66831b0d
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
