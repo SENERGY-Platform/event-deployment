@@ -22,6 +22,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/service-commons/pkg/cache"
 	"github.com/golang-jwt/jwt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -29,8 +30,6 @@ import (
 	"time"
 
 	"net/url"
-
-	"io/ioutil"
 )
 
 const CacheExpiration = 600 * time.Second
@@ -119,7 +118,7 @@ func (this *Auth) getUserToken(userid string) (token AuthToken, err error) {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		log.Println("ERROR: GetUserToken()", resp.StatusCode, string(body))
 		err = errors.New("access denied")
 		resp.Body.Close()
@@ -168,7 +167,7 @@ func getOpenidToken(token *OpenidToken, config config.Config) (err error) {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		log.Println("ERROR: getOpenidToken()", resp.StatusCode, string(body))
 		err = errors.New("access denied")
 		resp.Body.Close()
@@ -192,7 +191,7 @@ func refreshOpenidToken(token *OpenidToken, config config.Config) (err error) {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		log.Println("ERROR: refreshOpenidToken()", resp.StatusCode, string(body))
 		err = errors.New("access denied")
 		resp.Body.Close()
