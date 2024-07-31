@@ -71,8 +71,8 @@ type ConfigStruct struct {
 	PermSearchUrl            string  `json:"perm_search_url"`
 	AuthExpirationTimeBuffer float64 `json:"auth_expiration_time_buffer"`
 	AuthEndpoint             string  `json:"auth_endpoint"`
-	AuthClientId             string  `json:"auth_client_id"`
-	AuthClientSecret         string  `json:"auth_client_secret"`
+	AuthClientId             string  `json:"auth_client_id" config:"secret"`
+	AuthClientSecret         string  `json:"auth_client_secret" config:"secret"`
 
 	AnalyticsPipelineBatchSize int64  `json:"analytics_pipeline_batch_size"`
 	AnalyticsRequestTimeout    string `json:"analytics_request_timeout"`
@@ -125,10 +125,13 @@ func HandleEnvironmentVars(config Config) {
 	configType := configValue.Type()
 	for index := 0; index < configType.NumField(); index++ {
 		fieldName := configType.Field(index).Name
+		fieldConfig := configType.Field(index).Tag.Get("config")
 		envName := fieldNameToEnvName(fieldName)
 		envValue := os.Getenv(envName)
 		if envValue != "" {
-			fmt.Println("use environment variable: ", envName, " = ", envValue)
+			if !strings.Contains(fieldConfig, "secret") {
+				fmt.Println("use environment variable: ", envName, " = ", envValue)
+			}
 			if configValue.FieldByName(fieldName).Kind() == reflect.Int64 {
 				i, _ := strconv.ParseInt(envValue, 10, 64)
 				configValue.FieldByName(fieldName).SetInt(i)
