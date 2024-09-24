@@ -35,6 +35,8 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 		return err
 	}
 	switch cmd.Command {
+	case "RIGHTS":
+		return nil
 	case "PUT":
 		return this.updateDeviceGroup(cmd.Owner, cmd.DeviceGroup)
 	case "DELETE":
