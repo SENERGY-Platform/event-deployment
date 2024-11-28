@@ -72,7 +72,6 @@ func testDeployment(t *testing.T, testcase string) {
 	conf.AuthEndpoint = "mocked"
 	conf.AuthClientSecret = "mocked"
 	conf.AuthClientId = "mocked"
-	conf.PermSearchUrl = "mocked"
 	conf.ImportPathPrefix = ""
 	conf.DevicePathPrefix = ""
 	conf.GroupPathPrefix = ""

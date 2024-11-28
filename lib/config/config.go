@@ -68,7 +68,6 @@ type ConfigStruct struct {
 	DeploymentDoneTopic string `json:"deployment_done_topic"`
 
 	//if not configured: events with groups not handled
-	PermSearchUrl            string  `json:"perm_search_url"`
 	AuthExpirationTimeBuffer float64 `json:"auth_expiration_time_buffer"`
 	AuthEndpoint             string  `json:"auth_endpoint"`
 	AuthClientId             string  `json:"auth_client_id" config:"secret"`

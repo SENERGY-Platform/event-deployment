@@ -42,7 +42,6 @@ func TestDevices(t *testing.T) {
 		AuthEndpoint:             "",
 		AuthClientId:             "ignored",
 		AuthClientSecret:         "ignored",
-		PermSearchUrl:            "",
 	}
 
 	err := mocks.MockAuthServer(conf, ctx)
@@ -65,18 +64,26 @@ func TestDevices(t *testing.T) {
 	}
 	conf.KafkaUrl = kafkaUrl
 
-	_, esIp, err := docker.OpenSearch(ctx, wg)
+	_, mongoIp, err := docker.MongoDB(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
 	}
+	mongoUrl := "mongodb://" + mongoIp + ":27017"
 
-	permSearchPort, _, err := docker.PermSearch(ctx, wg, false, kafkaUrl, esIp)
+	_, permV2Ip, err := docker.PermissionsV2(ctx, wg, mongoUrl, kafkaUrl)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	conf.PermSearchUrl = "http://localhost:" + permSearchPort
+	permv2Url := "http://" + permV2Ip + ":8080"
+
+	_, repoIp, err := docker.DeviceRepo(ctx, wg, kafkaUrl, mongoUrl, permv2Url)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	conf.DeviceRepositoryUrl = "http://" + repoIp + ":8080"
 
 	devices, err := New(conf)
 	if err != nil {
@@ -89,46 +96,55 @@ func TestDevices(t *testing.T) {
 	t.Run("create devices", testCreateDevices(kafkaUrl, []model.Device{
 		{
 			Id:           "ses:infia:device:d1",
+			LocalId:      "ses:infia:device:d1",
 			Name:         "test-device-1",
 			DeviceTypeId: "ses:infai:device-type:dt1",
 		},
 		{
 			Id:           "ses:infia:device:d2",
+			LocalId:      "ses:infia:device:d2",
 			Name:         "test-device-2",
 			DeviceTypeId: "ses:infai:device-type:dt1",
 		},
 		{
 			Id:           "ses:infia:device:d3",
+			LocalId:      "ses:infia:device:d3",
 			Name:         "test-device-3",
 			DeviceTypeId: "ses:infai:device-type:dt1",
 		},
 		{
 			Id:           "ses:infia:device:d4",
+			LocalId:      "ses:infia:device:d4",
 			Name:         "test-device-4",
 			DeviceTypeId: "ses:infai:device-type:dt2",
 		},
 		{
 			Id:           "ses:infia:device:d5",
+			LocalId:      "ses:infia:device:d5",
 			Name:         "test-device-5",
 			DeviceTypeId: "ses:infai:device-type:dt2",
 		},
 		{
 			Id:           "ses:infia:device:d6",
+			LocalId:      "ses:infia:device:d6",
 			Name:         "test-device-6",
 			DeviceTypeId: "ses:infai:device-type:dt2",
 		},
 		{
 			Id:           "ses:infia:device:d7",
+			LocalId:      "ses:infia:device:d7",
 			Name:         "test-device-7",
 			DeviceTypeId: "ses:infai:device-type:dt3",
 		},
 		{
 			Id:           "ses:infia:device:d8",
+			LocalId:      "ses:infia:device:d8",
 			Name:         "test-device-8",
 			DeviceTypeId: "ses:infai:device-type:dt3",
 		},
 		{
 			Id:           "ses:infia:device:d9",
+			LocalId:      "ses:infia:device:d9",
 			Name:         "test-device-9",
 			DeviceTypeId: "ses:infai:device-type:dt3",
 		},
@@ -161,18 +177,24 @@ func TestDevices(t *testing.T) {
 		[]model.Device{
 			{
 				Id:           "ses:infia:device:d2",
+				LocalId:      "ses:infia:device:d2",
 				Name:         "test-device-2",
 				DeviceTypeId: "ses:infai:device-type:dt1",
+				OwnerId:      jwtSubj,
 			},
 			{
 				Id:           "ses:infia:device:d3",
+				LocalId:      "ses:infia:device:d3",
 				Name:         "test-device-3",
 				DeviceTypeId: "ses:infai:device-type:dt1",
+				OwnerId:      jwtSubj,
 			},
 			{
 				Id:           "ses:infia:device:d4",
+				LocalId:      "ses:infia:device:d4",
 				Name:         "test-device-4",
 				DeviceTypeId: "ses:infai:device-type:dt2",
+				OwnerId:      jwtSubj,
 			},
 		}, []string{
 			"ses:infai:device-type:dt1",
@@ -188,14 +210,10 @@ func testCheckGetDeviceInfosOfGroupResult(repo *Devices, deviceGroupId string, e
 			return
 		}
 		if !reflect.DeepEqual(actualDevices, expectedDevices) {
-			actualJson, _ := json.Marshal(actualDevices)
-			expectedJson, _ := json.Marshal(expectedDevices)
-			t.Error(string(actualJson), "\n", string(expectedJson))
+			t.Errorf("\na=%#v\ne=%#v\n", actualDevices, expectedDevices)
 		}
 		if !reflect.DeepEqual(actualDeviceTypeIds, expectedDeviceTypeIds) {
-			actualJson, _ := json.Marshal(actualDeviceTypeIds)
-			expectedJson, _ := json.Marshal(expectedDeviceTypeIds)
-			t.Error(string(actualJson), "\n", string(expectedJson))
+			t.Errorf("\na=%#v\ne=%#v\n", actualDeviceTypeIds, expectedDeviceTypeIds)
 		}
 	}
 }

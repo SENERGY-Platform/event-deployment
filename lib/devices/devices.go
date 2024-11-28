@@ -20,12 +20,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/SENERGY-Platform/permission-search/lib/client"
 	"log"
 	"net/http"
 	"net/url"
@@ -41,9 +41,9 @@ func (this *FactoryType) New(config config.Config) (interfaces.Devices, error) {
 var Factory = &FactoryType{}
 
 type Devices struct {
-	config           config.Config
-	auth             Auth
-	permissionsearch client.Client
+	config     config.Config
+	auth       Auth
+	devicerepo client.Interface
 }
 
 type Auth interface {
@@ -60,9 +60,9 @@ func New(config config.Config) (*Devices, error) {
 
 func NewWithAuth(config config.Config, auth Auth) *Devices {
 	return &Devices{
-		config:           config,
-		auth:             auth,
-		permissionsearch: client.NewClient(config.PermSearchUrl),
+		config:     config,
+		auth:       auth,
+		devicerepo: client.NewClient(config.DeviceRepositoryUrl),
 	}
 }
 
@@ -98,44 +98,11 @@ func (this *Devices) GetDeviceInfosOfDevices(deviceIds []string) (devices []mode
 }
 
 func (this *Devices) GetDeviceGroup(token auth.AuthToken, groupId string) (result model.DeviceGroup, err error, code int) {
-	groups := []model.DeviceGroup{}
-	err, code = this.Search(token, QueryMessage{
-		Resource: "device-groups",
-		ListIds: &QueryListIds{
-			QueryListCommons: QueryListCommons{
-				Limit:    1,
-				Offset:   0,
-				Rights:   "r",
-				SortBy:   "name",
-				SortDesc: false,
-			},
-			Ids: []string{groupId},
-		},
-	}, &groups)
-	if err != nil {
-		return result, err, code
-	}
-	if len(groups) == 0 {
-		return result, errors.New("not found"), http.StatusNotFound
-	}
-	return groups[0], nil, http.StatusOK
+	return this.devicerepo.ReadDeviceGroup(groupId, string(token), false)
 }
 
 func (this *Devices) GetDevicesWithIds(token auth.AuthToken, ids []string) (result []model.Device, err error, code int) {
-	err, code = this.Search(token, QueryMessage{
-		Resource: "devices",
-		ListIds: &QueryListIds{
-			QueryListCommons: QueryListCommons{
-				Limit:    len(ids),
-				Offset:   0,
-				Rights:   "r",
-				SortBy:   "name",
-				SortDesc: false,
-			},
-			Ids: ids,
-		},
-	}, &result)
-	return
+	return this.devicerepo.ListDevices(string(token), client.DeviceListOptions{Ids: ids})
 }
 
 func (this *Devices) GetService(serviceId string) (result models.Service, err error, code int) {

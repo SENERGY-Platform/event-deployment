@@ -26,7 +26,6 @@
   "import_repository_url": "",
 
   "device_group_topic": "device-groups",
-  "perm_search_url": "",
 
   "auth_expiration_time_buffer": 1,
   "auth_endpoint": "",

@@ -494,9 +494,6 @@ func (this *Events) DeviceGroupsAndImportsEnabled() bool {
 	if this.config.AuthEndpoint == "" {
 		return false
 	}
-	if this.config.PermSearchUrl == "" {
-		return false
-	}
 	return true
 }
 
