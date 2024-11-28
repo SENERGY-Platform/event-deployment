@@ -18,7 +18,6 @@ package docker
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/permission-search/lib/tests/docker"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
@@ -48,10 +47,6 @@ func FlowRepo(ctx context.Context, wg *sync.WaitGroup, mongoIp string) (hostPort
 		<-ctx.Done()
 		log.Println("DEBUG: remove container analytics-flow-repo", c.Terminate(context.Background()))
 	}()
-	err = docker.Dockerlog(ctx, c, "ANALYTICS-FLOW-REPO")
-	if err != nil {
-		return "", "", err
-	}
 
 	ipAddress, err = c.ContainerIP(ctx)
 	if err != nil {

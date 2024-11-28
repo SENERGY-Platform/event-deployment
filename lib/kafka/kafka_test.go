@@ -19,7 +19,7 @@ package kafka
 import (
 	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	"github.com/SENERGY-Platform/permission-search/lib/tests/docker"
+	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	"reflect"
 	"sync"
 	"testing"
