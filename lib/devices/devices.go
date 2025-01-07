@@ -60,9 +60,12 @@ func New(config config.Config) (*Devices, error) {
 
 func NewWithAuth(config config.Config, auth Auth) *Devices {
 	return &Devices{
-		config:     config,
-		auth:       auth,
-		devicerepo: client.NewClient(config.DeviceRepositoryUrl, nil),
+		config: config,
+		auth:   auth,
+		devicerepo: client.NewClient(config.DeviceRepositoryUrl, func() (token string, err error) {
+			temp, err := auth.Ensure()
+			return string(temp), err
+		}),
 	}
 }
 
