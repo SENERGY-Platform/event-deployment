@@ -62,7 +62,7 @@ func NewWithAuth(config config.Config, auth Auth) *Devices {
 	return &Devices{
 		config:     config,
 		auth:       auth,
-		devicerepo: client.NewClient(config.DeviceRepositoryUrl),
+		devicerepo: client.NewClient(config.DeviceRepositoryUrl, nil),
 	}
 }
 
