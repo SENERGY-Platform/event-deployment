@@ -82,6 +82,8 @@ type ConfigStruct struct {
 	EnableMultiplePaths        bool `json:"enable_multiple_paths"`
 	EnableAnalyticsEvents      bool `json:"enable_analytics_events"`
 	IgnoreAnalyticsEventErrors bool `json:"ignore_analytics_event_errors"`
+
+	UserTokenCacheLifespanInSec int64 `json:"user_token_cache_lifespan_in_sec"`
 }
 
 type Config = *ConfigStruct

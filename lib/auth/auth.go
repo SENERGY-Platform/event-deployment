@@ -104,7 +104,7 @@ func (this *Auth) GetUserToken(userid string) (token AuthToken, err error) {
 		return this.getUserToken(userid)
 	}, func(token AuthToken) error {
 		return nil
-	}, CacheExpiration)
+	}, time.Duration(this.config.UserTokenCacheLifespanInSec)*time.Second)
 }
 
 func (this *Auth) getUserToken(userid string) (token AuthToken, err error) {
