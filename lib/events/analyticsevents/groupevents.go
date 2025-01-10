@@ -17,7 +17,6 @@
 package analyticsevents
 
 import (
-	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 )
@@ -28,7 +27,7 @@ func (this *Events) UpdateDeviceGroup(owner string, group model.DeviceGroup) err
 		log.Println("unable to get pipelines for device-group", owner, group.Id, err)
 		return err
 	}
-	token, err := auth.NewAuthWithoutCache(this.config).GetUserToken(owner)
+	token, err := this.auth.GetUserToken(owner)
 	if err != nil {
 		return err
 	}

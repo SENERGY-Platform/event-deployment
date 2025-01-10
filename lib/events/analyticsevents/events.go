@@ -37,10 +37,15 @@ type Events struct {
 	devices   interfaces.Devices
 	imports   interfaces.Imports
 	metrics   *metrics.Metrics
+	auth      *auth.Auth
 }
 
 func New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, m *metrics.Metrics) (result *Events, err error) {
-	return &Events{config: config, analytics: analytics, devices: devices, imports: imports, metrics: m}, err
+	a, err := auth.NewAuth(config)
+	if err != nil {
+		return result, err
+	}
+	return &Events{config: config, analytics: analytics, devices: devices, imports: imports, metrics: m, auth: a}, err
 }
 
 func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) error {
@@ -51,7 +56,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 		}
 		return err
 	}
-	token, err := auth.NewAuthWithoutCache(this.config).GetUserToken(owner)
+	token, err := this.auth.GetUserToken(owner)
 	if err != nil {
 		return err
 	}
