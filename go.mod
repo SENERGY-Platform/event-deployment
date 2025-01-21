@@ -7,7 +7,7 @@ toolchain go1.23.4
 require (
 	github.com/IBM/sarama v1.43.3
 	github.com/SENERGY-Platform/device-repository v0.1.52
-	github.com/SENERGY-Platform/event-worker v1.0.20
+	github.com/SENERGY-Platform/event-worker v1.0.21
 	github.com/SENERGY-Platform/models/go v0.0.0-20241007061544-de7132ae94e4
 	github.com/SENERGY-Platform/process-deployment v0.0.13
 	github.com/SENERGY-Platform/service-commons v0.0.0-20240813072046-91b3195dd8fc
