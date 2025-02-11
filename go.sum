@@ -12,8 +12,8 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/SENERGY-Platform/developer-notifications v0.0.4 h1:SmblhfWavNhE1mDxzrkhmWl2AoPPqKD+7YcZCQ7a5Tg=
 github.com/SENERGY-Platform/developer-notifications v0.0.4/go.mod h1:8yJrYnAYMtPEPy89ULw8ivgG8orVhSnaLgyfDt0bdgg=
-github.com/SENERGY-Platform/device-repository v0.1.52 h1:JedGhrK3dm0x693jHAPgsn85iO9esjxJz9zgdyt/nis=
-github.com/SENERGY-Platform/device-repository v0.1.52/go.mod h1:36pibGmG2igxgydf+deII/wiP1gWxF2/bgijDzwRriY=
+github.com/SENERGY-Platform/device-repository v0.2.5 h1:XqWxlcTzcmXvtk0waRcaYx6alyFbKV6fIHqfRZQ9QAs=
+github.com/SENERGY-Platform/device-repository v0.2.5/go.mod h1:EBo1p5myk1NvJyqrPU/RgXDUdRcXOUSf2o8Vcz8XUtU=
 github.com/SENERGY-Platform/event-worker v1.0.21 h1:SVXKu/7+uE0xDVtwgRAjy/CwtKYYAbVKt4KAZISY0F0=
 github.com/SENERGY-Platform/event-worker v1.0.21/go.mod h1:zmntQ+02XCv02SRFoWFBWXNYFkmMvq1WJ9HWIAKdYPE=
 github.com/SENERGY-Platform/models/go v0.0.0-20241007061544-de7132ae94e4 h1:zS65f1cmjAoBQUA432nmJl2TXAwqqqJMz7sp2DHLAGc=
@@ -22,8 +22,8 @@ github.com/SENERGY-Platform/permissions-v2 v0.0.27 h1:4Sf5zNW0KMrSSJrv90MmyKD5RM
 github.com/SENERGY-Platform/permissions-v2 v0.0.27/go.mod h1:w5AghpFIQ2Hi+HKfcuqXcizR4pCYuMLXcWAdAmOPAF4=
 github.com/SENERGY-Platform/process-deployment v0.0.13 h1:wAwIYbEYa7MUPkzcZhnsKeArBr+M26aI+FGzfkrkcLk=
 github.com/SENERGY-Platform/process-deployment v0.0.13/go.mod h1:0V9KCf6ewlkIB5i6mxl0CqZFZcL6Wd3IFVpWGt6b7pE=
-github.com/SENERGY-Platform/service-commons v0.0.0-20240813072046-91b3195dd8fc h1:FbGDfHiDukp8wD1w4YNxjwiDpSNkRUG+Ymq9jjz3Auc=
-github.com/SENERGY-Platform/service-commons v0.0.0-20240813072046-91b3195dd8fc/go.mod h1:1p2CQPNtler5leXqNgaOfr7DlgZUydrQlQYA97ycm4k=
+github.com/SENERGY-Platform/service-commons v0.0.0-20250123095636-6dfc659ee43e h1:JyCPmb5tYkGlET39UG23MMw+CNNKHqoXdYL2oC3ChiI=
+github.com/SENERGY-Platform/service-commons v0.0.0-20250123095636-6dfc659ee43e/go.mod h1:1p2CQPNtler5leXqNgaOfr7DlgZUydrQlQYA97ycm4k=
 github.com/beevik/etree v1.4.0 h1:oz1UedHRepuY3p4N5OjE0nK1WLCqtzHf25bxplKOHLs=
 github.com/beevik/etree v1.4.0/go.mod h1:cyWiXwGoasx60gHvtnEh5x8+uIjUVnjWqBvEnhnqKDA=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

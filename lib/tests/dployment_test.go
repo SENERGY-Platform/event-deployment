@@ -42,7 +42,7 @@ const RESOURCES_DIR = "resources/"
 const DEPLOYMENT_EXAMPLES_DIR = RESOURCES_DIR + "deployment_examples/"
 
 func TestDeployment(t *testing.T) {
-	infos, err := ioutil.ReadDir(DEPLOYMENT_EXAMPLES_DIR)
+	infos, err := os.ReadDir(DEPLOYMENT_EXAMPLES_DIR)
 	if err != nil {
 		t.Error(err)
 		return
@@ -87,7 +87,7 @@ func testDeployment(t *testing.T, testcase string) {
 		return
 	}
 
-	deploymentCmd, err := ioutil.ReadFile(DEPLOYMENT_EXAMPLES_DIR + testcase + "/deploymentcommand.json")
+	deploymentCmd, err := os.ReadFile(DEPLOYMENT_EXAMPLES_DIR + testcase + "/deploymentcommand.json")
 	if err != nil {
 		t.Error(err)
 		return

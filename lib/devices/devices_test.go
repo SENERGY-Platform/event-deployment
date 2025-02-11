@@ -18,17 +18,14 @@ package devices
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
-	"github.com/SENERGY-Platform/event-deployment/lib/tests/util"
-	"github.com/segmentio/kafka-go"
 	"reflect"
 	"sync"
 	"testing"
-	"time"
 )
 
 func TestDevices(t *testing.T) {
@@ -57,12 +54,11 @@ func TestDevices(t *testing.T) {
 	}
 	zkUrl := zk + ":2181"
 
-	kafkaUrl, err := docker.Kafka(ctx, wg, zkUrl)
+	conf.KafkaUrl, err = docker.Kafka(ctx, wg, zkUrl)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	conf.KafkaUrl = kafkaUrl
 
 	_, mongoIp, err := docker.MongoDB(ctx, wg)
 	if err != nil {
@@ -71,14 +67,14 @@ func TestDevices(t *testing.T) {
 	}
 	mongoUrl := "mongodb://" + mongoIp + ":27017"
 
-	_, permV2Ip, err := docker.PermissionsV2(ctx, wg, mongoUrl, kafkaUrl)
+	_, permV2Ip, err := docker.PermissionsV2(ctx, wg, mongoUrl, conf.KafkaUrl)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	permv2Url := "http://" + permV2Ip + ":8080"
 
-	_, repoIp, err := docker.DeviceRepo(ctx, wg, kafkaUrl, mongoUrl, permv2Url)
+	_, repoIp, err := docker.DeviceRepo(ctx, wg, conf.KafkaUrl, mongoUrl, permv2Url)
 	if err != nil {
 		t.Error(err)
 		return
@@ -91,9 +87,7 @@ func TestDevices(t *testing.T) {
 		return
 	}
 
-	time.Sleep(5 * time.Second)
-
-	t.Run("create devices", testCreateDevices(kafkaUrl, []model.Device{
+	t.Run("create devices", testCreateDevices(conf.DeviceRepositoryUrl, []model.Device{
 		{
 			Id:           "ses:infia:device:d1",
 			LocalId:      "ses:infia:device:d1",
@@ -150,7 +144,7 @@ func TestDevices(t *testing.T) {
 		},
 	}))
 
-	t.Run("create device-groups", testCreateDeviceGroups(kafkaUrl, []model.DeviceGroup{
+	t.Run("create device-groups", testCreateDeviceGroups(conf.DeviceRepositoryUrl, []model.DeviceGroup{
 		{
 			Id:   "ses:infia:device-group:dg1",
 			Name: "test-group-1",
@@ -168,8 +162,6 @@ func TestDevices(t *testing.T) {
 			},
 		},
 	}))
-
-	time.Sleep(10 * time.Second) // wait for consumption of kafka messages
 
 	t.Run("check GetDeviceInfosOfGroup", testCheckGetDeviceInfosOfGroupResult(
 		devices,
@@ -220,31 +212,11 @@ func testCheckGetDeviceInfosOfGroupResult(repo *Devices, deviceGroupId string, e
 
 var jwtSubj = "dd69ea0d-f553-4336-80f3-7f4567f85c7b"
 
-func testCreateDeviceGroups(kafkaUrl string, groups []model.DeviceGroup) func(t *testing.T) {
+func testCreateDeviceGroups(deviceRepoUrl string, groups []model.DeviceGroup) func(t *testing.T) {
 	return func(t *testing.T) {
-		topic := "device-groups"
-		producer, err := util.GetKafkaProducer([]string{kafkaUrl}, topic)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		defer producer.Close()
+		c := client.NewClient(deviceRepoUrl, nil)
 		for _, group := range groups {
-			msg, err := json.Marshal(map[string]interface{}{
-				"command":      "PUT",
-				"id":           group.Id,
-				"owner":        jwtSubj,
-				"device_group": group,
-			})
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			err = producer.WriteMessages(ctx, kafka.Message{
-				Key:   []byte(group.Id),
-				Value: msg,
-			})
+			_, err, _ := c.SetDeviceGroup(mocks.TokenWithBearer, group)
 			if err != nil {
 				t.Error(err)
 				return
@@ -253,31 +225,11 @@ func testCreateDeviceGroups(kafkaUrl string, groups []model.DeviceGroup) func(t 
 	}
 }
 
-func testCreateDevices(kafkaUrl string, devices []model.Device) func(t *testing.T) {
+func testCreateDevices(deviceRepoUrl string, devices []model.Device) func(t *testing.T) {
 	return func(t *testing.T) {
-		topic := "devices"
-		producer, err := util.GetKafkaProducer([]string{kafkaUrl}, topic)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		defer producer.Close()
+		c := client.NewClient(deviceRepoUrl, nil)
 		for _, device := range devices {
-			msg, err := json.Marshal(map[string]interface{}{
-				"command": "PUT",
-				"id":      device.Id,
-				"owner":   jwtSubj,
-				"device":  device,
-			})
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			err = producer.WriteMessages(ctx, kafka.Message{
-				Key:   []byte(device.Id),
-				Value: msg,
-			})
+			_, err, _ := c.SetDevice(mocks.TokenWithBearer, device, client.DeviceUpdateOptions{})
 			if err != nil {
 				t.Error(err)
 				return
