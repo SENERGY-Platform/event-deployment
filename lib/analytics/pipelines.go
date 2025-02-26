@@ -172,7 +172,12 @@ func (this *Analytics) getSomePipelines(user string, limit int, offset int) (pip
 		debug.PrintStack()
 		return pipelines, errors.New("unexpected statuscode")
 	}
-
-	err = json.NewDecoder(resp.Body).Decode(&pipelines)
+	var pipelinesResp PipelinesResponse
+	err = json.NewDecoder(resp.Body).Decode(&pipelinesResp)
+	if err != nil {
+		debug.PrintStack()
+		return pipelines, err
+	}
+	pipelines = pipelinesResp.Data
 	return pipelines, err
 }

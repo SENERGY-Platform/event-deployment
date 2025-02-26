@@ -63,6 +63,11 @@ type Pipeline struct {
 	Operators   []Operator `json:"operators,omitempty"`
 }
 
+type PipelinesResponse struct {
+	Data  []Pipeline `json:"data,omitempty"`
+	Total int        `json:"total,omitempty"`
+}
+
 type Operator struct {
 	Id             string            `json:"id,omitempty"`
 	Name           string            `json:"name,omitempty"`
