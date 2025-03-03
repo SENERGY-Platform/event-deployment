@@ -99,12 +99,28 @@ func (this *Auth) Ensure() (token AuthToken, err error) {
 	return
 }
 
+var ErrUserDoesNotExist = errors.New("user does not exist")
+
 func (this *Auth) GetUserToken(userid string) (token AuthToken, err error) {
 	return cache.Use(this.userTokenCache, "user_token."+userid, func() (AuthToken, error) {
-		return this.getUserToken(userid)
+		return this.getUserTokenCheckExistence(userid)
 	}, func(token AuthToken) error {
 		return nil
 	}, time.Duration(this.config.UserTokenCacheLifespanInSec)*time.Second)
+}
+
+func (this *Auth) getUserTokenCheckExistence(userid string) (token AuthToken, err error) {
+	token, err = this.getUserToken(userid)
+	if err != nil {
+		exists, err := this.UserExists(userid)
+		if err != nil {
+			return token, err
+		}
+		if !exists {
+			return token, ErrUserDoesNotExist
+		}
+	}
+	return token, err
 }
 
 func (this *Auth) getUserToken(userid string) (token AuthToken, err error) {
@@ -203,6 +219,11 @@ func refreshOpenidToken(token *OpenidToken, config config.Config) (err error) {
 }
 
 func (this *Auth) GenerateInternalUserToken(userid string) (token AuthToken, err error) {
+	temp, err := GenerateInternalUserToken(userid)
+	return AuthToken(temp), err
+}
+
+func GenerateInternalUserToken(userid string) (token string, err error) {
 	claims := jwt.StandardClaims{
 		ExpiresAt: time.Time{}.Unix(),
 		Issuer:    "internal",
@@ -216,6 +237,43 @@ func (this *Auth) GenerateInternalUserToken(userid string) (token AuthToken, err
 		return token, err
 	}
 	tokenString := strings.Join([]string{unsignedTokenString, ""}, ".")
-	token = AuthToken("Bearer " + tokenString)
+	token = "Bearer " + tokenString
 	return token, err
+}
+
+type User struct {
+	Id         string                 `json:"id"`
+	Name       string                 `json:"username"`
+	Attributes map[string]interface{} `json:"attributes"`
+	//Enabled    bool                   `json:"enabled"`
+	//FirstName  string                 `json:"firstName"`
+	//LastName   string                 `json:"lastName"`
+}
+
+func (this *Auth) GetUserById(id string) (user User, err error) {
+	token, err := this.Ensure()
+	if err != nil {
+		return user, err
+	}
+	err = token.GetJSON(this.config.AuthEndpoint+"/auth/admin/realms/master/users/"+url.QueryEscape(id), &user)
+	return
+}
+
+func (this *Auth) UserExists(id string) (exists bool, err error) {
+	token, err := this.Ensure()
+	if err != nil {
+		return false, err
+	}
+	resp, err := token.Get(this.config.AuthEndpoint + "/auth/admin/realms/master/users/" + url.QueryEscape(id))
+	if err != nil {
+		return false, err
+	}
+	if resp.StatusCode == http.StatusNotFound {
+		return false, nil
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return false, errors.New(string(body))
+	}
+	return true, nil
 }

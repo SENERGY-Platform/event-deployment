@@ -75,6 +75,7 @@ func testDeployment(t *testing.T, testcase string) {
 	conf.ImportPathPrefix = ""
 	conf.DevicePathPrefix = ""
 	conf.GroupPathPrefix = ""
+	conf.Debug = true
 
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := sync.WaitGroup{}
@@ -219,7 +220,7 @@ func isValidForDeploymentTest(dir string) bool {
 }
 
 func createTestFlowEngineApi(t *testing.T, fullTestCasePath string) (endpointUrl string, close func(), err error) {
-	expectedRequestJson, err := ioutil.ReadFile(fullTestCasePath + "/pipelinerequests.json")
+	expectedRequestJson, err := os.ReadFile(fullTestCasePath + "/pipelinerequests.json")
 	if err != nil {
 		return endpointUrl, close, err
 	}
@@ -260,7 +261,7 @@ func createTestFlowEngineApi(t *testing.T, fullTestCasePath string) (endpointUrl
 			if !reflect.DeepEqual(expectedRequests[count], actualRequest) {
 				expectedJson, _ := json.Marshal(expectedRequests[count])
 				actualJson, _ := json.Marshal(actualRequest)
-				t.Error(string(expectedJson), "\n\n", string(actualJson))
+				t.Errorf("\ne:%v\na:%v\n", string(expectedJson), string(actualJson))
 				return
 			}
 			count = count + 1
@@ -294,10 +295,15 @@ func createTestFlowParserApi() (endpointUrl string, close func(), err error) {
 	return
 }
 
+type PipelinesResponse struct {
+	Data  []interface{} `json:"data,omitempty"`
+	Total int           `json:"total,omitempty"`
+}
+
 func createTestPipelineRepoApi(pipelinesFilePath string) (endpointUrl string, close func(), err error) {
 	pipelines := []interface{}{}
 	if fileExists(pipelinesFilePath) {
-		groupdevicesJson, err := ioutil.ReadFile(pipelinesFilePath)
+		groupdevicesJson, err := os.ReadFile(pipelinesFilePath)
 		if err != nil {
 			return endpointUrl, func() {}, err
 		}
@@ -307,7 +313,10 @@ func createTestPipelineRepoApi(pipelinesFilePath string) (endpointUrl string, cl
 		}
 	}
 	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(pipelines)
+		json.NewEncoder(w).Encode(PipelinesResponse{
+			Data:  pipelines,
+			Total: len(pipelines),
+		})
 	}))
 	endpointUrl = endpointMock.URL
 	close = func() {

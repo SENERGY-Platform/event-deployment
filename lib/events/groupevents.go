@@ -19,6 +19,7 @@ package events
 import (
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"runtime/debug"
@@ -38,7 +39,12 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 	case "RIGHTS":
 		return nil
 	case "PUT":
-		return this.updateDeviceGroup(cmd.Owner, cmd.DeviceGroup)
+		err = this.updateDeviceGroup(cmd.Owner, cmd.DeviceGroup)
+		if errors.Is(err, auth.ErrUserDoesNotExist) {
+			log.Printf("WARNING: user %v does not exist -> DEPLOYMENT WILL BE IGNORED\n", cmd.Owner)
+			return nil
+		}
+		return err
 	case "DELETE":
 		log.Println("ignore device-group delete")
 		return nil

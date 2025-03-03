@@ -19,6 +19,7 @@ package devices
 import (
 	"context"
 	"github.com/SENERGY-Platform/device-repository/lib/client"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
@@ -215,8 +216,13 @@ var jwtSubj = "dd69ea0d-f553-4336-80f3-7f4567f85c7b"
 func testCreateDeviceGroups(deviceRepoUrl string, groups []model.DeviceGroup) func(t *testing.T) {
 	return func(t *testing.T) {
 		c := client.NewClient(deviceRepoUrl, nil)
+		token, err := auth.GenerateInternalUserToken(jwtSubj)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 		for _, group := range groups {
-			_, err, _ := c.SetDeviceGroup(mocks.TokenWithBearer, group)
+			_, err, _ := c.SetDeviceGroup(token, group)
 			if err != nil {
 				t.Error(err)
 				return
@@ -228,8 +234,13 @@ func testCreateDeviceGroups(deviceRepoUrl string, groups []model.DeviceGroup) fu
 func testCreateDevices(deviceRepoUrl string, devices []model.Device) func(t *testing.T) {
 	return func(t *testing.T) {
 		c := client.NewClient(deviceRepoUrl, nil)
+		token, err := auth.GenerateInternalUserToken(jwtSubj)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 		for _, device := range devices {
-			_, err, _ := c.SetDevice(mocks.TokenWithBearer, device, client.DeviceUpdateOptions{})
+			_, err, _ := c.SetDevice(token, device, client.DeviceUpdateOptions{})
 			if err != nil {
 				t.Error(err)
 				return

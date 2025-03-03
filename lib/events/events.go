@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/analyticsevents"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents"
@@ -117,9 +118,18 @@ func (this *Events) HandleCommand(msg []byte) error {
 		if cmd.Deployment != nil {
 			err = this.Deploy(cmd.Owner, *cmd.Deployment)
 		}
+		if errors.Is(err, auth.ErrUserDoesNotExist) {
+			log.Printf("WARNING: user %v does not exist -> DEPLOYMENT WILL BE IGNORED\n", cmd.Owner)
+			return nil
+		}
 		return err
 	case "DELETE":
-		return this.Remove(cmd.Owner, cmd.Id)
+		err = this.Remove(cmd.Owner, cmd.Id)
+		if errors.Is(err, auth.ErrUserDoesNotExist) {
+			log.Printf("WARNING: user %v does not exist -> DEPLOYMENT WILL BE IGNORED\n", cmd.Owner)
+			return nil
+		}
+		return err
 	default:
 		return errors.New("unknown command " + cmd.Command)
 	}
