@@ -39,13 +39,9 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 	case "RIGHTS":
 		return nil
 	case "PUT":
-		if cmd.Owner == "" {
-			log.Printf("ERROR: missing owner --> ignore device-group command %#v\n", cmd)
-			return nil
-		}
-		err = this.updateDeviceGroup(cmd.Owner, cmd.DeviceGroup)
+		err = this.updateDeviceGroup(cmd.DeviceGroup)
 		if errors.Is(err, auth.ErrUserDoesNotExist) {
-			log.Printf("WARNING: user %v does not exist -> DEPLOYMENT WILL BE IGNORED\n", cmd.Owner)
+			log.Printf("WARNING: user does not exist -> device-group update will be ignored\n")
 			return nil
 		}
 		return err
@@ -60,13 +56,12 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 type DeviceGroupCommand struct {
 	Command     string            `json:"command"`
 	Id          string            `json:"id"`
-	Owner       string            `json:"owner"`
 	DeviceGroup model.DeviceGroup `json:"device_group"`
 }
 
-func (this *Events) updateDeviceGroup(owner string, group model.DeviceGroup) (err error) {
+func (this *Events) updateDeviceGroup(group model.DeviceGroup) (err error) {
 	for _, h := range this.handlers {
-		err = h.UpdateDeviceGroup(owner, group)
+		err = h.UpdateDeviceGroup(group)
 		if err != nil {
 			return err
 		}

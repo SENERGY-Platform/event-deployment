@@ -17,25 +17,43 @@
 package conditionalevents
 
 import (
+	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/deployments"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
+	eventworkermodel "github.com/SENERGY-Platform/event-worker/pkg/model"
 )
 
-func (this *Events) UpdateDeviceGroup(owner string, group model.DeviceGroup) error {
+func (this *Events) UpdateDeviceGroup(group model.DeviceGroup) error {
 	this.mux.Lock()
 	defer this.mux.Unlock()
-	deployments, err := this.deployments.GetDeploymentByDeviceGroupId(group.Id)
+	deploymentList, err := this.deployments.GetDeploymentByDeviceGroupId(group.Id)
 	if err != nil {
 		return err
 	}
-	for _, depl := range deployments {
-		err = this.removeEvents(owner, depl.Id)
+	descr, err := this.db.GetEventDescriptionsByDeviceGroup(group.Id)
+	if err != nil {
+		return err
+	}
+	for _, depl := range deploymentList {
+		err = this.removeEvents(depl.Id)
 		if err != nil {
 			return err
 		}
-		err = this.deployEvents(owner, depl)
+		if depl.UserId == "" {
+			depl.UserId = getFallbackUser(descr, depl)
+		}
+		err = this.deployEvents(depl.UserId, depl.Deployment)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func getFallbackUser(descr []eventworkermodel.EventDesc, depl deployments.Deployment) string {
+	for _, d := range descr {
+		if d.DeploymentId == depl.Id {
+			return d.UserId
+		}
+	}
+	return ""
 }

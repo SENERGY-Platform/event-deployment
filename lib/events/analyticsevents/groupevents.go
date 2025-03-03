@@ -18,27 +18,9 @@ package analyticsevents
 
 import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"log"
 )
 
-func (this *Events) UpdateDeviceGroup(owner string, group model.DeviceGroup) error {
-	pipelines, groupInfos, labels, err := this.analytics.GetPipelinesByDeviceGroupId(owner, group.Id)
-	if err != nil {
-		log.Println("unable to get pipelines for device-group", owner, group.Id, err)
-		return err
-	}
-	token, err := this.auth.GetUserToken(owner)
-	if err != nil {
-		return err
-	}
-	for _, pipeline := range pipelines {
-		name := labels[pipeline]
-		info := groupInfos[pipeline]
-		info.DeviceIds = group.DeviceIds
-		err = this.updateEventPipelineForDeviceGroup(token, pipeline, name, owner, info)
-		if err != nil {
-			return err
-		}
-	}
+func (this *Events) UpdateDeviceGroup(group model.DeviceGroup) error {
+	//legacy analytics events dont support device-group updates
 	return nil
 }

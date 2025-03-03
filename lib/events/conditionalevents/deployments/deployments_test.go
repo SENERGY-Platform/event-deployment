@@ -19,6 +19,7 @@ package deployments
 import (
 	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"reflect"
@@ -53,8 +54,15 @@ func TestDeployments(t *testing.T) {
 		return
 	}
 
+	deploy := func(d deploymentmodel.Deployment) error {
+		return deployments.SetDeployment(model.Deployment{
+			Deployment: d,
+			UserId:     "userid",
+		})
+	}
+
 	t.Run("set deployments", func(t *testing.T) {
-		err = deployments.SetDeployment(deploymentmodel.Deployment{
+		err = deploy(deploymentmodel.Deployment{
 			Id:   "duplicate",
 			Name: "duplicate",
 		})
@@ -62,7 +70,7 @@ func TestDeployments(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		err = deployments.SetDeployment(deploymentmodel.Deployment{
+		err = deploy(deploymentmodel.Deployment{
 			Id:   "duplicate",
 			Name: "duplicate",
 			Elements: []deploymentmodel.Element{
@@ -86,7 +94,7 @@ func TestDeployments(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		err = deployments.SetDeployment(deploymentmodel.Deployment{
+		err = deploy(deploymentmodel.Deployment{
 			Id:   "deleted",
 			Name: "deleted",
 			Elements: []deploymentmodel.Element{
@@ -110,7 +118,7 @@ func TestDeployments(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		err = deployments.SetDeployment(deploymentmodel.Deployment{
+		err = deploy(deploymentmodel.Deployment{
 			Id:   "second",
 			Name: "second",
 			Elements: []deploymentmodel.Element{

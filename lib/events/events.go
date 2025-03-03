@@ -50,7 +50,7 @@ type Handler interface {
 	CheckEvent(token string, id string) int
 	Remove(owner string, deploymentId string) error
 	Deploy(owner string, deployment deploymentmodel.Deployment) error
-	UpdateDeviceGroup(owner string, group model.DeviceGroup) error
+	UpdateDeviceGroup(group model.DeviceGroup) error
 }
 
 func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer, m *metrics.Metrics) (result interfaces.Events, err error) {

@@ -24,9 +24,10 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/idmodifier"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-worker/pkg/configuration"
 	"github.com/SENERGY-Platform/event-worker/pkg/eventrepo/cloud/mongo"
-	"github.com/SENERGY-Platform/event-worker/pkg/model"
+	workermodel "github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"log"
 	"net/http"
@@ -60,7 +61,10 @@ func New(ctx context.Context, config config.Config, devices interfaces.Devices, 
 func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) error {
 	this.mux.Lock()
 	defer this.mux.Unlock()
-	err := this.deployments.SetDeployment(deployment)
+	err := this.deployments.SetDeployment(model.Deployment{
+		Deployment: deployment,
+		UserId:     owner,
+	})
 	if err != nil {
 		return err
 	}
@@ -68,7 +72,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 }
 
 func (this *Events) deployEvents(owner string, deployment deploymentmodel.Deployment) error {
-	err := this.removeEvents(owner, deployment.Id)
+	err := this.removeEvents(deployment.Id)
 	if err != nil {
 		return err
 	}
@@ -92,10 +96,10 @@ func (this *Events) Remove(owner string, deploymentId string) error {
 	if err != nil {
 		return err
 	}
-	return this.removeEvents(owner, deploymentId)
+	return this.removeEvents(deploymentId)
 }
 
-func (this *Events) removeEvents(owner string, deploymentId string) error {
+func (this *Events) removeEvents(deploymentId string) error {
 	count, err := this.db.RemoveEventDescriptionsByDeploymentId(deploymentId)
 	this.metrics.RemovedConditionalEvents.Add(float64(count))
 	return err
@@ -130,7 +134,7 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 	return states, nil, http.StatusOK
 }
 
-func (this *Events) deployDescription(desc model.EventDesc) error {
+func (this *Events) deployDescription(desc workermodel.EventDesc) error {
 	this.metrics.DeployedConditionalEvents.Inc()
 	desc.DeviceId, _ = idmodifier.SplitModifier(desc.DeviceId)
 	desc.ServiceId, _ = idmodifier.SplitModifier(desc.ServiceId)

@@ -25,6 +25,11 @@ type DeviceGroup = models.DeviceGroup
 
 type Device = models.Device
 
+type Deployment struct {
+	deploymentmodel.Deployment
+	UserId string
+}
+
 type PathOptionsResultElement struct {
 	ServiceId              string            `json:"service_id"`
 	JsonPath               []string          `json:"json_path"`
