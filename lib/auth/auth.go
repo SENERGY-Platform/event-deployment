@@ -135,7 +135,7 @@ func (this *Auth) getUserToken(userid string) (token AuthToken, err error) {
 	}
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		log.Println("ERROR: GetUserToken()", resp.StatusCode, string(body))
+		log.Println("ERROR: GetUserToken()", userid, resp.StatusCode, string(body))
 		err = errors.New("access denied")
 		resp.Body.Close()
 		return
