@@ -115,6 +115,10 @@ func (this *Events) HandleCommand(msg []byte) error {
 			log.Println("ERROR: unexpected deployment version", cmd.Version)
 			return nil
 		}
+		if cmd.Owner == "" {
+			log.Printf("ERROR: missing owner --> ignore deployment command %#v\n", cmd)
+			return nil
+		}
 		if cmd.Deployment != nil {
 			err = this.Deploy(cmd.Owner, *cmd.Deployment)
 		}
@@ -124,6 +128,10 @@ func (this *Events) HandleCommand(msg []byte) error {
 		}
 		return err
 	case "DELETE":
+		if cmd.Owner == "" {
+			log.Printf("ERROR: missing owner --> ignore deployment delete command %#v\n", cmd)
+			return nil
+		}
 		err = this.Remove(cmd.Owner, cmd.Id)
 		if errors.Is(err, auth.ErrUserDoesNotExist) {
 			log.Printf("WARNING: user %v does not exist -> DEPLOYMENT WILL BE IGNORED\n", cmd.Owner)

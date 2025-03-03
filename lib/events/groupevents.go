@@ -39,6 +39,10 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 	case "RIGHTS":
 		return nil
 	case "PUT":
+		if cmd.Owner == "" {
+			log.Printf("ERROR: missing owner --> ignore device-group command %#v\n", cmd)
+			return nil
+		}
 		err = this.updateDeviceGroup(cmd.Owner, cmd.DeviceGroup)
 		if errors.Is(err, auth.ErrUserDoesNotExist) {
 			log.Printf("WARNING: user %v does not exist -> DEPLOYMENT WILL BE IGNORED\n", cmd.Owner)
