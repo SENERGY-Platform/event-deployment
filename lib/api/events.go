@@ -20,7 +20,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/api/util"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
@@ -28,10 +27,23 @@ func init() {
 	endpoints = append(endpoints, EventsEndpoints)
 }
 
-func EventsEndpoints(router *httprouter.Router, config config.Config, ctrl interfaces.Events) {
-
-	router.HEAD("/events/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// EventsEndpoints godoc
+// @Summary      check event
+// @Description  check event
+// @Tags         event
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "event id"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /events/{id} [HEAD]
+func EventsEndpoints(router *http.ServeMux, config config.Config, ctrl interfaces.Events) {
+	router.HandleFunc("HEAD /events/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		code := ctrl.CheckEvent(util.GetAuthToken(request), id)
 		writer.WriteHeader(code)
 	})

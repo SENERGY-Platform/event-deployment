@@ -1,0 +1,496 @@
+basePath: /
+definitions:
+  api.EventStates:
+    additionalProperties:
+      type: boolean
+    type: object
+  deploymentmodel.ConditionalEvent:
+    properties:
+      event_id:
+        type: string
+      qos:
+        type: integer
+      script:
+        type: string
+      selection:
+        $ref: '#/definitions/deploymentmodel.Selection'
+      value_variable:
+        type: string
+      variables:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  deploymentmodel.Device:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  deploymentmodel.DeviceGroup:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  deploymentmodel.Diagram:
+    properties:
+      svg:
+        type: string
+      xml_deployed:
+        type: string
+      xml_raw:
+        type: string
+    type: object
+  deploymentmodel.Element:
+    properties:
+      bpmn_id:
+        type: string
+      conditional_event:
+        $ref: '#/definitions/deploymentmodel.ConditionalEvent'
+      group:
+        type: string
+      message_event:
+        $ref: '#/definitions/deploymentmodel.MessageEvent'
+      name:
+        type: string
+      notification:
+        $ref: '#/definitions/deploymentmodel.Notification'
+      order:
+        type: integer
+      task:
+        $ref: '#/definitions/deploymentmodel.Task'
+      time_event:
+        $ref: '#/definitions/deploymentmodel.TimeEvent'
+    type: object
+  deploymentmodel.FilterCriteria:
+    properties:
+      aspect_id:
+        type: string
+      characteristic_id:
+        description: 'TODO: remove?'
+        type: string
+      device_class_id:
+        type: string
+      function_id:
+        type: string
+    type: object
+  deploymentmodel.GenericEventSource:
+    properties:
+      filter_ids:
+        type: string
+      filter_type:
+        type: string
+      topic:
+        type: string
+    type: object
+  deploymentmodel.IncidentHandling:
+    properties:
+      notify:
+        type: boolean
+      restart:
+        type: boolean
+    type: object
+  deploymentmodel.MessageEvent:
+    properties:
+      event_id:
+        type: string
+      flow_id:
+        type: string
+      selection:
+        $ref: '#/definitions/deploymentmodel.Selection'
+      use_marshaller:
+        type: boolean
+      value:
+        type: string
+    type: object
+  deploymentmodel.Notification:
+    properties:
+      message:
+        type: string
+      title:
+        type: string
+    type: object
+  deploymentmodel.ProcessStartParameter:
+    properties:
+      default:
+        type: string
+      id:
+        type: string
+      label:
+        type: string
+      properties:
+        additionalProperties:
+          type: string
+        type: object
+      type:
+        type: string
+    type: object
+  deploymentmodel.Selection:
+    properties:
+      filter_criteria:
+        $ref: '#/definitions/deploymentmodel.FilterCriteria'
+      selected_device_group_id:
+        type: string
+      selected_device_id:
+        type: string
+      selected_generic_event_source:
+        $ref: '#/definitions/deploymentmodel.GenericEventSource'
+      selected_import_id:
+        type: string
+      selected_path:
+        $ref: '#/definitions/deviceselectionmodel.PathOption'
+      selected_service_id:
+        type: string
+      selection_options:
+        items:
+          $ref: '#/definitions/deploymentmodel.SelectionOption'
+        type: array
+    type: object
+  deploymentmodel.SelectionOption:
+    properties:
+      device:
+        $ref: '#/definitions/deploymentmodel.Device'
+      device_group:
+        $ref: '#/definitions/deploymentmodel.DeviceGroup'
+      import:
+        $ref: '#/definitions/importmodel.Import'
+      importType:
+        $ref: '#/definitions/importmodel.ImportType'
+      path_options:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/deviceselectionmodel.PathOption'
+          type: array
+        type: object
+      services:
+        items:
+          $ref: '#/definitions/deploymentmodel.Service'
+        type: array
+    type: object
+  deploymentmodel.Service:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  deploymentmodel.Task:
+    properties:
+      parameter:
+        additionalProperties:
+          type: string
+        type: object
+      prefer_event:
+        type: boolean
+      retries:
+        type: integer
+      selection:
+        $ref: '#/definitions/deploymentmodel.Selection'
+    type: object
+  deploymentmodel.TimeEvent:
+    properties:
+      time:
+        type: string
+      type:
+        type: string
+    type: object
+  devicemodel.AspectNode:
+    properties:
+      ancestor_ids:
+        items:
+          type: string
+        type: array
+      child_ids:
+        items:
+          type: string
+        type: array
+      descendent_ids:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: string
+      root_id:
+        type: string
+    type: object
+  deviceselectionmodel.Configurable:
+    properties:
+      aspect_node:
+        $ref: '#/definitions/devicemodel.AspectNode'
+      characteristic_id:
+        type: string
+      function_id:
+        type: string
+      path:
+        type: string
+      type:
+        type: string
+      value: {}
+    type: object
+  deviceselectionmodel.PathOption:
+    properties:
+      aspectNode:
+        $ref: '#/definitions/devicemodel.AspectNode'
+      characteristicId:
+        type: string
+      configurables:
+        items:
+          $ref: '#/definitions/deviceselectionmodel.Configurable'
+        type: array
+      functionId:
+        type: string
+      isVoid:
+        type: boolean
+      path:
+        type: string
+      type:
+        type: string
+      value: {}
+    type: object
+  importmodel.Import:
+    properties:
+      configs:
+        items:
+          $ref: '#/definitions/importmodel.ImportConfig'
+        type: array
+      id:
+        type: string
+      image:
+        type: string
+      import_type_id:
+        type: string
+      kafka_topic:
+        type: string
+      name:
+        type: string
+      restart:
+        type: boolean
+    type: object
+  importmodel.ImportConfig:
+    properties:
+      name:
+        type: string
+      value: {}
+    type: object
+  importmodel.ImportContentVariable:
+    properties:
+      aspect_id:
+        type: string
+      characteristic_id:
+        type: string
+      function_id:
+        type: string
+      name:
+        type: string
+      sub_content_variables:
+        items:
+          $ref: '#/definitions/importmodel.ImportContentVariable'
+        type: array
+      type:
+        type: string
+      use_as_tag:
+        type: boolean
+    type: object
+  importmodel.ImportType:
+    properties:
+      configs:
+        items:
+          $ref: '#/definitions/importmodel.ImportConfig'
+        type: array
+      default_restart:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      output:
+        $ref: '#/definitions/importmodel.ImportContentVariable'
+      owner:
+        type: string
+    type: object
+  model.Deployment:
+    properties:
+      description:
+        type: string
+      diagram:
+        $ref: '#/definitions/deploymentmodel.Diagram'
+      elements:
+        items:
+          $ref: '#/definitions/deploymentmodel.Element'
+        type: array
+      executable:
+        type: boolean
+      id:
+        type: string
+      incident_handling:
+        $ref: '#/definitions/deploymentmodel.IncidentHandling'
+      name:
+        type: string
+      start_parameter:
+        items:
+          $ref: '#/definitions/deploymentmodel.ProcessStartParameter'
+        type: array
+      userId:
+        type: string
+      version:
+        type: integer
+    type: object
+info:
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Event-Deployment
+  version: "0.1"
+paths:
+  /event-states:
+    get:
+      description: get event-states
+      parameters:
+      - description: comma seperated list of event-ids
+        in: query
+        name: ids
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.EventStates'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get event-states
+      tags:
+      - event
+  /events/{id}:
+    head:
+      description: check event
+      parameters:
+      - description: event id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: check event
+      tags:
+      - event
+  /health:
+    post:
+      description: check service health
+      responses:
+        "200":
+          description: OK
+      security:
+      - Bearer: []
+      summary: health
+      tags:
+      - health
+  /process-deployments:
+    put:
+      description: deploy process, meant for internal use by the process-deployment
+        service, only admins may access this endpoint
+      parameters:
+      - description: deployment
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/model.Deployment'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: deploy process
+      tags:
+      - deployment
+  /process-deployments/{userid}/{deplid}:
+    delete:
+      description: delete deployment, meant for internal use by the process-deployment
+        service, only admins may access this endpoint
+      parameters:
+      - description: deployment id
+        in: path
+        name: deplid
+        required: true
+        type: string
+      - description: user id
+        in: path
+        name: userid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete deployment
+      tags:
+      - deployment
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

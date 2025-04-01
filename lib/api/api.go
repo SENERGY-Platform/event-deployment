@@ -22,7 +22,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/service-commons/pkg/accesslog"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"reflect"
@@ -30,7 +29,9 @@ import (
 	"time"
 )
 
-var endpoints []func(*httprouter.Router, config.Config, interfaces.Events)
+//go:generate go tool swag init -o ../../docs --parseDependency -d .. -g api/api.go
+
+var endpoints []func(*http.ServeMux, config.Config, interfaces.Events)
 
 func Start(ctx context.Context, config config.Config, ctrl interfaces.Events) error {
 	log.Println("start api")
@@ -61,8 +62,18 @@ func Start(ctx context.Context, config config.Config, ctrl interfaces.Events) er
 	return nil
 }
 
+// Router doc
+// @title         Event-Deployment
+// @version       0.1
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+// @BasePath  /
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func Router(config config.Config, ctrl interfaces.Events) http.Handler {
-	router := httprouter.New()
+	router := http.NewServeMux()
 	for _, e := range endpoints {
 		log.Println("add endpoints: " + runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name())
 		e(router, config, ctrl)

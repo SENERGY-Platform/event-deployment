@@ -21,7 +21,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/api/util"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -32,9 +31,24 @@ func init() {
 	endpoints = append(endpoints, EventStatesEndpoints)
 }
 
-func EventStatesEndpoints(router *httprouter.Router, config config.Config, ctrl interfaces.Events) {
+type EventStates = map[string]bool
 
-	router.GET("/event-states", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// EventStatesEndpoints godoc
+// @Summary      get event-states
+// @Description  get event-states
+// @Tags         event
+// @Produce      json
+// @Security Bearer
+// @Param        ids query string true "comma seperated list of event-ids"
+// @Success      200 {object} EventStates
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /event-states [GET]
+func EventStatesEndpoints(router *http.ServeMux, config config.Config, ctrl interfaces.Events) {
+	router.HandleFunc("GET /event-states", func(writer http.ResponseWriter, request *http.Request) {
 		idstring := strings.TrimSpace(request.URL.Query().Get("ids"))
 		ids := []string{}
 		if idstring != "" {

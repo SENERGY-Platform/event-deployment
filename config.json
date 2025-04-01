@@ -47,5 +47,7 @@
   "enable_analytics_events": true,
   "ignore_analytics_event_errors": true,
 
-  "user_token_cache_lifespan_in_sec": 3590
+  "user_token_cache_lifespan_in_sec": 3590,
+
+  "disable_kafka": false
 }

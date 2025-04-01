@@ -20,8 +20,7 @@ import (
 	"bytes"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	"github.com/julienschmidt/httprouter"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -33,9 +32,16 @@ func init() {
 	endpoints = append(endpoints, HealthEndpoints)
 }
 
-func HealthEndpoints(router *httprouter.Router, config config.Config, ctrl interfaces.Events) {
-	router.POST("/health", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		msg, err := ioutil.ReadAll(request.Body)
+// HealthEndpoints godoc
+// @Summary      health
+// @Description  check service health
+// @Tags         health
+// @Security Bearer
+// @Success      200
+// @Router       /health [POST]
+func HealthEndpoints(router *http.ServeMux, config config.Config, ctrl interfaces.Events) {
+	router.HandleFunc("POST /health", func(writer http.ResponseWriter, request *http.Request) {
+		msg, err := io.ReadAll(request.Body)
 		log.Println("INFO: /health", err, string(msg))
 		writer.WriteHeader(http.StatusOK)
 	})
@@ -64,7 +70,7 @@ func HealthEndpoints(router *httprouter.Router, config config.Config, ctrl inter
 				if err != nil {
 					log.Fatal("FATAL: connection test:", err)
 				}
-				ioutil.ReadAll(resp.Body)
+				io.ReadAll(resp.Body)
 				resp.Body.Close()
 			}
 		}()

@@ -84,6 +84,8 @@ type ConfigStruct struct {
 	IgnoreAnalyticsEventErrors bool `json:"ignore_analytics_event_errors"`
 
 	UserTokenCacheLifespanInSec int64 `json:"user_token_cache_lifespan_in_sec"`
+
+	DisableKafka bool `json:"disable_kafka"`
 }
 
 type Config = *ConfigStruct

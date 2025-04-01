@@ -26,7 +26,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
 	uuid "github.com/satori/go.uuid"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -100,7 +99,7 @@ func testDeployment(t *testing.T, testcase string) {
 
 	groupdevicesFilePath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/groupdevices.json"
 	if fileExists(groupdevicesFilePath) {
-		groupdevicesJson, err := ioutil.ReadFile(groupdevicesFilePath)
+		groupdevicesJson, err := os.ReadFile(groupdevicesFilePath)
 		if err != nil {
 			t.Error(err)
 			return
@@ -114,7 +113,7 @@ func testDeployment(t *testing.T, testcase string) {
 
 	deviceTypeSelectablesPath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/devicetypeselectables.json"
 	if fileExists(deviceTypeSelectablesPath) {
-		deviceTypeSelectablesJson, err := ioutil.ReadFile(deviceTypeSelectablesPath)
+		deviceTypeSelectablesJson, err := os.ReadFile(deviceTypeSelectablesPath)
 		if err != nil {
 			t.Error(err)
 			return
@@ -128,7 +127,7 @@ func testDeployment(t *testing.T, testcase string) {
 
 	functionsPath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/functions.json"
 	if fileExists(functionsPath) {
-		functionsJson, err := ioutil.ReadFile(functionsPath)
+		functionsJson, err := os.ReadFile(functionsPath)
 		if err != nil {
 			t.Error(err)
 			return
@@ -142,7 +141,7 @@ func testDeployment(t *testing.T, testcase string) {
 
 	conceptsPath := DEPLOYMENT_EXAMPLES_DIR + testcase + "/concepts.json"
 	if fileExists(conceptsPath) {
-		conceptsJson, err := ioutil.ReadFile(conceptsPath)
+		conceptsJson, err := os.ReadFile(conceptsPath)
 		if err != nil {
 			t.Error(err)
 			return
@@ -206,7 +205,7 @@ func fileExists(filename string) bool {
 }
 
 func isValidForDeploymentTest(dir string) bool {
-	infos, err := ioutil.ReadDir(dir)
+	infos, err := os.ReadDir(dir)
 	if err != nil {
 		panic(err)
 	}
