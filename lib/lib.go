@@ -44,7 +44,7 @@ func Start(ctx context.Context, config config.Config, sourcing interfaces.Sourci
 		return err
 	}
 	var producer Producer
-	if !config.DisableKafka && config.DeploymentDoneTopic != "" && config.DeploymentDoneTopic != "-" {
+	if !config.DisableKafka && !config.DisableKafkaDoneProducer && config.DeploymentDoneTopic != "" && config.DeploymentDoneTopic != "-" {
 		log.Println("use deployment done producer")
 		producer, err = sourcing.NewProducer(ctx, config, config.DeploymentDoneTopic)
 		if err != nil {
@@ -67,11 +67,13 @@ func Start(ctx context.Context, config config.Config, sourcing interfaces.Sourci
 		return err
 	}
 	if !config.DisableKafka {
-		err = sourcing.NewConsumer(ctx, config, config.DeploymentTopic, event.HandleCommand)
-		if err != nil {
-			return err
+		if !config.DisableKafkaProcessDeployment {
+			err = sourcing.NewConsumer(ctx, config, config.DeploymentTopic, event.HandleCommand)
+			if err != nil {
+				return err
+			}
 		}
-		if config.DeviceGroupTopic != "" {
+		if !config.DisableKafkaDeviceGroupUpdate && config.DeviceGroupTopic != "" {
 			err = sourcing.NewConsumer(ctx, config, config.DeviceGroupTopic, event.HandleDeviceGroupUpdate)
 			if err != nil {
 				return err

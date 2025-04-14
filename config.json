@@ -49,5 +49,8 @@
 
   "user_token_cache_lifespan_in_sec": 3590,
 
-  "disable_kafka": false
+  "disable_kafka": false,
+  "disable_kafka_process_deployment": false,
+  "disable_kafka_device_group_update": false,
+  "disable_kafka_done_producer": false
 }
