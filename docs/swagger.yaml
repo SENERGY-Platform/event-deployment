@@ -346,6 +346,63 @@ definitions:
       version:
         type: integer
     type: object
+  model.DeviceGroup:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/models.Attribute'
+        type: array
+      auto_generated_by_device:
+        type: string
+      criteria:
+        items:
+          $ref: '#/definitions/models.DeviceGroupFilterCriteria'
+        type: array
+      criteria_short:
+        items:
+          type: string
+        type: array
+      device_ids:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Attribute:
+    properties:
+      key:
+        type: string
+      origin:
+        type: string
+      value:
+        type: string
+    type: object
+  models.DeviceGroupFilterCriteria:
+    properties:
+      aspect_id:
+        type: string
+      device_class_id:
+        type: string
+      function_id:
+        type: string
+      interaction:
+        $ref: '#/definitions/models.Interaction'
+    type: object
+  models.Interaction:
+    enum:
+    - event
+    - request
+    - event+request
+    type: string
+    x-enum-varnames:
+    - EVENT
+    - REQUEST
+    - EVENT_AND_REQUEST
 info:
   contact: {}
   license:
@@ -354,6 +411,35 @@ info:
   title: Event-Deployment
   version: "0.1"
 paths:
+  /device-groups:
+    post:
+      description: update event-deployments of device-group, meant for internal use
+        by the process-deployment service, only admins may access this endpoint
+      parameters:
+      - description: device-group
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeviceGroup'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: update event-deployments of device-group
+      tags:
+      - deployment
   /event-states:
     get:
       description: get event-states

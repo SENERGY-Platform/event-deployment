@@ -29,6 +29,7 @@ func init() {
 	endpoints = append(endpoints,
 		SetDeploymentEndpoint,
 		DeleteDeploymentEndpoint,
+		UpdateDeploymentsOfDeviceGroup,
 	)
 }
 
@@ -107,6 +108,49 @@ func DeleteDeploymentEndpoint(router *http.ServeMux, config config.Config, ctrl 
 			return
 		}
 		err = ctrl.Remove(userid, deplid)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+}
+
+// UpdateDeploymentsOfDeviceGroup godoc
+// @Summary      update event-deployments of device-group
+// @Description  update event-deployments of device-group, meant for internal use by the process-deployment service, only admins may access this endpoint
+// @Tags         deployment
+// @Security Bearer
+// @Param        message body model.DeviceGroup true "device-group"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /device-groups [POST]
+func UpdateDeploymentsOfDeviceGroup(router *http.ServeMux, config config.Config, ctrl interfaces.Events) {
+	router.HandleFunc("POST /device-groups", func(writer http.ResponseWriter, request *http.Request) {
+		token, err := jwt.Parse(request.Header.Get("Authorization"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		if !token.IsAdmin() {
+			http.Error(writer, "only admins may use this endpoint", http.StatusUnauthorized)
+			return
+		}
+		var dg model.DeviceGroup
+		err = json.NewDecoder(request.Body).Decode(&dg)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if dg.Id == "" {
+			http.Error(writer, "missing id", http.StatusBadRequest)
+			return
+		}
+		err = ctrl.UpdateDeviceGroup(dg)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 			return

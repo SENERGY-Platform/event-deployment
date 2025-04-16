@@ -39,7 +39,7 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 	case "RIGHTS":
 		return nil
 	case "PUT":
-		err = this.updateDeviceGroup(cmd.DeviceGroup)
+		err = this.UpdateDeviceGroup(cmd.DeviceGroup)
 		if errors.Is(err, auth.ErrUserDoesNotExist) {
 			log.Printf("WARNING: user does not exist -> device-group update will be ignored\n")
 			return nil
@@ -59,7 +59,7 @@ type DeviceGroupCommand struct {
 	DeviceGroup model.DeviceGroup `json:"device_group"`
 }
 
-func (this *Events) updateDeviceGroup(group model.DeviceGroup) (err error) {
+func (this *Events) UpdateDeviceGroup(group model.DeviceGroup) (err error) {
 	for _, h := range this.handlers {
 		err = h.UpdateDeviceGroup(group)
 		if err != nil {

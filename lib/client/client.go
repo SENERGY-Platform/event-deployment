@@ -40,6 +40,8 @@ type ProcessStartParameter = deploymentmodel.ProcessStartParameter
 type Element = deploymentmodel.Element
 type Diagram = deploymentmodel.Diagram
 
+type DeviceGroup = model.DeviceGroup
+
 func (this *Client) Deploy(token string, depl Deployment) (err error, code int) {
 	body, err := json.Marshal(depl)
 	if err != nil {
@@ -54,6 +56,18 @@ func (this *Client) Deploy(token string, depl Deployment) (err error, code int) 
 
 func (this *Client) DeleteDeployment(token string, userId string, deplId string) (err error, code int) {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%v/process-deployments/%v/%v", this.serverUrl, userId, deplId), nil)
+	if err != nil {
+		return err, 0
+	}
+	return doVoid(token, req)
+}
+
+func (this *Client) UpdateDeploymentsOfDeviceGroup(token string, dg DeviceGroup) (err error, code int) {
+	body, err := json.Marshal(dg)
+	if err != nil {
+		return err, 0
+	}
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/device-groups", this.serverUrl), bytes.NewBuffer(body))
 	if err != nil {
 		return err, 0
 	}
