@@ -19,21 +19,21 @@ package mocks
 import (
 	"encoding/json"
 	"errors"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/importmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 	"strings"
 )
 
 type ImportsMock struct{}
 
-func (this *ImportsMock) GetImportInstance(user string, importId string) (importInstance importmodel.Import, err error, code int) {
-	return importmodel.Import{
+func (this *ImportsMock) GetImportInstance(user string, importId string) (importInstance models.Import, err error, code int) {
+	return models.Import{
 		Id:           importId,
 		ImportTypeId: "urn:infai:ses:import-type:a93420ae-ff5f-4c44-ee6b-5d3313f946d2",
 	}, nil, http.StatusOK
 }
 
-func (this *ImportsMock) GetImportType(user string, importTypeId string) (importType importmodel.ImportType, err error, code int) {
+func (this *ImportsMock) GetImportType(user string, importTypeId string) (importType models.ImportType, err error, code int) {
 	str := `{
    "id":"urn:infai:ses:import-type:a93420ae-ff5f-4c44-ee6b-5d3313f946d2",
    "name":"yr-forecast",

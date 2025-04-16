@@ -18,7 +18,7 @@ package deployments
 
 import (
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -26,10 +26,10 @@ import (
 )
 
 type DeploymentIndex struct {
-	Deployment   deploymentmodel.Deployment `json:"deployment" bson:"deployment"`
-	UserId       string                     `json:"user_id" bson:"user_id"`
-	DeviceGroups []string                   `json:"device_groups" bson:"device_groups"`
-	Id           string                     `json:"id" bson:"id"`
+	Deployment   models.Deployment `json:"deployment" bson:"deployment"`
+	UserId       string            `json:"user_id" bson:"user_id"`
+	DeviceGroups []string          `json:"device_groups" bson:"device_groups"`
+	Id           string            `json:"id" bson:"id"`
 }
 
 type Deployment = model.Deployment

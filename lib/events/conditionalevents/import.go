@@ -19,14 +19,12 @@ package conditionalevents
 import (
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/importmodel"
 	"log"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Transformer) transformEventForImport(owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
+func (this *Transformer) transformEventForImport(owner string, deployentId string, event *models.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,
@@ -84,26 +82,26 @@ func (this *Transformer) transformEventForImport(owner string, deployentId strin
 	return []model.EventDesc{desc}, nil
 }
 
-func importVariablesToContents(variables []importmodel.ImportContentVariable) (result []models.Content) {
+func importVariablesToContents(variables []models.ImportContentVariable) (result []models.Content) {
 	for _, v := range variables {
 		result = append(result, importVariableToContent(v))
 	}
 	return
 }
 
-func importVariableToContent(variable importmodel.ImportContentVariable) (result models.Content) {
+func importVariableToContent(variable models.ImportContentVariable) (result models.Content) {
 	result.ContentVariable = importContentVariableToContentVariable(variable)
 	return
 }
 
-func importContentVariablesToContentVariables(variables []importmodel.ImportContentVariable) (result []models.ContentVariable) {
+func importContentVariablesToContentVariables(variables []models.ImportContentVariable) (result []models.ContentVariable) {
 	for _, v := range variables {
 		result = append(result, importContentVariableToContentVariable(v))
 	}
 	return
 }
 
-func importContentVariableToContentVariable(v importmodel.ImportContentVariable) models.ContentVariable {
+func importContentVariableToContentVariable(v models.ImportContentVariable) models.ContentVariable {
 	return models.ContentVariable{
 		Name:                v.Name,
 		Type:                models.Type(v.Type),

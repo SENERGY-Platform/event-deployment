@@ -28,7 +28,7 @@ import (
 	"github.com/SENERGY-Platform/event-worker/pkg/configuration"
 	"github.com/SENERGY-Platform/event-worker/pkg/eventrepo/cloud/mongo"
 	workermodel "github.com/SENERGY-Platform/event-worker/pkg/model"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -58,7 +58,7 @@ func New(ctx context.Context, config config.Config, devices interfaces.Devices, 
 	return result, err
 }
 
-func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) error {
+func (this *Events) Deploy(owner string, deployment models.Deployment) error {
 	this.mux.Lock()
 	defer this.mux.Unlock()
 	err := this.deployments.SetDeployment(model.Deployment{
@@ -71,7 +71,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 	return this.deployEvents(owner, deployment)
 }
 
-func (this *Events) deployEvents(owner string, deployment deploymentmodel.Deployment) error {
+func (this *Events) deployEvents(owner string, deployment models.Deployment) error {
 	err := this.removeEvents(deployment.Id)
 	if err != nil {
 		return err

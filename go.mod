@@ -1,14 +1,13 @@
 module github.com/SENERGY-Platform/event-deployment
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/IBM/sarama v1.43.3
-	github.com/SENERGY-Platform/device-repository v0.2.5
-	github.com/SENERGY-Platform/event-worker v1.0.21
-	github.com/SENERGY-Platform/models/go v0.0.0-20241007061544-de7132ae94e4
-	github.com/SENERGY-Platform/process-deployment v0.0.13
-	github.com/SENERGY-Platform/service-commons v0.0.0-20250123095636-6dfc659ee43e
+	github.com/SENERGY-Platform/device-repository v0.2.17
+	github.com/SENERGY-Platform/event-worker v1.0.23
+	github.com/SENERGY-Platform/models/go v0.0.0-20250416100015-352501ba4571
+	github.com/SENERGY-Platform/service-commons v0.0.0-20250331120616-ff35c05099d3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/prometheus/client_golang v1.19.1
@@ -25,15 +24,15 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/SENERGY-Platform/developer-notifications v0.0.4 // indirect
-	github.com/SENERGY-Platform/permissions-v2 v0.0.27 // indirect
-	github.com/beevik/etree v1.4.0 // indirect
+	github.com/SENERGY-Platform/go-service-base/struct-logger v0.4.1 // indirect
+	github.com/SENERGY-Platform/permissions-v2 v0.0.36 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/platforms v0.2.1 // indirect
 	github.com/cpuguy83/dockercfg v0.3.1 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/docker v27.2.0+incompatible // indirect
@@ -84,10 +83,9 @@ require (
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/russross/blackfriday/v2 v2.0.1 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
-	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/swaggo/files v1.0.1 // indirect
 	github.com/swaggo/http-swagger v1.3.4 // indirect
@@ -120,7 +118,6 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-//replace github.com/SENERGY-Platform/process-deployment => ../process-deployment
 //replace github.com/SENERGY-Platform/event-worker => ../event-worker
 
 tool github.com/swaggo/swag/cmd/swag

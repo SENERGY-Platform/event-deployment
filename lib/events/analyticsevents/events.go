@@ -24,7 +24,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -48,7 +48,7 @@ func New(ctx context.Context, config config.Config, analytics interfaces.Analyti
 	return &Events{config: config, analytics: analytics, devices: devices, imports: imports, metrics: m, auth: a}, err
 }
 
-func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) error {
+func (this *Events) Deploy(owner string, deployment models.Deployment) error {
 	err := this.Remove(owner, deployment.Id)
 	if err != nil {
 		if this.config.IgnoreAnalyticsEventErrors {
@@ -72,7 +72,7 @@ func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) 
 	return nil
 }
 
-func (this *Events) deployElement(token auth.AuthToken, owner string, deploymentId string, element deploymentmodel.Element) (err error) {
+func (this *Events) deployElement(token auth.AuthToken, owner string, deploymentId string, element models.Element) (err error) {
 	event := element.MessageEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
 		this.metrics.DeployedAnalyticsEvents.Inc()
@@ -153,7 +153,7 @@ func (this *Events) GetEventStates(token string, ids []string) (states map[strin
 var ErrMissingCharacteristicInEvent = errors.New("missing characteristic id in event")
 
 // expects event.Selection.SelectedDeviceId and event.Selection.SelectedServiceId to be set
-func (this *Events) deployEventForDevice(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+func (this *Events) deployEventForDevice(token auth.AuthToken, label string, owner string, deploymentId string, event *models.MessageEvent) error {
 	if event == nil {
 		debug.PrintStack()
 		return errors.New("missing event element") //programming error -> dont ignore
@@ -256,7 +256,7 @@ func (this *Events) deployEventForDevice(token auth.AuthToken, label string, own
 	return nil
 }
 
-func (this *Events) deployEventForDeviceGroup(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+func (this *Events) deployEventForDeviceGroup(token auth.AuthToken, label string, owner string, deploymentId string, event *models.MessageEvent) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		log.Println("WARNING: DeviceGroupsAndImportsEnabled() = false; configure AuthClientId, AuthClientSecret, AuthEndpoint, PermSearchUrl")
 		return nil
@@ -502,7 +502,7 @@ func (this *Events) DeviceGroupsAndImportsEnabled() bool {
 	return true
 }
 
-func (this *Events) deployEventForImport(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+func (this *Events) deployEventForImport(token auth.AuthToken, label string, owner string, deploymentId string, event *models.MessageEvent) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		return nil
 	}
@@ -564,7 +564,7 @@ func (this *Events) deployEventForImport(token auth.AuthToken, label string, own
 	}, castFrom, *event.Selection.FilterCriteria.CharacteristicId, castExtensions)
 }
 
-func (this *Events) deployEventForGenericSource(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+func (this *Events) deployEventForGenericSource(token auth.AuthToken, label string, owner string, deploymentId string, event *models.MessageEvent) error {
 	if event == nil {
 		debug.PrintStack()
 		return errors.New("missing event element") //programming error -> dont ignore
@@ -703,7 +703,7 @@ func (this *Events) deployEventForGenericSourceWithDescription(token auth.AuthTo
 	return nil
 }
 
-func (this *Events) deployEventForDeviceWithoutService(token auth.AuthToken, label string, owner string, deploymentId string, event *deploymentmodel.MessageEvent) error {
+func (this *Events) deployEventForDeviceWithoutService(token auth.AuthToken, label string, owner string, deploymentId string, event *models.MessageEvent) error {
 	if !this.DeviceGroupsAndImportsEnabled() {
 		log.Println("WARNING: DeviceGroupsAndImportsEnabled() = false; configure AuthClientId, AuthClientSecret, AuthEndpoint, PermSearchUrl")
 		return nil

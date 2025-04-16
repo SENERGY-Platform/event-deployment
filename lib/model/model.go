@@ -18,7 +18,6 @@ package model
 
 import (
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 )
 
 type DeviceGroup = models.DeviceGroup
@@ -26,7 +25,7 @@ type DeviceGroup = models.DeviceGroup
 type Device = models.Device
 
 type Deployment struct {
-	deploymentmodel.Deployment
+	models.Deployment
 	UserId string
 }
 
@@ -37,7 +36,7 @@ type PathOptionsResultElement struct {
 }
 
 type GroupEventDescription struct {
-	GenericEventSource *deploymentmodel.GenericEventSource
+	GenericEventSource *models.GenericEventSource
 	ImportId           string
 	Path               string
 	DeviceGroupId      string

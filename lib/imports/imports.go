@@ -20,7 +20,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/importmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 	"net/url"
 	"runtime/debug"
@@ -60,7 +60,7 @@ func (this *Imports) GetTopic(user string, importId string) (topic string, err e
 	return topic, nil, 200
 }
 
-func (this *Imports) GetImportInstance(user string, importId string) (importInstance importmodel.Import, err error, code int) {
+func (this *Imports) GetImportInstance(user string, importId string) (importInstance models.Import, err error, code int) {
 	token, err := this.auth.GetUserToken(user)
 	if err != nil {
 		debug.PrintStack()
@@ -74,7 +74,7 @@ func (this *Imports) GetImportInstance(user string, importId string) (importInst
 	return importInstance, nil, 200
 }
 
-func (this *Imports) GetImportType(user string, importTypeId string) (importInstance importmodel.ImportType, err error, code int) {
+func (this *Imports) GetImportType(user string, importTypeId string) (importInstance models.ImportType, err error, code int) {
 	token, err := this.auth.GetUserToken(user)
 	if err != nil {
 		debug.PrintStack()

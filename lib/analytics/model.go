@@ -17,7 +17,7 @@
 package analytics
 
 import (
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -127,17 +127,17 @@ type Flow struct {
 }
 
 type EventPipelineDescription struct {
-	GenericEventSource *deploymentmodel.GenericEventSource `json:"generic_event_source,omitempty"`
-	ImportId           string                              `json:"import_id,omitempty"`
-	DeviceGroupId      string                              `json:"device_group_id,omitempty"`
-	DeviceId           string                              `json:"device_id,omitempty"`
-	ServiceId          string                              `json:"service_id,omitempty"`
-	FunctionId         string                              `json:"function_id,omitempty"`
-	AspectId           string                              `json:"aspect_id,omitempty"`
-	ValuePath          string                              `json:"value_path,omitempty"`
-	OperatorValue      string                              `json:"operator_value"`
-	EventId            string                              `json:"event_id"`
-	DeploymentId       string                              `json:"deployment_id"`
-	FlowId             string                              `json:"flow_id,omitempty"`
-	UseMarshaller      bool                                `json:"use_marshaller,omitempty"`
+	GenericEventSource *models.GenericEventSource `json:"generic_event_source,omitempty"`
+	ImportId           string                     `json:"import_id,omitempty"`
+	DeviceGroupId      string                     `json:"device_group_id,omitempty"`
+	DeviceId           string                     `json:"device_id,omitempty"`
+	ServiceId          string                     `json:"service_id,omitempty"`
+	FunctionId         string                     `json:"function_id,omitempty"`
+	AspectId           string                     `json:"aspect_id,omitempty"`
+	ValuePath          string                     `json:"value_path,omitempty"`
+	OperatorValue      string                     `json:"operator_value"`
+	EventId            string                     `json:"event_id"`
+	DeploymentId       string                     `json:"deployment_id"`
+	FlowId             string                     `json:"flow_id,omitempty"`
+	UseMarshaller      bool                       `json:"use_marshaller,omitempty"`
 }

@@ -20,13 +20,12 @@ import (
 	eventmodel "github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"log"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
+func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId string, event *models.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,
@@ -95,7 +94,7 @@ func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId 
 	return result, nil
 }
 
-func (this *Transformer) transformEventForDeviceWithoutService(owner string, deployentId string, event *deploymentmodel.ConditionalEvent) (result []model.EventDesc, err error) {
+func (this *Transformer) transformEventForDeviceWithoutService(owner string, deployentId string, event *models.ConditionalEvent) (result []model.EventDesc, err error) {
 	desc := model.EventDesc{
 		UserId:        owner,
 		DeploymentId:  deployentId,

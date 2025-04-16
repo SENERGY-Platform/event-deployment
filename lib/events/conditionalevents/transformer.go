@@ -19,7 +19,7 @@ package conditionalevents
 import (
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	"log"
 )
 
@@ -35,7 +35,7 @@ type Transformer struct {
 	imports interfaces.Imports
 }
 
-func (this *Transformer) Transform(owner string, deployment deploymentmodel.Deployment) (result []model.EventDesc, err error) {
+func (this *Transformer) Transform(owner string, deployment models.Deployment) (result []model.EventDesc, err error) {
 	for _, element := range deployment.Elements {
 		temp, err := this.TransformElement(owner, deployment.Id, element)
 		if err != nil {
@@ -46,7 +46,7 @@ func (this *Transformer) Transform(owner string, deployment deploymentmodel.Depl
 	return result, nil
 }
 
-func (this *Transformer) TransformElement(owner string, deploymentId string, element deploymentmodel.Element) (result []model.EventDesc, err error) {
+func (this *Transformer) TransformElement(owner string, deploymentId string, element models.Element) (result []model.EventDesc, err error) {
 	event := element.ConditionalEvent
 	if event != nil && event.Selection.FilterCriteria.CharacteristicId != nil {
 		if event.Selection.SelectedDeviceGroupId != nil && *event.Selection.SelectedDeviceGroupId != "" {

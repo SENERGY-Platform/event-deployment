@@ -21,7 +21,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	"reflect"
 	"sort"
 	"sync"
@@ -54,7 +54,7 @@ func TestDeployments(t *testing.T) {
 		return
 	}
 
-	deploy := func(d deploymentmodel.Deployment) error {
+	deploy := func(d models.Deployment) error {
 		return deployments.SetDeployment(model.Deployment{
 			Deployment: d,
 			UserId:     "userid",
@@ -62,7 +62,7 @@ func TestDeployments(t *testing.T) {
 	}
 
 	t.Run("set deployments", func(t *testing.T) {
-		err = deploy(deploymentmodel.Deployment{
+		err = deploy(models.Deployment{
 			Id:   "duplicate",
 			Name: "duplicate",
 		})
@@ -70,20 +70,20 @@ func TestDeployments(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		err = deploy(deploymentmodel.Deployment{
+		err = deploy(models.Deployment{
 			Id:   "duplicate",
 			Name: "duplicate",
-			Elements: []deploymentmodel.Element{
+			Elements: []models.Element{
 				{
-					ConditionalEvent: &deploymentmodel.ConditionalEvent{
-						Selection: deploymentmodel.Selection{
+					ConditionalEvent: &models.ConditionalEvent{
+						Selection: models.Selection{
 							SelectedDeviceGroupId: ptr("g1"),
 						},
 					},
 				},
 				{
-					ConditionalEvent: &deploymentmodel.ConditionalEvent{
-						Selection: deploymentmodel.Selection{
+					ConditionalEvent: &models.ConditionalEvent{
+						Selection: models.Selection{
 							SelectedDeviceGroupId: ptr("g2"),
 						},
 					},
@@ -94,20 +94,20 @@ func TestDeployments(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		err = deploy(deploymentmodel.Deployment{
+		err = deploy(models.Deployment{
 			Id:   "deleted",
 			Name: "deleted",
-			Elements: []deploymentmodel.Element{
+			Elements: []models.Element{
 				{
-					ConditionalEvent: &deploymentmodel.ConditionalEvent{
-						Selection: deploymentmodel.Selection{
+					ConditionalEvent: &models.ConditionalEvent{
+						Selection: models.Selection{
 							SelectedDeviceGroupId: ptr("g1"),
 						},
 					},
 				},
 				{
-					ConditionalEvent: &deploymentmodel.ConditionalEvent{
-						Selection: deploymentmodel.Selection{
+					ConditionalEvent: &models.ConditionalEvent{
+						Selection: models.Selection{
 							SelectedDeviceGroupId: ptr("g2"),
 						},
 					},
@@ -118,13 +118,13 @@ func TestDeployments(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		err = deploy(deploymentmodel.Deployment{
+		err = deploy(models.Deployment{
 			Id:   "second",
 			Name: "second",
-			Elements: []deploymentmodel.Element{
+			Elements: []models.Element{
 				{
-					ConditionalEvent: &deploymentmodel.ConditionalEvent{
-						Selection: deploymentmodel.Selection{
+					ConditionalEvent: &models.ConditionalEvent{
+						Selection: models.Selection{
 							SelectedDeviceGroupId: ptr("g2"),
 						},
 					},

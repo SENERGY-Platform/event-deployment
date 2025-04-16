@@ -21,7 +21,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 )
 
 type EventsFactory interface {
@@ -31,7 +31,7 @@ type EventsFactory interface {
 type Events interface {
 	HandleCommand(msg []byte) error
 	Remove(owner string, deploymentId string) (err error)
-	Deploy(owner string, deployment deploymentmodel.Deployment) (err error)
+	Deploy(owner string, deployment models.Deployment) (err error)
 	HandleDeviceGroupUpdate(msg []byte) error
 	UpdateDeviceGroup(group model.DeviceGroup) (err error)
 	CheckEvent(token string, id string) int

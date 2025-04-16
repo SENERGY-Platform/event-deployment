@@ -18,7 +18,7 @@ package interfaces
 
 import (
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/importmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 )
 
 type ImportsFactory interface {
@@ -27,6 +27,6 @@ type ImportsFactory interface {
 
 type Imports interface {
 	GetTopic(user string, importId string) (topic string, err error, code int)
-	GetImportInstance(user string, importId string) (importInstance importmodel.Import, err error, code int)
-	GetImportType(user string, importTypeId string) (importInstance importmodel.ImportType, err error, code int)
+	GetImportInstance(user string, importId string) (importInstance models.Import, err error, code int)
+	GetImportType(user string, importTypeId string) (importInstance models.ImportType, err error, code int)
 }

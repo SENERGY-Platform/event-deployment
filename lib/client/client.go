@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 )
@@ -35,10 +35,10 @@ func New(serverUrl string) (client *Client) {
 }
 
 type Deployment = model.Deployment
-type IncidentHandling = deploymentmodel.IncidentHandling
-type ProcessStartParameter = deploymentmodel.ProcessStartParameter
-type Element = deploymentmodel.Element
-type Diagram = deploymentmodel.Diagram
+type IncidentHandling = models.IncidentHandling
+type ProcessStartParameter = models.ProcessStartParameter
+type Element = models.Element
+type Diagram = models.Diagram
 
 type DeviceGroup = model.DeviceGroup
 

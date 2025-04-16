@@ -27,8 +27,7 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
+	"github.com/SENERGY-Platform/models/go/models"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -49,7 +48,7 @@ type Handler interface {
 	GetEventStates(token string, ids []string) (states map[string]bool, err error, code int)
 	CheckEvent(token string, id string) int
 	Remove(owner string, deploymentId string) error
-	Deploy(owner string, deployment deploymentmodel.Deployment) error
+	Deploy(owner string, deployment models.Deployment) error
 	UpdateDeviceGroup(group model.DeviceGroup) error
 }
 
@@ -79,6 +78,15 @@ type VersionWrapper struct {
 	Owner   string `json:"owner"`
 }
 
+type DeploymentCommand struct {
+	Command    string             `json:"command"`
+	Id         string             `json:"id"`
+	Owner      string             `json:"owner"`
+	Deployment *models.Deployment `json:"deployment"`
+	Source     string             `json:"source,omitempty"`
+	Version    int64              `json:"version"`
+}
+
 func (this *Events) HandleCommand(msg []byte) error {
 	if this.config.Debug {
 		log.Println("DEBUG: receive deployment command:", string(msg))
@@ -91,7 +99,7 @@ func (this *Events) HandleCommand(msg []byte) error {
 		debug.PrintStack()
 		return nil
 	}
-	if version.Version != deploymentmodel.CurrentVersion {
+	if version.Version != models.CurrentDeploymentModelVersion {
 		log.Println("ERROR: consumed unexpected deployment version", version.Version)
 		if version.Command == "DELETE" {
 			log.Println("handle legacy delete")
@@ -100,7 +108,7 @@ func (this *Events) HandleCommand(msg []byte) error {
 		return nil
 	}
 
-	cmd := messages.DeploymentCommand{}
+	cmd := DeploymentCommand{}
 	err = json.Unmarshal(msg, &cmd)
 	if err != nil {
 		log.Println("ERROR: invalid message --> ignore", err)
@@ -111,7 +119,7 @@ func (this *Events) HandleCommand(msg []byte) error {
 	case "RIGHTS":
 		return nil
 	case "PUT":
-		if cmd.Version != deploymentmodel.CurrentVersion {
+		if cmd.Version != models.CurrentDeploymentModelVersion {
 			log.Println("ERROR: unexpected deployment version", cmd.Version)
 			return nil
 		}
@@ -144,7 +152,7 @@ func (this *Events) HandleCommand(msg []byte) error {
 	return nil
 }
 
-func (this *Events) Deploy(owner string, deployment deploymentmodel.Deployment) (err error) {
+func (this *Events) Deploy(owner string, deployment models.Deployment) (err error) {
 	for _, h := range this.handlers {
 		err = h.Deploy(owner, deployment)
 		if err != nil {
