@@ -6,7 +6,7 @@ require (
 	github.com/IBM/sarama v1.43.3
 	github.com/SENERGY-Platform/device-repository v0.2.17
 	github.com/SENERGY-Platform/event-worker v1.0.23
-	github.com/SENERGY-Platform/models/go v0.0.0-20250416100015-352501ba4571
+	github.com/SENERGY-Platform/models/go v0.0.0-20250417082304-c41a4b3157af
 	github.com/SENERGY-Platform/service-commons v0.0.0-20250331120616-ff35c05099d3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
