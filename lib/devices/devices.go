@@ -50,10 +50,13 @@ type Auth interface {
 	Ensure() (token auth.AuthToken, err error)
 }
 
-func New(config config.Config) (*Devices, error) {
-	a, err := auth.NewAuth(config)
-	if err != nil {
-		return nil, err
+func New(config config.Config) (result *Devices, err error) {
+	var a Auth = InternalAdminTokenAuth{}
+	if config.AuthEndpoint != "" && config.AuthEndpoint != "-" {
+		a, err = auth.NewAuth(config)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return NewWithAuth(config, a), nil
 }
@@ -67,6 +70,12 @@ func NewWithAuth(config config.Config, auth Auth) *Devices {
 			return string(temp), err
 		}),
 	}
+}
+
+type InternalAdminTokenAuth struct{}
+
+func (this InternalAdminTokenAuth) Ensure() (token auth.AuthToken, err error) {
+	return client.InternalAdminToken, nil
 }
 
 func (this *Devices) GetDeviceInfosOfGroup(groupId string) (devices []model.Device, deviceTypeIds []string, err error, code int) {
