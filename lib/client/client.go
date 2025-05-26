@@ -24,6 +24,7 @@ import (
 	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type Client struct {
@@ -39,8 +40,6 @@ type IncidentHandling = models.IncidentHandling
 type ProcessStartParameter = models.ProcessStartParameter
 type Element = models.Element
 type Diagram = models.Diagram
-
-type DeviceGroup = model.DeviceGroup
 
 func (this *Client) Deploy(token string, depl Deployment) (err error, code int) {
 	body, err := json.Marshal(depl)
@@ -62,12 +61,8 @@ func (this *Client) DeleteDeployment(token string, userId string, deplId string)
 	return doVoid(token, req)
 }
 
-func (this *Client) UpdateDeploymentsOfDeviceGroup(token string, dg DeviceGroup) (err error, code int) {
-	body, err := json.Marshal(dg)
-	if err != nil {
-		return err, 0
-	}
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/device-groups", this.serverUrl), bytes.NewBuffer(body))
+func (this *Client) UpdateDeploymentsOfDeviceGroup(token string, dgId string) (err error, code int) {
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%v/device-groups/%v", this.serverUrl, url.PathEscape(dgId)), nil)
 	if err != nil {
 		return err, 0
 	}

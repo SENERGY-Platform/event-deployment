@@ -18,8 +18,6 @@ package events
 
 import (
 	"encoding/json"
-	"errors"
-	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"log"
 	"runtime/debug"
@@ -35,22 +33,7 @@ func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
 		debug.PrintStack()
 		return err
 	}
-	switch cmd.Command {
-	case "RIGHTS":
-		return nil
-	case "PUT":
-		err = this.UpdateDeviceGroup(cmd.DeviceGroup)
-		if errors.Is(err, auth.ErrUserDoesNotExist) {
-			log.Printf("WARNING: user does not exist -> device-group update will be ignored\n")
-			return nil
-		}
-		return err
-	case "DELETE":
-		log.Println("ignore device-group delete")
-		return nil
-	default:
-		return errors.New("unknown command " + cmd.Command)
-	}
+	return this.UpdateDeviceGroup(cmd.Id)
 }
 
 type DeviceGroupCommand struct {
@@ -59,9 +42,9 @@ type DeviceGroupCommand struct {
 	DeviceGroup model.DeviceGroup `json:"device_group"`
 }
 
-func (this *Events) UpdateDeviceGroup(group model.DeviceGroup) (err error) {
+func (this *Events) UpdateDeviceGroup(groupId string) (err error) {
 	for _, h := range this.handlers {
-		err = h.UpdateDeviceGroup(group)
+		err = h.UpdateDeviceGroup(groupId)
 		if err != nil {
 			return err
 		}

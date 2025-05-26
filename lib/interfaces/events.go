@@ -20,7 +20,6 @@ import (
 	"context"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
-	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 )
 
@@ -33,7 +32,7 @@ type Events interface {
 	Remove(owner string, deploymentId string) (err error)
 	Deploy(owner string, deployment models.Deployment) (err error)
 	HandleDeviceGroupUpdate(msg []byte) error
-	UpdateDeviceGroup(group model.DeviceGroup) (err error)
+	UpdateDeviceGroup(groupId string) (err error)
 	CheckEvent(token string, id string) int
 	GetEventStates(token string, ids []string) (states map[string]bool, err error, code int)
 }

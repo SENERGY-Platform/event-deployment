@@ -5,7 +5,7 @@
   "kafka_url":"kafka:9092",
   "device_repository_url": "http://device-repository:8080",
   "flow_engine_url":"http://kong:8000/analytics/flow-engine/v2",
-  "flow_parser_url":"http://kong:8000/analytics/flow-parser/v2",
+  "flow_parser_url":"http://kong:8000/analytics/flow-parser/v2",  
   "pipeline_repo_url": "http://kong:8000/analytics/pipeline",
   "import_deploy_url": "http://kong:8000/import/deploy",
   "consumer_group":"event_manager",

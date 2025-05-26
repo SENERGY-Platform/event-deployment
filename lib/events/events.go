@@ -26,7 +26,6 @@ import (
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
-	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"log"
 	"net/http"
@@ -49,7 +48,7 @@ type Handler interface {
 	CheckEvent(token string, id string) int
 	Remove(owner string, deploymentId string) error
 	Deploy(owner string, deployment models.Deployment) error
-	UpdateDeviceGroup(group model.DeviceGroup) error
+	UpdateDeviceGroup(groupId string) error
 }
 
 func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer, m *metrics.Metrics) (result interfaces.Events, err error) {

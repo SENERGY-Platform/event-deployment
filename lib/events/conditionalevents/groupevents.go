@@ -18,18 +18,17 @@ package conditionalevents
 
 import (
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/deployments"
-	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	eventworkermodel "github.com/SENERGY-Platform/event-worker/pkg/model"
 )
 
-func (this *Events) UpdateDeviceGroup(group model.DeviceGroup) error {
+func (this *Events) UpdateDeviceGroup(groupId string) error {
 	this.mux.Lock()
 	defer this.mux.Unlock()
-	deploymentList, err := this.deployments.GetDeploymentByDeviceGroupId(group.Id)
+	deploymentList, err := this.deployments.GetDeploymentByDeviceGroupId(groupId)
 	if err != nil {
 		return err
 	}
-	descr, err := this.db.GetEventDescriptionsByDeviceGroup(group.Id)
+	descr, err := this.db.GetEventDescriptionsByDeviceGroup(groupId)
 	if err != nil {
 		return err
 	}

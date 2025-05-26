@@ -16,11 +16,7 @@
 
 package analyticsevents
 
-import (
-	"github.com/SENERGY-Platform/event-deployment/lib/model"
-)
-
-func (this *Events) UpdateDeviceGroup(group model.DeviceGroup) error {
+func (this *Events) UpdateDeviceGroup(groupId string) error {
 	//legacy analytics events dont support device-group updates
 	return nil
 }

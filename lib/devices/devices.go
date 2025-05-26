@@ -85,6 +85,9 @@ func (this *Devices) GetDeviceInfosOfGroup(groupId string) (devices []model.Devi
 	}
 	group, err, code := this.GetDeviceGroup(token, groupId)
 	if err != nil {
+		if code == http.StatusNotFound || code == http.StatusForbidden || code == http.StatusUnauthorized {
+			return nil, nil, nil, http.StatusOK
+		}
 		return devices, nil, err, code
 	}
 	return this.GetDeviceInfosOfDevices(group.DeviceIds)
