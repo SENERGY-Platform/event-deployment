@@ -38,6 +38,7 @@ func TestKafka(t *testing.T) {
 		return
 	}
 	config.Debug = false
+	config.InitTopics = true
 
 	_, zkIp, err := Zookeeper(ctx, wg)
 	if err != nil {

@@ -54,5 +54,5 @@
   "disable_kafka_device_group_update": false,
   "disable_kafka_done_producer": false,
 
-  "init_topics": true
+  "init_topics": false
 }
