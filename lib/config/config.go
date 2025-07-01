@@ -89,6 +89,8 @@ type ConfigStruct struct {
 	DisableKafkaProcessDeployment bool `json:"disable_kafka_process_deployment"`
 	DisableKafkaDeviceGroupUpdate bool `json:"disable_kafka_device_group_update"`
 	DisableKafkaDoneProducer      bool `json:"disable_kafka_done_producer"`
+
+	InitTopics bool `json:"init_topics"`
 }
 
 type Config = *ConfigStruct
