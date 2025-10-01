@@ -19,14 +19,15 @@ package docker
 import (
 	"context"
 	"errors"
-	"github.com/segmentio/kafka-go"
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
 	"net"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/segmentio/kafka-go"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 func Kafka(ctx context.Context, wg *sync.WaitGroup, zookeeperUrl string) (kafkaUrl string, err error) {
@@ -48,7 +49,7 @@ func Kafka(ctx context.Context, wg *sync.WaitGroup, zookeeperUrl string) (kafkaU
 	log.Println("kafkaUrl url: ", kafkaUrl)
 	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
-			Image: "bitnami/kafka:3.4.0-debian-11-r21",
+			Image: "bitnamilegacy/kafka:3.4.0-debian-11-r21",
 			Tmpfs: map[string]string{},
 			WaitingFor: wait.ForAll(
 				wait.ForLog("INFO Awaiting socket connections on"),

@@ -18,7 +18,6 @@ package lib
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
 	"github.com/SENERGY-Platform/event-deployment/lib/api"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/devices"
@@ -31,18 +30,14 @@ import (
 )
 
 func StartDefault(ctx context.Context, config config.Config) error {
-	return Start(ctx, config, kafka.Factory, events.Factory, analytics.Factory, devices.Factory, api.Start)
+	return Start(ctx, config, kafka.Factory, events.Factory, devices.Factory, api.Start)
 }
 
 type Producer interface {
 	Produce(key string, message []byte) error
 }
 
-func Start(ctx context.Context, config config.Config, sourcing interfaces.SourcingFactory, events interfaces.EventsFactory, analytics interfaces.AnalyticsFactory, devices interfaces.DevicesFactory, apiFactory func(ctx context.Context, config config.Config, ctrl interfaces.Events) error) error {
-	a, err := analytics.New(ctx, config)
-	if err != nil {
-		return err
-	}
+func Start(ctx context.Context, config config.Config, sourcing interfaces.SourcingFactory, events interfaces.EventsFactory, devices interfaces.DevicesFactory, apiFactory func(ctx context.Context, config config.Config, ctrl interfaces.Events) error) (err error) {
 	var producer Producer
 	if !config.DisableKafka && !config.DisableKafkaDoneProducer && config.DeploymentDoneTopic != "" && config.DeploymentDoneTopic != "-" {
 		log.Println("use deployment done producer")
@@ -62,7 +57,7 @@ func Start(ctx context.Context, config config.Config, sourcing interfaces.Sourci
 		return err
 	}
 
-	event, err := events.New(ctx, config, a, d, i, producer, m)
+	event, err := events.New(ctx, config, d, i, producer, m)
 	if err != nil {
 		return err
 	}

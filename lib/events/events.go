@@ -20,16 +20,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log"
+	"net/http"
+	"runtime/debug"
+
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	"github.com/SENERGY-Platform/event-deployment/lib/events/analyticsevents"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/models/go/models"
-	"log"
-	"net/http"
-	"runtime/debug"
 )
 
 type EventsFactory struct{}
@@ -51,15 +51,8 @@ type Handler interface {
 	UpdateDeviceGroup(groupId string) error
 }
 
-func (this *EventsFactory) New(ctx context.Context, config config.Config, analytics interfaces.Analytics, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer, m *metrics.Metrics) (result interfaces.Events, err error) {
+func (this *EventsFactory) New(ctx context.Context, config config.Config, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer, m *metrics.Metrics) (result interfaces.Events, err error) {
 	handlers := []Handler{}
-	if config.EnableAnalyticsEvents {
-		analyticsEvents, err := analyticsevents.New(ctx, config, analytics, devices, imports, m)
-		if err != nil {
-			return nil, err
-		}
-		handlers = append(handlers, analyticsEvents)
-	}
 	if config.ConditionalEventRepoMongoUrl != "" && config.ConditionalEventRepoMongoUrl != "-" {
 		conditionalEvents, err := conditionalevents.New(ctx, config, devices, imports, m)
 		if err != nil {

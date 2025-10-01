@@ -19,22 +19,16 @@ package tests
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
+	"os"
+	"runtime/debug"
+	"sync"
+	"testing"
+
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
-	uuid "github.com/satori/go.uuid"
-	"log"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"reflect"
-	"runtime/debug"
-	"sort"
-	"sync"
-	"testing"
 )
 
 const RESOURCES_DIR = "resources/"
@@ -71,9 +65,6 @@ func testDeployment(t *testing.T, testcase string) {
 	conf.AuthEndpoint = "mocked"
 	conf.AuthClientSecret = "mocked"
 	conf.AuthClientId = "mocked"
-	conf.ImportPathPrefix = ""
-	conf.DevicePathPrefix = ""
-	conf.GroupPathPrefix = ""
 	conf.Debug = true
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -153,37 +144,7 @@ func testDeployment(t *testing.T, testcase string) {
 		}
 	}
 
-	closeTestPipelineRepoApi := func() {}
-	conf.PipelineRepoUrl, closeTestPipelineRepoApi, err = createTestPipelineRepoApi(DEPLOYMENT_EXAMPLES_DIR + testcase + "/knownpipelines.json")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	defer closeTestPipelineRepoApi()
-
-	closeTestFlowParserApi := func() {}
-	conf.FlowParserUrl, closeTestFlowParserApi, err = createTestFlowParserApi()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	defer closeTestFlowParserApi()
-
-	closeTestFlowEngineApi := func() {}
-	conf.FlowEngineUrl, closeTestFlowEngineApi, err = createTestFlowEngineApi(t, DEPLOYMENT_EXAMPLES_DIR+testcase)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	defer closeTestFlowEngineApi()
-
-	a, err := analytics.Factory.New(ctx, conf)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	event, err := events.Factory.New(ctx, conf, a, &devicesMock, &mocks.ImportsMock{}, nil, metrics.New())
+	event, err := events.Factory.New(ctx, conf, &devicesMock, &mocks.ImportsMock{}, nil, metrics.New())
 	if err != nil {
 		t.Error(err)
 		return
@@ -216,110 +177,4 @@ func isValidForDeploymentTest(dir string) bool {
 		}
 	}
 	return files["deploymentcommand.json"] && files["pipelinerequests.json"]
-}
-
-func createTestFlowEngineApi(t *testing.T, fullTestCasePath string) (endpointUrl string, close func(), err error) {
-	expectedRequestJson, err := os.ReadFile(fullTestCasePath + "/pipelinerequests.json")
-	if err != nil {
-		return endpointUrl, close, err
-	}
-
-	expectedRequests := []analytics.PipelineRequest{}
-	err = json.Unmarshal(expectedRequestJson, &expectedRequests)
-	if err != nil {
-		return endpointUrl, close, err
-	}
-
-	count := 0
-	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("ANALYTICS-AUTH:", r.Header.Get("Authorization"))
-		log.Println("endpoint-mock receive:", r.Method, r.URL.Path)
-		if (r.Method == "POST" || r.Method == "PUT") && r.URL.Path == "/pipeline" {
-			if count >= len(expectedRequests) {
-				t.Error("to many requests to flow engine \n\n", len(expectedRequests))
-				return
-			}
-			actualRequest := analytics.PipelineRequest{}
-			err = json.NewDecoder(r.Body).Decode(&actualRequest)
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			for i, node := range actualRequest.Nodes {
-				sort.Slice(node.Inputs, func(i, j int) bool {
-					return node.Inputs[i].TopicName < node.Inputs[j].TopicName
-				})
-				actualRequest.Nodes[i] = node
-			}
-			for i, node := range expectedRequests[count].Nodes {
-				sort.Slice(node.Inputs, func(i, j int) bool {
-					return node.Inputs[i].TopicName < node.Inputs[j].TopicName
-				})
-				expectedRequests[count].Nodes[i] = node
-			}
-			if !reflect.DeepEqual(expectedRequests[count], actualRequest) {
-				expectedJson, _ := json.Marshal(expectedRequests[count])
-				actualJson, _ := json.Marshal(actualRequest)
-				t.Errorf("\ne:%v\na:%v\n", string(expectedJson), string(actualJson))
-				return
-			}
-			count = count + 1
-			json.NewEncoder(w).Encode(analytics.Pipeline{
-				Id:   uuid.NewV4(),
-				Name: "test-result",
-			})
-		} else {
-			t.Error("unknown request endpoint", r.Method, r.URL.Path)
-		}
-	}))
-
-	endpointUrl = endpointMock.URL
-	close = func() {
-		endpointMock.Close()
-		if count < len(expectedRequests) {
-			t.Error("missing requests to flow engine", count, len(expectedRequests))
-		}
-	}
-	return
-}
-
-func createTestFlowParserApi() (endpointUrl string, close func(), err error) {
-	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode([]analytics.FlowModelCell{{Id: "test-flow-cell-id"}})
-	}))
-	endpointUrl = endpointMock.URL
-	close = func() {
-		endpointMock.Close()
-	}
-	return
-}
-
-type PipelinesResponse struct {
-	Data  []interface{} `json:"data,omitempty"`
-	Total int           `json:"total,omitempty"`
-}
-
-func createTestPipelineRepoApi(pipelinesFilePath string) (endpointUrl string, close func(), err error) {
-	pipelines := []interface{}{}
-	if fileExists(pipelinesFilePath) {
-		groupdevicesJson, err := os.ReadFile(pipelinesFilePath)
-		if err != nil {
-			return endpointUrl, func() {}, err
-		}
-		err = json.Unmarshal(groupdevicesJson, &pipelines)
-		if err != nil {
-			return endpointUrl, func() {}, err
-		}
-	}
-	endpointMock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(PipelinesResponse{
-			Data:  pipelines,
-			Total: len(pipelines),
-		})
-	}))
-	endpointUrl = endpointMock.URL
-	close = func() {
-		endpointMock.Close()
-	}
-	return
 }

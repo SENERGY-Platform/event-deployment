@@ -30,27 +30,15 @@ import (
 )
 
 type ConfigStruct struct {
-	LogLevel             string `json:"log_level"`
-	ApiPort              string `json:"api_port"`
-	MetricsPort          string `json:"metrics_port"`
-	MarshallerUrl        string `json:"marshaller_url"`
-	ConverterUrl         string `json:"converter_url"`
-	ExtendedConverterUrl string `json:"extended_converter_url"`
-	KafkaUrl             string `json:"kafka_url"`
-	FlowEngineUrl        string `json:"flow_engine_url"`
-	FlowParserUrl        string `json:"flow_parser_url"`
-	PipelineRepoUrl      string `json:"pipeline_repo_url"`
-	ImportDeployUrl      string `json:"import_deploy_url"`
-	ConsumerGroup        string `json:"consumer_group"`
-	Debug                bool   `json:"debug"`
-	DeploymentTopic      string `json:"deployment_topic"`
-	ConnectivityTest     bool   `json:"connectivity_test"`
-	EventTriggerUrl      string `json:"event_trigger_url"`
-
-	DevicePathPrefix        string `json:"device_path_prefix"`
-	GroupPathPrefix         string `json:"group_path_prefix"`
-	ImportPathPrefix        string `json:"import_path_prefix"`
-	GenericSourcePathPrefix string `json:"generic_source_path_prefix"`
+	LogLevel         string `json:"log_level"`
+	ApiPort          string `json:"api_port"`
+	MetricsPort      string `json:"metrics_port"`
+	KafkaUrl         string `json:"kafka_url"`
+	ImportDeployUrl  string `json:"import_deploy_url"`
+	ConsumerGroup    string `json:"consumer_group"`
+	Debug            bool   `json:"debug"`
+	DeploymentTopic  string `json:"deployment_topic"`
+	ConnectivityTest bool   `json:"connectivity_test"`
 
 	ConditionalEventRepoMongoUrl                   string `json:"conditional_event_repo_mongo_url"`
 	ConditionalEventRepoMongoTable                 string `json:"conditional_event_repo_mongo_table"`
@@ -73,15 +61,9 @@ type ConfigStruct struct {
 	AuthClientId             string  `json:"auth_client_id" config:"secret"`
 	AuthClientSecret         string  `json:"auth_client_secret" config:"secret"`
 
-	AnalyticsPipelineBatchSize int64  `json:"analytics_pipeline_batch_size"`
-	AnalyticsRequestTimeout    string `json:"analytics_request_timeout"`
-	HttpClientTimeout          string `json:"http_client_timeout"`
-	HttpServerTimeout          string `json:"http_server_timeout"`
-	HttpServerReadTimeout      string `json:"http_server_read_timeout"`
-
-	EnableMultiplePaths        bool `json:"enable_multiple_paths"`
-	EnableAnalyticsEvents      bool `json:"enable_analytics_events"`
-	IgnoreAnalyticsEventErrors bool `json:"ignore_analytics_event_errors"`
+	HttpClientTimeout     string `json:"http_client_timeout"`
+	HttpServerTimeout     string `json:"http_server_timeout"`
+	HttpServerReadTimeout string `json:"http_server_read_timeout"`
 
 	UserTokenCacheLifespanInSec int64 `json:"user_token_cache_lifespan_in_sec"`
 

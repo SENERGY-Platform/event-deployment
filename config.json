@@ -4,19 +4,12 @@
   "metrics_port": "2112",
   "kafka_url":"kafka:9092",
   "device_repository_url": "http://device-repository:8080",
-  "flow_engine_url":"http://kong:8000/analytics/flow-engine/v2",
-  "flow_parser_url":"http://kong:8000/analytics/flow-parser/v2",  
-  "pipeline_repo_url": "http://kong:8000/analytics/pipeline",
   "import_deploy_url": "http://kong:8000/import/deploy",
   "consumer_group":"event_manager",
-  "marshaller_url": "http://marshaller.marshalling:8080",
-  "converter_url": "http://converter:8080/conversions",
-  "extended_converter_url": "http://converter:8080/extended-conversions",
   "debug":false,
   "deployment_topic":"deployments_v3",
   "deployment_done_topic": "process-deployment-done",
   "connectivity_test":false,
-  "event_trigger_url":"http://camunda-wrapper:8080/engine-rest/message",
 
   "conditional_event_repo_mongo_url": "",
   "conditional_event_repo_mongo_table": "event_descriptions",
@@ -32,20 +25,9 @@
   "auth_client_id": "",
   "auth_client_secret": "",
 
-  "analytics_pipeline_batch_size": 500,
-  "analytics_request_timeout": "30s",
   "http_client_timeout": "30s",
   "http_server_timeout": "30s",
   "http_server_read_timeout": "3s",
-
-  "device_path_prefix": "value.",
-  "group_path_prefix": "value.",
-  "import_path_prefix": "value.",
-  "generic_source_path_prefix": "",
-
-  "enable_multiple_paths": false,
-  "enable_analytics_events": true,
-  "ignore_analytics_event_errors": true,
 
   "user_token_cache_lifespan_in_sec": 3590,
 

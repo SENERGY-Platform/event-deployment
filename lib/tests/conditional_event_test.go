@@ -19,7 +19,14 @@ package tests
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/event-deployment/lib/analytics"
+	"net/http"
+	"os"
+	"reflect"
+	"runtime/debug"
+	"sort"
+	"sync"
+	"testing"
+
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events"
 	"github.com/SENERGY-Platform/event-deployment/lib/metrics"
@@ -31,13 +38,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"net/http"
-	"os"
-	"reflect"
-	"runtime/debug"
-	"sort"
-	"sync"
-	"testing"
 )
 
 const CONDITIONAL_EVENT_EXAMPLES_DIR = RESOURCES_DIR + "conditional_events/"
@@ -73,9 +73,6 @@ func testConditionalEvent(t *testing.T, testcase string) {
 	conf.AuthEndpoint = "mocked"
 	conf.AuthClientSecret = "mocked"
 	conf.AuthClientId = "mocked"
-	conf.ImportPathPrefix = ""
-	conf.DevicePathPrefix = ""
-	conf.GroupPathPrefix = ""
 
 	ctx, cancel := context.WithCancel(context.Background())
 	wg := sync.WaitGroup{}
@@ -174,21 +171,7 @@ func testConditionalEvent(t *testing.T, testcase string) {
 		}
 	}
 
-	closeTestPipelineRepoApi := func() {}
-	conf.PipelineRepoUrl, closeTestPipelineRepoApi, err = createTestPipelineRepoApi(DEPLOYMENT_EXAMPLES_DIR + testcase + "/knownpipelines.json")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	defer closeTestPipelineRepoApi()
-
-	a, err := analytics.Factory.New(ctx, conf)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	event, err := events.Factory.New(ctx, conf, a, &devicesMock, &mocks.ImportsMock{}, nil, metrics.New())
+	event, err := events.Factory.New(ctx, conf, &devicesMock, &mocks.ImportsMock{}, nil, metrics.New())
 	if err != nil {
 		t.Error(err)
 		return
