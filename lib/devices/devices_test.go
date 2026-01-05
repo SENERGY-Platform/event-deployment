@@ -18,15 +18,16 @@ package devices
 
 import (
 	"context"
+	"reflect"
+	"sync"
+	"testing"
+
 	"github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	"github.com/SENERGY-Platform/event-deployment/lib/tests/mocks"
-	"reflect"
-	"sync"
-	"testing"
 )
 
 func TestDevices(t *testing.T) {
@@ -48,14 +49,7 @@ func TestDevices(t *testing.T) {
 		return
 	}
 
-	_, zk, err := docker.Zookeeper(ctx, wg)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	zkUrl := zk + ":2181"
-
-	conf.KafkaUrl, err = docker.Kafka(ctx, wg, zkUrl)
+	conf.KafkaUrl, err = docker.Kafka(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return

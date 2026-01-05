@@ -18,12 +18,13 @@ package kafka
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 	"reflect"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/tests/docker"
 )
 
 func TestKafka(t *testing.T) {
@@ -40,15 +41,7 @@ func TestKafka(t *testing.T) {
 	config.Debug = false
 	config.InitTopics = true
 
-	_, zkIp, err := Zookeeper(ctx, wg)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	zookeeperUrl := zkIp + ":2181"
-
-	//kafka
-	config.KafkaUrl, err = Kafka(ctx, wg, zookeeperUrl)
+	config.KafkaUrl, err = Kafka(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
@@ -104,5 +97,3 @@ func TestKafka(t *testing.T) {
 }
 
 var Kafka = docker.Kafka
-
-var Zookeeper = docker.Zookeeper
