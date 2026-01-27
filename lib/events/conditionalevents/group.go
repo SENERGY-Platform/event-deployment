@@ -17,12 +17,13 @@
 package conditionalevents
 
 import (
+	"log/slog"
+	"net/http"
+	"runtime/debug"
+
 	eventmodel "github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"log"
-	"net/http"
-	"runtime/debug"
 )
 
 func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId string, event *models.ConditionalEvent) (result []model.EventDesc, err error) {
@@ -55,7 +56,7 @@ func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId 
 		if code == http.StatusInternalServerError {
 			return []model.EventDesc{}, err
 		} else {
-			log.Println("ERROR:", code, err)
+			slog.Default().Error("ERROR", "code", code, "error", err)
 			debug.PrintStack()
 			return []model.EventDesc{}, nil //ignore bad request errors
 		}
@@ -75,7 +76,7 @@ func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId 
 		if code == http.StatusInternalServerError {
 			return []model.EventDesc{}, err
 		} else {
-			log.Println("ERROR:", code, err)
+			slog.Default().Error("ERROR", "code", code, "error", err)
 			debug.PrintStack()
 			return []model.EventDesc{}, nil //ignore bad request errors
 		}
@@ -124,7 +125,7 @@ func (this *Transformer) transformEventForDeviceWithoutService(owner string, dep
 		if code == http.StatusInternalServerError {
 			return []model.EventDesc{}, err
 		} else {
-			log.Println("ERROR:", code, err)
+			slog.Default().Error("ERROR", "code", code, "error", err)
 			debug.PrintStack()
 			return []model.EventDesc{}, nil //ignore bad request errors
 		}
@@ -144,7 +145,7 @@ func (this *Transformer) transformEventForDeviceWithoutService(owner string, dep
 		if code == http.StatusInternalServerError {
 			return []model.EventDesc{}, err
 		} else {
-			log.Println("ERROR:", code, err)
+			slog.Default().Error("ERROR", "code", code, "error", err)
 			debug.PrintStack()
 			return []model.EventDesc{}, nil //ignore bad request errors
 		}
@@ -171,13 +172,13 @@ func (this *Transformer) transformPartialDescription(partialDesc model.EventDesc
 			if code == http.StatusInternalServerError {
 				return []model.EventDesc{}, err
 			} else {
-				log.Println("ERROR:", code, err)
+				slog.Default().Error("ERROR", "code", code, "error", err)
 				debug.PrintStack()
 				return []model.EventDesc{}, nil //ignore bad request errors
 			}
 		}
 		if len(devices) == 0 {
-			log.Println("ERROR: unexpected GetDeviceInfosOfDevices() result", devices)
+			slog.Default().Error("GetDeviceInfosOfDevices() device not found", "device-id", partialDesc.DeviceId)
 			debug.PrintStack()
 			return []model.EventDesc{}, nil
 		}

@@ -18,15 +18,13 @@ package events
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"log"
 	"runtime/debug"
+
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 )
 
 func (this *Events) HandleDeviceGroupUpdate(msg []byte) error {
-	if this.config.Debug {
-		log.Println("DEBUG: receive device-group command:", string(msg))
-	}
+	this.config.GetLogger().Debug("received device-group command", "msg", string(msg))
 	cmd := DeviceGroupCommand{}
 	err := json.Unmarshal(msg, &cmd)
 	if err != nil {

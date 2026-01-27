@@ -2,21 +2,22 @@ package topicconfig
 
 import (
 	"errors"
-	"github.com/IBM/sarama"
-	"github.com/segmentio/kafka-go"
-	"log"
+	"log/slog"
 	"net"
 	"strconv"
+
+	"github.com/IBM/sarama"
+	"github.com/segmentio/kafka-go"
 )
 
 func Ensure(bootstrapUrl string, topic string, config map[string]string) (err error) {
 	controller, err := getKafkaController(bootstrapUrl)
 	if err != nil {
-		log.Println("ERROR: unable to find controller", err)
+		slog.Default().Error("unable to find controller", "error", err)
 		return err
 	}
 	if controller == "" {
-		log.Println("ERROR: unable to find controller")
+		slog.Default().Error("unable to find controller", "error", "controller == \"\"")
 		return errors.New("unable to find controller")
 	}
 	return EnsureWithBroker(controller, topic, config)
@@ -38,8 +39,7 @@ func EnsureWithBroker(broker string, topic string, config map[string]string) (er
 
 	err = set(admin, topic, temp)
 	if err != nil {
-		log.Println("WARNING: ", err)
-		log.Println("create topic: ", topic, config)
+		slog.Default().Warn("unable to update topic --> create with config", "error", err, "topic", topic, "config", config)
 		err = create(admin, topic, temp)
 	}
 

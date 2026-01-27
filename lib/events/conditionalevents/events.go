@@ -19,6 +19,10 @@ package conditionalevents
 import (
 	"context"
 	"errors"
+	"net/http"
+	"runtime/debug"
+	"sync"
+
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/deployments"
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/idmodifier"
@@ -29,10 +33,6 @@ import (
 	"github.com/SENERGY-Platform/event-worker/pkg/eventrepo/cloud/mongo"
 	workermodel "github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"log"
-	"net/http"
-	"runtime/debug"
-	"sync"
 )
 
 type Events struct {
@@ -108,7 +108,7 @@ func (this *Events) removeEvents(deploymentId string) error {
 func (this *Events) CheckEvent(token string, id string) int {
 	desc, err := this.db.GetEventDescriptionsByEventId(id)
 	if err != nil {
-		log.Println("ERROR:", err)
+		this.config.GetLogger().Error("unable to GetEventDescriptionsByEventId()", "error", err)
 		debug.PrintStack()
 		return http.StatusInternalServerError
 	}

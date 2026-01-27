@@ -20,7 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"runtime/debug"
 
@@ -80,21 +79,19 @@ type DeploymentCommand struct {
 }
 
 func (this *Events) HandleCommand(msg []byte) error {
-	if this.config.Debug {
-		log.Println("DEBUG: receive deployment command:", string(msg))
-	}
+	this.config.GetLogger().Debug("received deployment command", "msg", string(msg))
 
 	version := VersionWrapper{}
 	err := json.Unmarshal(msg, &version)
 	if err != nil {
-		log.Println("ERROR: consumed invalid message --> ignore", err)
+		this.config.GetLogger().Error("invalid message --> ignore", "error", err)
 		debug.PrintStack()
 		return nil
 	}
 	if version.Version != models.CurrentDeploymentModelVersion {
-		log.Println("ERROR: consumed unexpected deployment version", version.Version)
+		this.config.GetLogger().Error("consumed unexpected deployment version", "version", version.Version)
 		if version.Command == "DELETE" {
-			log.Println("handle legacy delete")
+			this.config.GetLogger().Warn("handle legacy delete")
 			return this.Remove(version.Owner, version.Id)
 		}
 		return nil
@@ -103,7 +100,7 @@ func (this *Events) HandleCommand(msg []byte) error {
 	cmd := DeploymentCommand{}
 	err = json.Unmarshal(msg, &cmd)
 	if err != nil {
-		log.Println("ERROR: invalid message --> ignore", err)
+		this.config.GetLogger().Error("invalid message --> ignore", "error", err)
 		debug.PrintStack()
 		return nil
 	}
@@ -112,29 +109,29 @@ func (this *Events) HandleCommand(msg []byte) error {
 		return nil
 	case "PUT":
 		if cmd.Version != models.CurrentDeploymentModelVersion {
-			log.Println("ERROR: unexpected deployment version", cmd.Version)
+			this.config.GetLogger().Error("consumed unexpected deployment version", "version", cmd.Version)
 			return nil
 		}
 		if cmd.Owner == "" {
-			log.Printf("ERROR: missing owner --> ignore deployment command %#v\n", cmd)
+			this.config.GetLogger().Error("missing owner --> ignore deployment command", "error", string(msg))
 			return nil
 		}
 		if cmd.Deployment != nil {
 			err = this.Deploy(cmd.Owner, *cmd.Deployment)
 		}
 		if errors.Is(err, auth.ErrUserDoesNotExist) {
-			log.Printf("WARNING: user %v does not exist -> DEPLOYMENT WILL BE IGNORED\n", cmd.Owner)
+			this.config.GetLogger().Warn("user does not exist -> ignore deployment command", "error", err, "owner", cmd.Owner)
 			return nil
 		}
 		return err
 	case "DELETE":
 		if cmd.Owner == "" {
-			log.Printf("ERROR: missing owner --> ignore deployment delete command %#v\n", cmd)
+			this.config.GetLogger().Error("missing owner --> ignore deployment delete command", "error", string(msg))
 			return nil
 		}
 		err = this.Remove(cmd.Owner, cmd.Id)
 		if errors.Is(err, auth.ErrUserDoesNotExist) {
-			log.Printf("WARNING: user %v does not exist -> DEPLOYMENT WILL BE IGNORED\n", cmd.Owner)
+			this.config.GetLogger().Warn("user does not exist -> ignore deployment delete command", "error", err, "owner", cmd.Owner)
 			return nil
 		}
 		return err
@@ -200,16 +197,16 @@ func (this *Events) notifyProcessDeploymentDone(id string) {
 			Id:      id,
 			Handler: "github.com/SENERGY-Platform/event-deployment",
 		}
-		log.Println("send deployment done", message)
+		this.config.GetLogger().Debug("send deployment done", "message", message)
 		msg, err := json.Marshal(message)
 		if err != nil {
-			log.Println("ERROR:", err)
+			this.config.GetLogger().Error("unable to marshal deployment done message", "error", err)
 			debug.PrintStack()
 			return
 		}
 		err = this.doneProducer.Produce(id, msg)
 		if err != nil {
-			log.Println("ERROR:", err)
+			this.config.GetLogger().Error("unable to send deployment done message", "error", err)
 			debug.PrintStack()
 			return
 		}

@@ -18,11 +18,13 @@ package metrics
 
 import (
 	"context"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
+	"log/slog"
 	"net/http"
 	"runtime/debug"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Metrics struct {
@@ -81,6 +83,7 @@ func New() *Metrics {
 }
 
 func (this *Metrics) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	slog.Default().Info("http request", "method", request.Method, "path", request.URL, "remote-addr", request.RemoteAddr)
 	log.Printf("%v [%v] %v \n", request.RemoteAddr, request.Method, request.URL)
 	this.httphandler.ServeHTTP(writer, request)
 }
@@ -95,15 +98,16 @@ func (this *Metrics) Serve(ctx context.Context, port string) *Metrics {
 
 	server := &http.Server{Addr: ":" + port, Handler: router}
 	go func() {
-		log.Println("listening on ", server.Addr, "for /metrics")
+		slog.Default().Info("listen for /metrics", "address", server.Addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			debug.PrintStack()
+			slog.Default().Error("FATAL", "error", err)
 			log.Fatal("FATAL:", err)
 		}
 	}()
 	go func() {
 		<-ctx.Done()
-		log.Println("metrics shutdown", server.Shutdown(context.Background()))
+		slog.Default().Info("metrics shutdown", "result", server.Shutdown(context.Background()))
 	}()
 	return this
 }

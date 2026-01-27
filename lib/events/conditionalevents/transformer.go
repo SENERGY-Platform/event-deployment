@@ -17,10 +17,11 @@
 package conditionalevents
 
 import (
+	"log/slog"
+
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"log"
 )
 
 func NewTransformer(devices Devices, imports interfaces.Imports) *Transformer {
@@ -62,7 +63,7 @@ func (this *Transformer) TransformElement(owner string, deploymentId string, ele
 			return this.transformEventForImport(owner, deploymentId, event)
 		}
 		if event.Selection.SelectedGenericEventSource != nil {
-			log.Println("WARNING: generic event sources not supported for conditional events")
+			slog.Default().Warn("generic event sources not supported for conditional events")
 			return []model.EventDesc{}, nil
 		}
 	}

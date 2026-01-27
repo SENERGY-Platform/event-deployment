@@ -18,13 +18,13 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/event-deployment/lib/api/util"
-	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
-	"log"
 	"net/http"
 	"runtime/debug"
 	"strings"
+
+	"github.com/SENERGY-Platform/event-deployment/lib/api/util"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 )
 
 func init() {
@@ -62,7 +62,7 @@ func EventStatesEndpoints(router *http.ServeMux, config config.Config, ctrl inte
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(states)
 		if err != nil {
-			log.Println("ERROR:", err)
+			config.GetLogger().Error("unable to encode response", "error", err)
 			debug.PrintStack()
 		}
 	})

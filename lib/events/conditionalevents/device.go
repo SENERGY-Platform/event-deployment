@@ -17,12 +17,13 @@
 package conditionalevents
 
 import (
+	"log/slog"
+	"net/http"
+	"runtime/debug"
+
 	"github.com/SENERGY-Platform/event-deployment/lib/events/conditionalevents/idmodifier"
 	"github.com/SENERGY-Platform/event-worker/pkg/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"log"
-	"net/http"
-	"runtime/debug"
 )
 
 func (this *Transformer) transformEventForDevice(owner string, deployentId string, event *models.ConditionalEvent) (result []model.EventDesc, err error) {
@@ -59,7 +60,7 @@ func (this *Transformer) transformEventForDevice(owner string, deployentId strin
 		if code == http.StatusInternalServerError {
 			return []model.EventDesc{}, err
 		} else {
-			log.Println("ERROR:", code, err)
+			slog.Default().Error("ERROR:", "code", code, "error", err)
 			debug.PrintStack()
 			return []model.EventDesc{}, nil //ignore bad request errors
 		}

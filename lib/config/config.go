@@ -19,14 +19,17 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"reflect"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
+
+	struct_logger "github.com/SENERGY-Platform/go-service-base/struct-logger"
 )
 
 type ConfigStruct struct {
@@ -73,6 +76,8 @@ type ConfigStruct struct {
 	DisableKafkaDoneProducer      bool `json:"disable_kafka_done_producer"`
 
 	InitTopics bool `json:"init_topics"`
+
+	logger *slog.Logger `json:"-"`
 }
 
 type Config = *ConfigStruct
@@ -80,13 +85,13 @@ type Config = *ConfigStruct
 func LoadConfig(location string) (config Config, err error) {
 	file, err := os.Open(location)
 	if err != nil {
-		log.Println("error on config load: ", err)
+		(&ConfigStruct{}).GetLogger().Error("could not load config file", "error", err)
 		return config, err
 	}
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&config)
 	if err != nil {
-		log.Println("invalid config json: ", err)
+		(&ConfigStruct{}).GetLogger().Error("invalid config json", "error", err)
 		return config, err
 	}
 	HandleEnvironmentVars(config)
@@ -120,6 +125,7 @@ func HandleEnvironmentVars(config Config) {
 		envValue := os.Getenv(envName)
 		if envValue != "" {
 			if !strings.Contains(fieldConfig, "secret") {
+				config.GetLogger().Info("use environment variable", "name", envName, "value", envValue)
 				fmt.Println("use environment variable: ", envName, " = ", envValue)
 			}
 			if configValue.FieldByName(fieldName).Kind() == reflect.Int64 {
@@ -162,6 +168,37 @@ func setDefaultHttpClient(config Config) {
 	var err error
 	http.DefaultClient.Timeout, err = time.ParseDuration(config.HttpClientTimeout)
 	if err != nil {
-		log.Println("WARNING: invalid http timeout --> no timeouts\n", err)
+		slog.Default().Warn("invalid http client timeout --> no timeouts", "error", err)
 	}
+}
+
+func (this *ConfigStruct) GetLogger() *slog.Logger {
+	if this.logger == nil {
+		if this.Debug {
+			this.LogLevel = "debug"
+		}
+		info, ok := debug.ReadBuildInfo()
+		project := ""
+		org := ""
+		if ok {
+			if parts := strings.Split(info.Main.Path, "/"); len(parts) > 2 {
+				project = strings.Join(parts[2:], "/")
+				org = strings.Join(parts[:2], "/")
+			}
+		}
+		this.logger = struct_logger.New(
+			struct_logger.Config{
+				Handler:    struct_logger.JsonHandlerSelector,
+				Level:      this.LogLevel,
+				TimeFormat: time.RFC3339Nano,
+				TimeUtc:    true,
+				AddMeta:    true,
+			},
+			os.Stdout,
+			org,
+			project,
+		)
+		slog.SetDefault(this.logger)
+	}
+	return this.logger
 }

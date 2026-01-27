@@ -19,15 +19,16 @@ package auth
 import (
 	"encoding/json"
 	"errors"
-	"github.com/SENERGY-Platform/event-deployment/lib/config"
-	"github.com/SENERGY-Platform/service-commons/pkg/cache"
-	"github.com/golang-jwt/jwt"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
+	"github.com/SENERGY-Platform/service-commons/pkg/cache"
+	"github.com/golang-jwt/jwt"
 
 	"net/url"
 )
@@ -79,20 +80,20 @@ func (this *Auth) Ensure() (token AuthToken, err error) {
 	}
 
 	if this.openid.RefreshToken != "" && this.openid.RefreshExpiresIn-this.config.AuthExpirationTimeBuffer > duration {
-		log.Println("refresh token", this.openid.RefreshExpiresIn, duration)
+		this.config.GetLogger().Debug("refresh token available", "duration", duration, "refresh_expires_in", this.openid.RefreshExpiresIn)
 		err = refreshOpenidToken(this.openid, this.config)
 		if err != nil {
-			log.Println("WARNING: unable to use refreshtoken", err)
+			this.config.GetLogger().Warn("unable to use refreshtoken", "error", err)
 		} else {
 			token = AuthToken("Bearer " + this.openid.AccessToken)
 			return
 		}
 	}
 
-	log.Println("get new access token")
+	this.config.GetLogger().Debug("get new access token")
 	err = getOpenidToken(this.openid, this.config)
 	if err != nil {
-		log.Println("ERROR: unable to get new access token", err)
+		this.config.GetLogger().Error("unable to get new access token", "error", err)
 		this.openid = &OpenidToken{}
 	}
 	token = AuthToken("Bearer " + this.openid.AccessToken)
@@ -135,7 +136,7 @@ func (this *Auth) getUserToken(userid string) (token AuthToken, err error) {
 	}
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		log.Println("ERROR: GetUserToken()", userid, resp.StatusCode, string(body))
+		this.config.GetLogger().Error("ERROR: getUserToken()", "userid", userid, "statuscode", resp.StatusCode, "error", string(body))
 		err = errors.New("access denied")
 		resp.Body.Close()
 		return
@@ -179,12 +180,12 @@ func getOpenidToken(token *OpenidToken, config config.Config) (err error) {
 	})
 
 	if err != nil {
-		log.Println("ERROR: getOpenidToken::PostForm()", err)
+		config.GetLogger().Error("ERROR: getOpenidToken()", "error", err)
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		log.Println("ERROR: getOpenidToken()", resp.StatusCode, string(body))
+		config.GetLogger().Error("ERROR: getOpenidToken()", "statuscode", resp.StatusCode, "error", string(body))
 		err = errors.New("access denied")
 		resp.Body.Close()
 		return
@@ -208,7 +209,7 @@ func refreshOpenidToken(token *OpenidToken, config config.Config) (err error) {
 	}
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		log.Println("ERROR: refreshOpenidToken()", resp.StatusCode, string(body))
+		config.GetLogger().Error("ERROR: refreshOpenidToken()", "statuscode", resp.StatusCode, "error", string(body))
 		err = errors.New("access denied")
 		resp.Body.Close()
 		return
@@ -233,7 +234,7 @@ func GenerateInternalUserToken(userid string) (token string, err error) {
 	jwtoken := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	unsignedTokenString, err := jwtoken.SigningString()
 	if err != nil {
-		log.Println("ERROR: GenerateUserTokenById::SigningString()", err, userid)
+		slog.Default().Error("GenerateUserTokenById::SigningString()", "error", err, "userId", userid)
 		return token, err
 	}
 	tokenString := strings.Join([]string{unsignedTokenString, ""}, ".")

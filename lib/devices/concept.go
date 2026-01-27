@@ -20,11 +20,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/SENERGY-Platform/event-deployment/lib/model"
-	"log"
 	"net/http"
 	"net/url"
 	"runtime/debug"
+
+	"github.com/SENERGY-Platform/event-deployment/lib/model"
 )
 
 func (this *Devices) GetConcept(conceptId string) (result model.Concept, err error, code int) {
@@ -49,7 +49,7 @@ func (this *Devices) GetConcept(conceptId string) (result model.Concept, err err
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
 		err = errors.New(buf.String())
-		log.Println("ERROR: ", resp.StatusCode, err)
+		this.config.GetLogger().Error("ERROR: GetConcept()", "conceptId", conceptId, "error", err)
 		debug.PrintStack()
 		return result, err, resp.StatusCode
 	}
@@ -84,7 +84,7 @@ func (this *Devices) GetFunction(functionId string) (result model.Function, err 
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
 		err = errors.New(buf.String())
-		log.Println("ERROR: ", resp.StatusCode, err)
+		this.config.GetLogger().Error("ERROR: GetFunction()", "functionId", functionId, "statusCode", resp.StatusCode, "error", err)
 		debug.PrintStack()
 		return result, err, resp.StatusCode
 	}

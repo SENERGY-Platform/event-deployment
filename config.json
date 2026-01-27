@@ -1,5 +1,5 @@
 {
-  "log_level":"CALL",
+  "log_level":"info",
   "api_port":"8080",
   "metrics_port": "2112",
   "kafka_url":"kafka:9092",

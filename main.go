@@ -19,13 +19,14 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/SENERGY-Platform/event-deployment/lib"
-	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/SENERGY-Platform/event-deployment/lib"
+	"github.com/SENERGY-Platform/event-deployment/lib/config"
 )
 
 func main() {
@@ -41,7 +42,7 @@ func main() {
 
 	err = lib.StartDefault(ctx, config)
 	if err != nil {
-		log.Println(err)
+		config.GetLogger().Error("startup failed", "error", err)
 		cancel()
 	}
 
@@ -49,7 +50,7 @@ func main() {
 		shutdown := make(chan os.Signal, 1)
 		signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 		sig := <-shutdown
-		log.Println("received shutdown signal", sig)
+		config.GetLogger().Info("received shutdown signal", "signal", sig)
 		cancel()
 	}()
 

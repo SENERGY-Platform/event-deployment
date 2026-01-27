@@ -20,16 +20,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"net/url"
+	"runtime/debug"
+
 	"github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/event-deployment/lib/auth"
 	"github.com/SENERGY-Platform/event-deployment/lib/config"
 	"github.com/SENERGY-Platform/event-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/event-deployment/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"log"
-	"net/http"
-	"net/url"
-	"runtime/debug"
 )
 
 type FactoryType struct{}
@@ -142,7 +142,7 @@ func (this *Devices) GetService(serviceId string) (result models.Service, err er
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
 		err = errors.New(buf.String())
-		log.Println("ERROR: ", resp.StatusCode, err)
+		this.config.GetLogger().Error("ERROR: GetService()", "serviceId", serviceId, "statusCode", resp.StatusCode, "error", err)
 		debug.PrintStack()
 		return result, err, resp.StatusCode
 	}
@@ -182,7 +182,7 @@ func (this *Devices) GetDeviceTypeSelectables(criteria []model.FilterCriteria) (
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
 		err = errors.New(buf.String())
-		log.Println("ERROR: ", resp.StatusCode, err)
+		this.config.GetLogger().Error("ERROR: GetDeviceTypeSelectables()", "statusCode", resp.StatusCode, "error", err)
 		debug.PrintStack()
 		return result, err, resp.StatusCode
 	}
