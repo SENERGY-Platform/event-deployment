@@ -217,13 +217,16 @@ func (this *DevicesMock) GetDeviceTypeSelectables(criteria []model.FilterCriteri
 		return nil, errors.New("expect exactly 1 criteria"), http.StatusInternalServerError
 	}
 	functionId := criteria[0].FunctionId
-	aspectId := criteria[0].AspectId
+	//the resource files key the selectables by the aspect part of the criteria. AspectIdsShort
+	//is the fold the platform uses for such keys, so the deprecated single aspect id and a
+	//one element list find the same entry.
+	aspectKey := models.AspectIdsShort(criteria[0].AspectId, criteria[0].AspectIds)
 	functionMap, ok := this.GetDeviceTypeSelectablesValues[functionId]
 	if !ok {
 		//no function found
 		return result, nil, http.StatusOK
 	}
-	result, ok = functionMap[aspectId]
+	result, ok = functionMap[aspectKey]
 	if !ok {
 		//no aspect found
 		return result, nil, http.StatusOK

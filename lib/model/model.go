@@ -56,11 +56,10 @@ type PathAndCharacteristic struct {
 	CharacteristicId string `json:"characteristic_id"`
 }
 
-type FilterCriteria = struct {
-	FunctionId    string `json:"function_id"`
-	DeviceClassId string `json:"device_class_id"`
-	AspectId      string `json:"aspect_id"`
-}
+// FilterCriteria is what the device-repository is asked with. AspectId is deprecated
+// there and kept as an alias for an AspectIds list with a single element; the
+// device-repository normalizes it into AspectIds at its own boundary.
+type FilterCriteria = models.FilterCriteria
 
 type DeviceTypeSelectable struct {
 	DeviceTypeId       string                         `json:"device_type_id,omitempty"`

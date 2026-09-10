@@ -39,18 +39,7 @@ func (this *Transformer) transformEventForDevice(owner string, deployentId strin
 		EventId:       event.EventId,
 	}
 
-	if event.Selection.FilterCriteria.CharacteristicId != nil {
-		desc.CharacteristicId = *event.Selection.FilterCriteria.CharacteristicId
-	}
-	if event.Selection.FilterCriteria.FunctionId != nil {
-		desc.FunctionId = *event.Selection.FilterCriteria.FunctionId
-	}
-	if event.Selection.FilterCriteria.AspectId != nil {
-		desc.AspectId = *event.Selection.FilterCriteria.AspectId
-	}
-	if event.Selection.SelectedPath != nil {
-		desc.Path = event.Selection.SelectedPath.Path
-	}
+	setSelectionCriteria(&desc, event.Selection)
 
 	desc.DeviceId, _ = idmodifier.SplitModifier(desc.DeviceId)
 	desc.ServiceId, _ = idmodifier.SplitModifier(desc.ServiceId)

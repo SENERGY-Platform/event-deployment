@@ -38,18 +38,7 @@ func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId 
 		EventId:       event.EventId,
 	}
 
-	if event.Selection.FilterCriteria.CharacteristicId != nil {
-		desc.CharacteristicId = *event.Selection.FilterCriteria.CharacteristicId
-	}
-	if event.Selection.FilterCriteria.FunctionId != nil {
-		desc.FunctionId = *event.Selection.FilterCriteria.FunctionId
-	}
-	if event.Selection.FilterCriteria.AspectId != nil {
-		desc.AspectId = *event.Selection.FilterCriteria.AspectId
-	}
-	if event.Selection.SelectedPath != nil {
-		desc.Path = event.Selection.SelectedPath.Path
-	}
+	setSelectionCriteria(&desc, event.Selection)
 
 	devices, _, err, code := this.devices.GetDeviceInfosOfGroup(desc.DeviceGroupId)
 	if err != nil {
@@ -68,10 +57,7 @@ func (this *Transformer) transformEventForDeviceGroup(owner string, deployentId 
 		deviceCache[device.Id] = device
 	}
 
-	dtSelectables, err, code := this.devices.GetDeviceTypeSelectables([]eventmodel.FilterCriteria{{
-		FunctionId: desc.FunctionId,
-		AspectId:   desc.AspectId,
-	}})
+	dtSelectables, err, code := this.devices.GetDeviceTypeSelectables(selectableCriteria(desc))
 	if err != nil {
 		if code == http.StatusInternalServerError {
 			return []model.EventDesc{}, err
@@ -107,18 +93,7 @@ func (this *Transformer) transformEventForDeviceWithoutService(owner string, dep
 		EventId:       event.EventId,
 	}
 
-	if event.Selection.FilterCriteria.CharacteristicId != nil {
-		desc.CharacteristicId = *event.Selection.FilterCriteria.CharacteristicId
-	}
-	if event.Selection.FilterCriteria.FunctionId != nil {
-		desc.FunctionId = *event.Selection.FilterCriteria.FunctionId
-	}
-	if event.Selection.FilterCriteria.AspectId != nil {
-		desc.AspectId = *event.Selection.FilterCriteria.AspectId
-	}
-	if event.Selection.SelectedPath != nil {
-		desc.Path = event.Selection.SelectedPath.Path
-	}
+	setSelectionCriteria(&desc, event.Selection)
 
 	devices, _, err, code := this.devices.GetDeviceInfosOfDevices([]string{desc.DeviceId})
 	if err != nil {
@@ -137,10 +112,7 @@ func (this *Transformer) transformEventForDeviceWithoutService(owner string, dep
 		deviceCache[device.Id] = device
 	}
 
-	dtSelectables, err, code := this.devices.GetDeviceTypeSelectables([]eventmodel.FilterCriteria{{
-		FunctionId: desc.FunctionId,
-		AspectId:   desc.AspectId,
-	}})
+	dtSelectables, err, code := this.devices.GetDeviceTypeSelectables(selectableCriteria(desc))
 	if err != nil {
 		if code == http.StatusInternalServerError {
 			return []model.EventDesc{}, err
