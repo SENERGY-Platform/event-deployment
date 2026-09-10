@@ -4,205 +4,41 @@ definitions:
     additionalProperties:
       type: boolean
     type: object
-  deploymentmodel.ConditionalEvent:
+  model.Deployment:
     properties:
-      event_id:
+      description:
         type: string
-      qos:
-        type: integer
-      script:
-        type: string
-      selection:
-        $ref: '#/definitions/deploymentmodel.Selection'
-      value_variable:
-        type: string
-      variables:
-        additionalProperties:
-          type: string
-        type: object
-    type: object
-  deploymentmodel.Device:
-    properties:
-      id:
-        type: string
-      name:
-        type: string
-    type: object
-  deploymentmodel.DeviceGroup:
-    properties:
-      id:
-        type: string
-      name:
-        type: string
-    type: object
-  deploymentmodel.Diagram:
-    properties:
-      svg:
-        type: string
-      xml_deployed:
-        type: string
-      xml_raw:
-        type: string
-    type: object
-  deploymentmodel.Element:
-    properties:
-      bpmn_id:
-        type: string
-      conditional_event:
-        $ref: '#/definitions/deploymentmodel.ConditionalEvent'
-      group:
-        type: string
-      message_event:
-        $ref: '#/definitions/deploymentmodel.MessageEvent'
-      name:
-        type: string
-      notification:
-        $ref: '#/definitions/deploymentmodel.Notification'
-      order:
-        type: integer
-      task:
-        $ref: '#/definitions/deploymentmodel.Task'
-      time_event:
-        $ref: '#/definitions/deploymentmodel.TimeEvent'
-    type: object
-  deploymentmodel.FilterCriteria:
-    properties:
-      aspect_id:
-        type: string
-      characteristic_id:
-        description: 'TODO: remove?'
-        type: string
-      device_class_id:
-        type: string
-      function_id:
-        type: string
-    type: object
-  deploymentmodel.GenericEventSource:
-    properties:
-      filter_ids:
-        type: string
-      filter_type:
-        type: string
-      topic:
-        type: string
-    type: object
-  deploymentmodel.IncidentHandling:
-    properties:
-      notify:
-        type: boolean
-      restart:
-        type: boolean
-    type: object
-  deploymentmodel.MessageEvent:
-    properties:
-      event_id:
-        type: string
-      flow_id:
-        type: string
-      selection:
-        $ref: '#/definitions/deploymentmodel.Selection'
-      use_marshaller:
-        type: boolean
-      value:
-        type: string
-    type: object
-  deploymentmodel.Notification:
-    properties:
-      message:
-        type: string
-      title:
-        type: string
-    type: object
-  deploymentmodel.ProcessStartParameter:
-    properties:
-      default:
-        type: string
-      id:
-        type: string
-      label:
-        type: string
-      properties:
-        additionalProperties:
-          type: string
-        type: object
-      type:
-        type: string
-    type: object
-  deploymentmodel.Selection:
-    properties:
-      filter_criteria:
-        $ref: '#/definitions/deploymentmodel.FilterCriteria'
-      selected_device_group_id:
-        type: string
-      selected_device_id:
-        type: string
-      selected_generic_event_source:
-        $ref: '#/definitions/deploymentmodel.GenericEventSource'
-      selected_import_id:
-        type: string
-      selected_path:
-        $ref: '#/definitions/deviceselectionmodel.PathOption'
-      selected_service_id:
-        type: string
-      selection_options:
+      diagram:
+        $ref: '#/definitions/models.Diagram'
+      elements:
         items:
-          $ref: '#/definitions/deploymentmodel.SelectionOption'
+          $ref: '#/definitions/models.Element'
         type: array
-    type: object
-  deploymentmodel.SelectionOption:
-    properties:
-      device:
-        $ref: '#/definitions/deploymentmodel.Device'
-      device_group:
-        $ref: '#/definitions/deploymentmodel.DeviceGroup'
-      import:
-        $ref: '#/definitions/importmodel.Import'
-      importType:
-        $ref: '#/definitions/importmodel.ImportType'
-      path_options:
-        additionalProperties:
-          items:
-            $ref: '#/definitions/deviceselectionmodel.PathOption'
-          type: array
-        type: object
-      services:
-        items:
-          $ref: '#/definitions/deploymentmodel.Service'
-        type: array
-    type: object
-  deploymentmodel.Service:
-    properties:
+      executable:
+        type: boolean
       id:
         type: string
+      incident_handling:
+        $ref: '#/definitions/models.IncidentHandling'
       name:
         type: string
-    type: object
-  deploymentmodel.Task:
-    properties:
-      parameter:
-        additionalProperties:
-          type: string
-        type: object
-      prefer_event:
-        type: boolean
-      retries:
+      start_parameter:
+        items:
+          $ref: '#/definitions/models.ProcessStartParameter'
+        type: array
+      userId:
+        type: string
+      version:
         type: integer
-      selection:
-        $ref: '#/definitions/deploymentmodel.Selection'
     type: object
-  deploymentmodel.TimeEvent:
-    properties:
-      time:
-        type: string
-      type:
-        type: string
-    type: object
-  devicemodel.AspectNode:
+  models.AspectNode:
     properties:
       ancestor_ids:
         items:
           type: string
         type: array
+      aspect_class_id:
+        type: string
       child_ids:
         items:
           type: string
@@ -220,10 +56,27 @@ definitions:
       root_id:
         type: string
     type: object
-  deviceselectionmodel.Configurable:
+  models.ConditionalEvent:
+    properties:
+      event_id:
+        type: string
+      qos:
+        type: integer
+      script:
+        type: string
+      selection:
+        $ref: '#/definitions/models.Selection'
+      value_variable:
+        type: string
+      variables:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  models.Configurable:
     properties:
       aspect_node:
-        $ref: '#/definitions/devicemodel.AspectNode'
+        $ref: '#/definitions/models.AspectNode'
       characteristic_id:
         type: string
       function_id:
@@ -234,31 +87,50 @@ definitions:
         type: string
       value: {}
     type: object
-  deviceselectionmodel.PathOption:
+  models.Diagram:
     properties:
-      aspectNode:
-        $ref: '#/definitions/devicemodel.AspectNode'
-      characteristicId:
+      svg:
         type: string
-      configurables:
-        items:
-          $ref: '#/definitions/deviceselectionmodel.Configurable'
-        type: array
-      functionId:
+      xml_deployed:
         type: string
-      isVoid:
-        type: boolean
-      path:
+      xml_raw:
         type: string
-      type:
-        type: string
-      value: {}
     type: object
-  importmodel.Import:
+  models.Element:
+    properties:
+      bpmn_id:
+        type: string
+      conditional_event:
+        $ref: '#/definitions/models.ConditionalEvent'
+      group:
+        type: string
+      message_event:
+        $ref: '#/definitions/models.MessageEvent'
+      name:
+        type: string
+      notification:
+        $ref: '#/definitions/models.Notification'
+      order:
+        type: integer
+      task:
+        $ref: '#/definitions/models.Task'
+      time_event:
+        $ref: '#/definitions/models.TimeEvent'
+    type: object
+  models.GenericEventSource:
+    properties:
+      filter_ids:
+        type: string
+      filter_type:
+        type: string
+      topic:
+        type: string
+    type: object
+  models.Import:
     properties:
       configs:
         items:
-          $ref: '#/definitions/importmodel.ImportConfig'
+          $ref: '#/definitions/models.ImportConfig'
         type: array
       id:
         type: string
@@ -273,13 +145,13 @@ definitions:
       restart:
         type: boolean
     type: object
-  importmodel.ImportConfig:
+  models.ImportConfig:
     properties:
       name:
         type: string
       value: {}
     type: object
-  importmodel.ImportContentVariable:
+  models.ImportContentVariable:
     properties:
       aspect_id:
         type: string
@@ -291,18 +163,18 @@ definitions:
         type: string
       sub_content_variables:
         items:
-          $ref: '#/definitions/importmodel.ImportContentVariable'
+          $ref: '#/definitions/models.ImportContentVariable'
         type: array
       type:
-        type: string
+        $ref: '#/definitions/models.Type'
       use_as_tag:
         type: boolean
     type: object
-  importmodel.ImportType:
+  models.ImportType:
     properties:
       configs:
         items:
-          $ref: '#/definitions/importmodel.ImportConfig'
+          $ref: '#/definitions/models.ImportConfig'
         type: array
       default_restart:
         type: boolean
@@ -315,94 +187,187 @@ definitions:
       name:
         type: string
       output:
-        $ref: '#/definitions/importmodel.ImportContentVariable'
+        $ref: '#/definitions/models.ImportContentVariable'
       owner:
         type: string
     type: object
-  model.Deployment:
+  models.IncidentHandling:
     properties:
-      description:
-        type: string
-      diagram:
-        $ref: '#/definitions/deploymentmodel.Diagram'
-      elements:
-        items:
-          $ref: '#/definitions/deploymentmodel.Element'
-        type: array
-      executable:
+      notify:
         type: boolean
-      id:
-        type: string
-      incident_handling:
-        $ref: '#/definitions/deploymentmodel.IncidentHandling'
-      name:
-        type: string
-      start_parameter:
-        items:
-          $ref: '#/definitions/deploymentmodel.ProcessStartParameter'
-        type: array
-      userId:
-        type: string
-      version:
-        type: integer
+      restart:
+        type: boolean
     type: object
-  model.DeviceGroup:
+  models.MessageEvent:
     properties:
-      attributes:
-        items:
-          $ref: '#/definitions/models.Attribute'
-        type: array
-      auto_generated_by_device:
+      event_id:
         type: string
-      criteria:
-        items:
-          $ref: '#/definitions/models.DeviceGroupFilterCriteria'
-        type: array
-      criteria_short:
-        items:
-          type: string
-        type: array
-      device_ids:
-        items:
-          type: string
-        type: array
-      id:
+      flow_id:
         type: string
-      image:
-        type: string
-      name:
-        type: string
-    type: object
-  models.Attribute:
-    properties:
-      key:
-        type: string
-      origin:
-        type: string
+      selection:
+        $ref: '#/definitions/models.Selection'
+      use_marshaller:
+        type: boolean
       value:
         type: string
     type: object
-  models.DeviceGroupFilterCriteria:
+  models.Notification:
+    properties:
+      message:
+        type: string
+      title:
+        type: string
+    type: object
+  models.PathOption:
+    properties:
+      aspectNode:
+        $ref: '#/definitions/models.AspectNode'
+      characteristicId:
+        type: string
+      configurables:
+        items:
+          $ref: '#/definitions/models.Configurable'
+        type: array
+      functionId:
+        type: string
+      isVoid:
+        type: boolean
+      path:
+        type: string
+      type:
+        type: string
+      value: {}
+    type: object
+  models.ProcessFilterCriteria:
     properties:
       aspect_id:
+        description: 'deprecated: please use AspectIds'
+        type: string
+      aspect_ids:
+        items:
+          type: string
+        type: array
+      characteristic_id:
         type: string
       device_class_id:
         type: string
       function_id:
         type: string
-      interaction:
-        $ref: '#/definitions/models.Interaction'
     type: object
-  models.Interaction:
+  models.ProcessStartParameter:
+    properties:
+      default:
+        type: string
+      id:
+        type: string
+      label:
+        type: string
+      properties:
+        additionalProperties:
+          type: string
+        type: object
+      type:
+        type: string
+    type: object
+  models.Selection:
+    properties:
+      filter_criteria:
+        $ref: '#/definitions/models.ProcessFilterCriteria'
+      selected_device_group_id:
+        type: string
+      selected_device_id:
+        type: string
+      selected_generic_event_source:
+        $ref: '#/definitions/models.GenericEventSource'
+      selected_import_id:
+        type: string
+      selected_path:
+        $ref: '#/definitions/models.PathOption'
+      selected_service_id:
+        type: string
+      selection_options:
+        items:
+          $ref: '#/definitions/models.SelectionOption'
+        type: array
+    type: object
+  models.SelectionDevice:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.SelectionDeviceGroup:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.SelectionOption:
+    properties:
+      device:
+        $ref: '#/definitions/models.SelectionDevice'
+      device_group:
+        $ref: '#/definitions/models.SelectionDeviceGroup'
+      import:
+        $ref: '#/definitions/models.Import'
+      importType:
+        $ref: '#/definitions/models.ImportType'
+      path_options:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/models.PathOption'
+          type: array
+        type: object
+      services:
+        items:
+          $ref: '#/definitions/models.SelectionService'
+        type: array
+    type: object
+  models.SelectionService:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      parameter:
+        additionalProperties:
+          type: string
+        type: object
+      prefer_event:
+        type: boolean
+      retries:
+        type: integer
+      selection:
+        $ref: '#/definitions/models.Selection'
+    type: object
+  models.TimeEvent:
+    properties:
+      time:
+        type: string
+      type:
+        type: string
+    type: object
+  models.Type:
     enum:
-    - event
-    - request
-    - event+request
+    - https://schema.org/Text
+    - https://schema.org/Integer
+    - https://schema.org/Float
+    - https://schema.org/Boolean
+    - https://schema.org/ItemList
+    - https://schema.org/StructuredValue
     type: string
     x-enum-varnames:
-    - EVENT
-    - REQUEST
-    - EVENT_AND_REQUEST
+    - String
+    - Integer
+    - Float
+    - Boolean
+    - List
+    - Structure
 info:
   contact: {}
   license:
@@ -411,17 +376,16 @@ info:
   title: Event-Deployment
   version: "0.1"
 paths:
-  /device-groups:
+  /device-groups/{id}:
     post:
       description: update event-deployments of device-group, meant for internal use
         by the process-deployment service, only admins may access this endpoint
       parameters:
-      - description: device-group
-        in: body
-        name: message
+      - description: device-group id
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/model.DeviceGroup'
+        type: string
       responses:
         "200":
           description: OK
