@@ -85,7 +85,7 @@ func testConditionalEvent(t *testing.T, testcase string) {
 		return
 	}
 
-	conf.ConditionalEventRepoMongoUrl = "mongodb://" + mongoIp + ":27017"
+	conf.MongoUrl = "mongodb://" + mongoIp + ":27017"
 
 	err = mocks.MockAuthServer(conf, ctx)
 	if err != nil {
@@ -184,13 +184,13 @@ func testConditionalEvent(t *testing.T, testcase string) {
 	}
 
 	reg := bson.NewRegistryBuilder().RegisterTypeMapEntry(bsontype.EmbeddedDocument, reflect.TypeOf(bson.M{})).Build()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.ConditionalEventRepoMongoUrl), options.Client().SetRegistry(reg))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.MongoUrl), options.Client().SetRegistry(reg))
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	cursor, err := client.Database(conf.ConditionalEventRepoMongoTable).Collection(conf.ConditionalEventRepoMongoDescCollection).Find(ctx, bson.M{})
+	cursor, err := client.Database(conf.MongoDatabase).Collection(conf.ConditionalEventRepoMongoDescCollection).Find(ctx, bson.M{})
 	if err != nil {
 		t.Error(err)
 		return

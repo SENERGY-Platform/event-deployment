@@ -37,7 +37,7 @@ type Deployment = model.Deployment
 func init() {
 	CreateCollections = append(CreateCollections, func(db *Deployments) error {
 		var err error
-		collection := db.client.Database(db.config.ConditionalEventRepoMongoTable).Collection(db.config.ConditionalEventRepoMongoDeploymentsCollection)
+		collection := db.client.Database(db.config.MongoDatabase).Collection(db.config.ConditionalEventRepoMongoDeploymentsCollection)
 		err = db.ensureIndex(collection, "deployment_id_index", "id", true, true)
 		if err != nil {
 			debug.PrintStack()
@@ -53,7 +53,7 @@ func init() {
 }
 
 func (this *Deployments) deploymentsCollection() *mongo.Collection {
-	return this.client.Database(this.config.ConditionalEventRepoMongoTable).Collection(this.config.ConditionalEventRepoMongoDeploymentsCollection)
+	return this.client.Database(this.config.MongoDatabase).Collection(this.config.ConditionalEventRepoMongoDeploymentsCollection)
 }
 
 func (this *Deployments) GetDeploymentByDeviceGroupId(deviceGroupId string) (result []Deployment, err error) {

@@ -5,7 +5,7 @@ go 1.26
 require (
 	github.com/IBM/sarama v1.43.3
 	github.com/SENERGY-Platform/device-repository/v2 v2.2.0
-	github.com/SENERGY-Platform/event-worker v1.1.0
+	github.com/SENERGY-Platform/event-worker v1.2.0
 	github.com/SENERGY-Platform/go-service-base/struct-logger v0.8.0
 	github.com/SENERGY-Platform/models/go v0.0.0-20260902082034-9c8c8bd56d88
 	github.com/SENERGY-Platform/service-commons v0.0.0-20260821114734-3e4578ac2358
@@ -15,7 +15,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.50
 	github.com/swaggo/swag v1.16.6
 	github.com/testcontainers/testcontainers-go v0.40.0
-	go.mongodb.org/mongo-driver v1.17.9
+	go.mongodb.org/mongo-driver v1.17.10
 )
 
 require (

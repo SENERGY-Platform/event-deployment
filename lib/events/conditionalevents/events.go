@@ -50,9 +50,14 @@ func New(ctx context.Context, config config.Config, devices interfaces.Devices, 
 	if err != nil {
 		return result, err
 	}
+	// event-worker's Config is a struct literal here, not loaded via its own Load(), so every field
+	// it validates or connects with must be set explicitly; there are no defaults to fall back on.
 	result.db, err = mongo.New(ctx, &sync.WaitGroup{}, configuration.Config{
-		CloudEventRepoMongoUrl:            config.ConditionalEventRepoMongoUrl,
-		CloudEventRepoMongoTable:          config.ConditionalEventRepoMongoTable,
+		MongoUrl:                          config.MongoUrl,
+		MongoUser:                         config.MongoUser,
+		MongoPassword:                     config.MongoPassword,
+		MongoAuthSource:                   config.MongoAuthSource,
+		MongoDatabase:                     config.MongoDatabase,
 		CloudEventRepoMongoDescCollection: config.ConditionalEventRepoMongoDescCollection,
 	})
 	return result, err

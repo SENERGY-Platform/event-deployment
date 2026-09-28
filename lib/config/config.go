@@ -43,8 +43,11 @@ type ConfigStruct struct {
 	DeploymentTopic  string `json:"deployment_topic"`
 	ConnectivityTest bool   `json:"connectivity_test"`
 
-	ConditionalEventRepoMongoUrl                   string `json:"conditional_event_repo_mongo_url"`
-	ConditionalEventRepoMongoTable                 string `json:"conditional_event_repo_mongo_table"`
+	MongoUrl                                       string `json:"mongo_url"`
+	MongoUser                                      string `json:"mongo_user"`
+	MongoPassword                                  string `json:"mongo_password" config:"secret"`
+	MongoAuthSource                                string `json:"mongo_auth_source"`
+	MongoDatabase                                  string `json:"mongo_database"`
 	ConditionalEventRepoMongoDescCollection        string `json:"conditional_event_repo_mongo_desc_collection"`
 	ConditionalEventRepoMongoDeploymentsCollection string `json:"conditional_event_repo_mongo_deployments_collection"`
 
@@ -88,6 +91,11 @@ func LoadConfig(location string) (config Config, err error) {
 		(&ConfigStruct{}).GetLogger().Error("could not load config file", "error", err)
 		return config, err
 	}
+	config = &ConfigStruct{
+		MongoUrl:        "mongodb://localhost:27017",
+		MongoAuthSource: "admin",
+		MongoDatabase:   "event_descriptions",
+	}
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&config)
 	if err != nil {
@@ -97,6 +105,36 @@ func LoadConfig(location string) (config Config, err error) {
 	HandleEnvironmentVars(config)
 	setDefaultHttpClient(config)
 	return config, nil
+}
+
+func isSecret(field reflect.StructField) bool {
+	return strings.Contains(field.Tag.Get("config"), "secret")
+}
+
+// plainConfig has none of ConfigStruct's methods, so formatting it does not recurse.
+type plainConfig ConfigStruct
+
+// masked returns a copy in which every non-empty field tagged config:"secret" is replaced.
+func (this ConfigStruct) masked() plainConfig {
+	v := reflect.ValueOf(&this).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		if isSecret(v.Type().Field(i)) && v.Field(i).Kind() == reflect.String && v.Field(i).String() != "" {
+			v.Field(i).SetString("***")
+		}
+	}
+	return plainConfig(this)
+}
+
+func (this ConfigStruct) MarshalJSON() ([]byte, error) {
+	return json.Marshal(this.masked())
+}
+
+func (this ConfigStruct) String() string {
+	return fmt.Sprintf("%+v", this.masked())
+}
+
+func (this ConfigStruct) GoString() string {
+	return fmt.Sprintf("%#v", this.masked())
 }
 
 var camel = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")

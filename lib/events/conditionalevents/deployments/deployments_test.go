@@ -46,7 +46,7 @@ func TestDeployments(t *testing.T) {
 		return
 	}
 
-	config.ConditionalEventRepoMongoUrl = "mongodb://" + mongoIp + ":27017"
+	config.MongoUrl = "mongodb://" + mongoIp + ":27017"
 
 	deployments, err := New(ctx, wg, config)
 	if err != nil {

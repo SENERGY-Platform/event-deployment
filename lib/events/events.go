@@ -52,7 +52,7 @@ type Handler interface {
 
 func (this *EventsFactory) New(ctx context.Context, config config.Config, devices interfaces.Devices, imports interfaces.Imports, doneProducer interfaces.Producer, m *metrics.Metrics) (result interfaces.Events, err error) {
 	handlers := []Handler{}
-	if config.ConditionalEventRepoMongoUrl != "" && config.ConditionalEventRepoMongoUrl != "-" {
+	if config.MongoUrl != "" && config.MongoUrl != "-" {
 		conditionalEvents, err := conditionalevents.New(ctx, config, devices, imports, m)
 		if err != nil {
 			return nil, err
